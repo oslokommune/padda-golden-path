@@ -1,0 +1,35 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[tool.uv]
+
+[tool.uv.workspace]
+members = [
+  "libs/padda.pipelines",
+  "libs/padda.common"
+]
+
+[project]
+name = "golden-path"
+version = "0.0.1"
+requires-python = ">=3.13"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/golden_path"]
+
+[project.optional-dependencies]
+docs = [
+  "mkdocs-material",
+  "mkdocstrings[python]",
+  "pymdown-extensions",
+]
+dev = [
+  "pytest",
+  "pytest-cov",
+  "ruff",
+  "pre-commit",
+  "mkdocs-material",
+  "mkdocstrings[python]",
+  "pymdown-extensions",
+]

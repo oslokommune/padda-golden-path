@@ -2,13 +2,6 @@ version = 1
 revision = 3
 requires-python = ">=3.13"
 
-[manifest]
-members = [
-    "common",
-    "golden-path",
-    "pipelines",
-]
-
 [[package]]
 name = "babel"
 version = "2.17.0"
@@ -111,11 +104,6 @@ sdist = { url = "https://files.pythonhosted.org/packages/d8/53/6f443c9a4a8358a93
 wheels = [
     { url = "https://files.pythonhosted.org/packages/d1/d6/3965ed04c63042e047cb6a3e6ed1a63a35087b6a609aa3a15ed8ac56c221/colorama-0.4.6-py2.py3-none-any.whl", hash = "sha256:4f1d9991f5acc0ca119f9d443620b77f9d6b33703e51011c16baf57afb285fc6", size = 25335, upload-time = "2022-10-25T02:36:20.889Z" },
 ]
-
-[[package]]
-name = "common"
-version = "0.0.1"
-source = { virtual = "libs/common" }
 
 [[package]]
 name = "coverage"
@@ -519,11 +507,6 @@ sdist = { url = "https://files.pythonhosted.org/packages/ca/bc/f35b8446f4531a7cb
 wheels = [
     { url = "https://files.pythonhosted.org/packages/cc/20/ff623b09d963f88bfde16306a54e12ee5ea43e9b597108672ff3a408aad6/pathspec-0.12.1-py3-none-any.whl", hash = "sha256:a0d503e138a4c123b27490a4f7beda6a01c6f288df0e4a8b79c7eb0dc7b4cc08", size = 31191, upload-time = "2023-12-10T22:30:43.14Z" },
 ]
-
-[[package]]
-name = "pipelines"
-version = "0.1.0"
-source = { virtual = "libs/pipelines" }
 
 [[package]]
 name = "platformdirs"

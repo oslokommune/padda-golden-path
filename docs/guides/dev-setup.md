@@ -16,13 +16,20 @@ uv --version
 ``` 
 ![uv-version](./images/uv-version.png)
 
+# Git config
+Det er satt opp en pre-commit-hook i padda-golden-path/.pre-commit-config.yaml som kjører ruff.
+
+```bash
+uvx pre-commit install
+```
+
 # Installere databricks-cli
 ```bash
 brew tap databricks/tap
 brew install databricks
 ``` 
 
-For tab-completion følg instruksjoner fra Homebrew:
+TIP: For tab-completion følg instruksjoner fra Homebrew:
 
 zsh:
 ```bash
@@ -30,13 +37,6 @@ echo fpath+=$(brew --prefix)/share/zsh/site-functions >> ~/.zshrc
 echo 'autoload -Uz compinit && compinit' >> ~/.zshrc
 zsh
 ``` 
-
-bash:
-```bash
-echo fpath+=$(brew --prefix)/share/zsh/site-functions >> ~/.zshrc
-echo 'autoload -Uz compinit && compinit' >> ~/.zshrc
-bash
-```
 
 Sjekk med:
 
@@ -46,9 +46,14 @@ databricks -v
 ![databricks version](./images/databricks-version.png)
 
 ## Konfigurere databricks-cli
-Det er laget en funksjon 
-databricks auth login --host <account-console-url> --account-id <account-id>
+
+Kjør igjennom guiden for konfigurasjon:
+```bash
+databricks configure
+```
+Verdier ligger i 1password, ta kontakt med dataspeilet dersom du ikke har tilgang.
+
+
 
 # vscode spesifikke ting
 Det er satt opp en settings.json og rekommenderte extensions i .vscode
-

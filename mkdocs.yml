@@ -1,19 +1,75 @@
 site_name: Padda Golden Path
 site_description: Golden paths, Databricks bundles, and shared libs
 site_url: https://oslokommune.github.io/padda-golden-path/
-repo_name: oslokommune/padda-golden-path
 repo_url: https://github.com/oslokommune/padda-golden-path
+edit_uri: edit/main/docs/
+
+copyright: >
+  Made with ❤️ by Oslo Origo
+
+docs_dir: ./docs
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            docstring_style: google
+
 theme:
   name: material
-  features:
-    - navigation.instant
-    - navigation.tracking
-    - content.code.copy
-    - toc.follow
-    - search.suggest
-    - search.highlight
+
+  logo: assets/oslologo.svg
+  favicon: assets/favicon.ico
+
   palette:
-    - scheme: default
+    - scheme: oslo
+      toggle:
+        icon: material/brightness-auto
+        name: Switch to light mode
+
+  icon:
+    repo: fontawesome/brands/github
+    edit: material/pencil
+    admonition:
+      example: material/ship-wheel
+
+  features:
+    - content.action.edit
+    - content.code.annotate
+    - content.code.copy
+    - content.tabs.link
+    - content.tooltips
+    - navigation.footer
+    - navigation.indexes
+    - navigation.instant
+    - navigation.tabs
+    - navigation.tracking
+
+extra_css:
+  - stylesheets/admonitions.css
+  - stylesheets/extra.css
+  - stylesheets/punkt.css
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.keys
+  - attr_list
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/oslokommune
+
+    - icon: fontawesome/brands/linkedin
+      link: https://www.linkedin.com/company/osloorigo
+
+    - icon: fontawesome/solid/flask
+      link: https://labs.oslo.kommune.no/
+
 nav:
   - Home: index.md
   - Golden Paths:
@@ -22,15 +78,4 @@ nav:
   - Guides:
       - Developer setup: guides/dev-setup.md
       - uv Workspace: guides/uv-workspace-howto.md
-plugins:
-  - search
-  - mkdocstrings:
-      handlers:
-        python:
-          options:
-            docstring_style: google
-markdown_extensions:
-  - admonition
-  - pymdownx.details
-  - pymdownx.superfences
 

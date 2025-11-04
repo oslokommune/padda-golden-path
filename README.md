@@ -19,3 +19,15 @@ Kjør Ruff lokalt:
 uvx ruff check . --fix
 uvx ruff format .
 ```
+
+## Test
+pytest er brukt 
+
+```bash
+uv run pytest
+```
+
+for coverage rapport:
+```bash
+uv run pytest --cov=libs
+```

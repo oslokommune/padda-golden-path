@@ -11,6 +11,9 @@ docs_dir: ./docs
 
 plugins:
   - search
+  - gen-files:
+      scripts:
+        - mkdocs_extension/generate_guides_index.py
   - mkdocstrings:
       handlers:
         python:
@@ -76,6 +79,7 @@ nav:
       - Databricks Bundles: golden-paths/databricks-bundles.md
       - Generic Pipelines: golden-paths/generic-pipelines.md
   - Guides:
-      - Developer setup: guides/dev-setup.md
-      - uv Workspace: guides/uv-workspace-howto.md
-
+      - Guider: guides/index
+      - Developer:
+          - Dev Setup: guides/developer/dev-setup
+          - Uv Workspace Howto: guides/developer/uv-workspace-howto

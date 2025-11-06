@@ -14,7 +14,7 @@ Sjekk med:
 ```bash
 uv --version
 ``` 
-![uv-version](./images/uv-version.png)
+![uv-version](../images/uv-version.png)
 
 # Git config
 Det er satt opp en pre-commit-hook i padda-golden-path/.pre-commit-config.yaml som kjører ruff.
@@ -43,7 +43,7 @@ Sjekk med:
 ```bash
 databricks -v
 ``` 
-![databricks version](./images/databricks-version.png)
+![databricks version](../images/databricks-version.png)
 
 ## Konfigurere databricks-cli
 

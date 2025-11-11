@@ -1,0 +1,85 @@
+variables:
+  catalog:
+    default: origo_felles_dev_green # Change to your desired catalog
+  schema:
+    default: api_ingest # Change to your desired schema
+  api_base_url:
+    default: "https://test.io.web.oslo.kommune.no"
+  api_endpoint:
+    default: "/v3/salaries/current"
+  alert_notification_id:
+    default: "change-me-to-your-notification-id"  # Change to your desired notification ID
+  job_node_type:
+    default: r5.large
+  job_spark_version:
+    default: 15.4.x-scala2.12
+  job_num_workers:
+    default: 1
+
+resources:
+  jobs:
+    api_ingest_job:
+      name: "API Ingest Job"
+      timeout_seconds: 600  # Fail the run if it exceeds 10 minutes
+      max_concurrent_runs: 1
+      webhook_notifications:
+        on_failure:
+          - id: ${var.alert_notification_id}
+      notification_settings:
+        no_alert_for_skipped_runs: true
+        no_alert_for_canceled_runs: true
+      tasks:
+        - task_key: setup
+          job_cluster_key: ingest_job_cluster
+          timeout_seconds: 600
+          max_retries: 1
+          retry_on_timeout: true
+          notebook_task:
+            notebook_path: ./notebooks/00_setup.py
+            base_parameters:
+              catalog: ${var.catalog}
+              schema: ${var.schema}
+        - task_key: api_ingest
+          job_cluster_key: ingest_job_cluster
+          depends_on:
+            - task_key: setup
+          timeout_seconds: 1800
+          max_retries: 2
+          retry_on_timeout: true
+          notebook_task:
+            notebook_path: ./notebooks/10_api_ingest.py
+            base_parameters:
+              catalog: ${var.catalog}
+              schema: ${var.schema}
+              api_base_url: ${var.api_base_url}
+              api_endpoint: ${var.api_endpoint}
+      job_clusters:
+        - job_cluster_key: ingest_job_cluster
+          new_cluster:
+            spark_version: ${var.job_spark_version}
+            node_type_id: ${var.job_node_type}
+            num_workers: ${var.job_num_workers}
+            aws_attributes:
+              ebs_volume_count: 1
+              ebs_volume_size: 100
+              ebs_volume_type: GENERAL_PURPOSE_SSD
+
+targets:
+  dev:
+    # The default target uses 'mode: development' to create a development copy.
+    # - Deployed resources get prefixed with '[dev my_user_name]'
+    # - Any job schedules and triggers are paused by default.
+    # See also https://docs.databricks.com/dev-tools/bundles/deployment-modes.html.
+    mode: development
+    default: true
+    workspace:
+      host: https://dbc-54c1ed0f-224b.cloud.databricks.com
+
+  prod:
+    mode: production
+    workspace:
+      host: https://dbc-54c1ed0f-224b.cloud.databricks.com
+      root_path: /Workspace/Users/CHANGEME/.bundle/${bundle.name}/${bundle.target}
+    permissions:
+      - user_name: CHANGEME
+        level: CAN_MANAGE

@@ -1,0 +1,8 @@
+bundle:
+  name: example-api-ingest
+
+include:
+  - databricks/bundles/example_api_ingest/bundle.yml
+  - databricks/bundles/example_api_ingest/resources/*.yaml
+
+# Add the rest of bundles here when they are created

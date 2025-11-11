@@ -27,11 +27,11 @@ nav:
   - Databricks Bundles: golden-paths/databricks-bundles.md
   - Generic Pipelines: golden-paths/generic-pipelines.md
 - Guides:
-  - Guider: guides/index
+  - Guider: guides/index.md
   - Developer:
-    - Dev Setup: guides/developer/dev-setup
-    - Secrets: guides/developer/secrets
-    - Uv Workspace Howto: guides/developer/uv-workspace-howto
+    - Dev Setup: guides/developer/dev-setup.md
+    - Secrets: guides/developer/secrets.md
+    - Uv Workspace Howto: guides/developer/uv-workspace-howto.md
 plugins:
 - search
 - gen-files:

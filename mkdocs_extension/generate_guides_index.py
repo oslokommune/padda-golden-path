@@ -49,7 +49,7 @@ subdirs = [d for d in guides_dir.iterdir() if d.is_dir() and d.name not in exclu
 subdirs.sort()
 
 # Build navigation structure for guides
-guides_nav = [{"Guider": "guides/index"}]
+guides_nav = [{"Guider": "guides/index.md"}]
 
 for subdir in subdirs:
     # Get directory name (capitalize first letter)
@@ -69,7 +69,7 @@ for subdir in subdirs:
             # Create relative path for markdown links (from guides directory)
             rel_path = f"{subdir.name}/{md_file.name}"
             # Create full path for navigation
-            nav_path = f"guides/{subdir.name}/{md_file.stem}"
+            nav_path = f"guides/{subdir.name}/{md_file.stem}.md"
             content_lines.append(f"- [{file_name}]({rel_path})")
             subdir_nav_items.append({file_name: nav_path})
 

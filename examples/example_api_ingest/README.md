@@ -12,6 +12,15 @@ Eksemplet dekker:
 
 ## Bruk
 
+### Bygg wheel
+
+Bundle'n forventer at `dist/` inneholder en fersk wheel før du deployer. Hver gang du endrer kode i `src/`, kjør:
+
+```bash
+cd examples/example_api_ingest
+uv build
+```
+
 ### Deploy
 
 ```bash
@@ -39,6 +48,7 @@ Bundle'n bruker følgende variabler (definert i `bundle.yml`):
 - `api_base_url`: Basis-URL for API-et (standard: `https://test.io.web.oslo.kommune.no`)
 - `api_endpoint`: Selve endepunktet (standard: `/v3/salaries/current`)
 - `alert_notification_id`: ID til en Databricks notification destination som sender varsler (f.eks. til Slack) ved feil (standard: `replace-with-notification-destination-id`)
+- `job_cluster_node_type`: Node-typen som brukes for den lille single-node jobbklyngen (standard: `m5.large`)
 
 ### Overstyre variabler
 
@@ -48,7 +58,8 @@ Du kan sette verdier ved deploy:
 databricks bundle deploy \
   -v api_base_url=https://api.example.com \
   -v api_endpoint=/v1/data \
-  -v alert_notification_id=00000000-0000-0000-0000-000000000000
+  -v alert_notification_id=00000000-0000-0000-0000-000000000000 \
+  -v job_cluster_node_type=m5.large
 ```
 
 ## Overvåking og varsling

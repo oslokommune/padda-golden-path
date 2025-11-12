@@ -11,8 +11,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 DEFAULT_CATALOG = "origo_felles_dev_green"
-DEFAULT_SCHEMA = "api_ingest"
-BRONZE_TABLE_NAME = "bronze_api_data"
+DEFAULT_SCHEMA = "bronze_api_ingest"
+BRONZE_TABLE_NAME = "api_data"
 DDL_RESTRICTED_CATALOGS = {DEFAULT_CATALOG}
 
 if "dbutils" not in globals():  # pragma: no cover - stub for local linting

@@ -9,8 +9,6 @@ variables:
     default: "/v3/salaries/current"
   alert_notification_id:
     default: "ab3a5764-aab1-48b5-aab4-5c0f5b63acae"  # Change to your desired notification ID
-  job_cluster_node_type:
-    default: "m5.large"  # Cheapest supported general-purpose node type; override if needed
 
 resources:
   jobs:
@@ -24,28 +22,12 @@ resources:
       notification_settings:
         no_alert_for_skipped_runs: false
         no_alert_for_canceled_runs: false
-      job_clusters:
-        - job_cluster_key: single_node_job_cluster
-          new_cluster:
-            spark_version: "15.4.x-scala2.12"
-            node_type_id: ${var.job_cluster_node_type}
-            num_workers: 0
-            spark_conf:
-              spark.databricks.cluster.profile: singleNode
-              spark.master: local[*]
-            custom_tags:
-              ResourceClass: SingleNode
-            autotermination_minutes: 15
-            enable_elastic_disk: true
-            runtime_engine: STANDARD
       tasks:
         - task_key: setup
           timeout_seconds: 600
           max_retries: 1
           retry_on_timeout: true
-          job_cluster_key: single_node_job_cluster
-          libraries:
-          - whl: dist/*.whl
+          environment_key: default
           python_wheel_task:
             package_name: api_ingest
             entry_point: setup
@@ -60,7 +42,7 @@ resources:
           timeout_seconds: 1800
           max_retries: 2
           retry_on_timeout: true
-          job_cluster_key: single_node_job_cluster
+          environment_key: default
           python_wheel_task:
             package_name: api_ingest
             entry_point: ingest
@@ -73,6 +55,13 @@ resources:
               - ${var.api_base_url}
               - "--api-endpoint"
               - ${var.api_endpoint}
+      # A list of task execution environment specifications that can be referenced by tasks of this job.
+      environments:
+        - environment_key: default
+          spec:
+            environment_version: "17.3"
+            dependencies:
+              - dist/*.whl
               
 targets:
   dev:

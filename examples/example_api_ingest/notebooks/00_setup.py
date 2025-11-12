@@ -1,14 +1,25 @@
+from __future__ import annotations
+
+from _common import (  # type: ignore[import-not-found]
+    DEFAULT_CATALOG,
+    DEFAULT_SCHEMA,
+    allows_schema_ddl,
+    build_table_context,
+    dbutils,
+    spark,
+)
+
 # Databricks notebook source
 # MAGIC %md
 # MAGIC # Setup: Create Database Schema
-# MAGIC 
+# MAGIC
 # MAGIC This notebook sets up the database schema for API ingestion.
 
 # COMMAND ----------
 
 # MAGIC %md
 # MAGIC ## Parameters
-# MAGIC 
+# MAGIC
 # MAGIC - `catalog`: The catalog name (default: origo_felles_dev_green)
 # MAGIC - `schema`: The schema/database name (default: api_ingest)
 

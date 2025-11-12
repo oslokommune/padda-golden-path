@@ -48,6 +48,6 @@ dev = [
 [tool.pytest.ini_options]
 pythonpath = [
   "src",
-  "databricks/bundles/example_api_ingest/src",
-  "databricks/bundles/example_etl/src",
+  "examples/api_ingest/src",
+  "examples/etl/src",
 ]

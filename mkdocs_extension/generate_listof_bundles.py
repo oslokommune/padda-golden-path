@@ -35,7 +35,7 @@ except ImportError:
 
 
 docs_dir = Path("docs")
-bundles_dir = Path("databricks/bundles")
+bundles_dir = Path("examples")
 index_doc_path = "golden-paths/databricks-bundles.md"
 mkdocs_file = Path("mkdocs.yml")
 
@@ -59,6 +59,8 @@ def extract_heading(markdown: str) -> str | None:
 def iter_bundle_readmes(paths: Iterable[Path]):
     for subdir in sorted(paths):
         if not subdir.is_dir():
+            continue
+        if not (subdir / "bundle.yml").exists():
             continue
         readme = subdir / "README.md"
         if not readme.exists():

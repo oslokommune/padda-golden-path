@@ -1,5 +1,5 @@
 [project]
-name = "example_api_ingest"
+name = "api_ingest"
 version = "0.1.0"
 authors = [{ name = "fredrik.lovejord@origo.oslo.kommune.no" }]
 requires-python = ">= 3.11"

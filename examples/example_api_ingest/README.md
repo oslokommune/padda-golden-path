@@ -138,11 +138,11 @@ Output
 
 Name                                                               Stmts   Miss  Cover
 --------------------------------------------------------------------------------------
-databricks/bundles/example_api_ingest/src/api_ingest/__init__.py       2      0   100%
-databricks/bundles/example_api_ingest/src/api_ingest/client.py        43      3    93%
-databricks/bundles/example_api_ingest/src/api_ingest/common.py        30      1    97%
-databricks/bundles/example_api_ingest/src/api_ingest/ingest.py        62     16    74%
-databricks/bundles/example_api_ingest/src/api_ingest/setup.py         40     14    65%
+examples/example_api_ingest/src/api_ingest/__init__.py       2      0   100%
+examples/example_api_ingest/src/api_ingest/client.py        43      3    93%
+examples/example_api_ingest/src/api_ingest/common.py        30      1    97%
+examples/example_api_ingest/src/api_ingest/ingest.py        62     16    74%
+examples/example_api_ingest/src/api_ingest/setup.py         40     14    65%
 --------------------------------------------------------------------------------------
 TOTAL                                                                177     34    81%
 ```

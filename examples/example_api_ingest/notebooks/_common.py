@@ -1,7 +1,7 @@
 # Databricks notebook source
 # MAGIC %md
 # MAGIC # Common Helpers
-# MAGIC 
+# MAGIC
 # MAGIC Reusable utilities shared across API ingestion notebooks.
 
 # COMMAND ----------
@@ -14,6 +14,30 @@ DEFAULT_CATALOG = "origo_felles_dev_green"
 DEFAULT_SCHEMA = "api_ingest"
 BRONZE_TABLE_NAME = "bronze_api_data"
 DDL_RESTRICTED_CATALOGS = {DEFAULT_CATALOG}
+
+if "dbutils" not in globals():  # pragma: no cover - stub for local linting
+
+    class _WidgetStubs:
+        def text(self, *_, **__):  # pylint: disable=unused-argument
+            return None
+
+        def get(self, *_args, **_kwargs):
+            return ""
+
+    class _DbutilsStub:
+        widgets = _WidgetStubs()
+
+    dbutils = _DbutilsStub()  # type: ignore[assignment]
+
+
+if "spark" not in globals():  # pragma: no cover - stub for local linting
+    spark = None  # type: ignore[assignment]
+
+
+if "display" not in globals():  # pragma: no cover - stub for local linting
+
+    def display(value):
+        print(value)
 
 
 def quote_identifier(identifier: str) -> str:
@@ -71,6 +95,6 @@ def allows_schema_ddl(catalog: str) -> bool:
     Return True if notebooks should attempt to create catalogs/schemas automatically.
 
     Some shared catalogs (for example, DEFAULT_CATALOG) disallow CREATE CATALOG/SCHEMA
-    statements for regular users. Skip DDL in those catalogs to avoid unnecessary retries.
+    statements for regular users. Skip DDL there to avoid unnecessary retries.
     """
     return catalog not in DDL_RESTRICTED_CATALOGS

@@ -9,12 +9,6 @@ variables:
     default: "/v3/salaries/current"
   alert_notification_id:
     default: "replace-with-notification-destination-id"  # Change to your desired notification ID
-  job_node_type:
-    default: r5.large
-  job_spark_version:
-    default: 15.4.x-scala2.12
-  job_num_workers:
-    default: 1
 
 resources:
   jobs:
@@ -30,39 +24,44 @@ resources:
         no_alert_for_canceled_runs: false
       tasks:
         - task_key: setup
-          job_cluster_key: ingest_job_cluster
           timeout_seconds: 600
           max_retries: 1
           retry_on_timeout: true
-          notebook_task:
-            notebook_path: ./notebooks/00_setup.py
-            base_parameters:
-              catalog: ${var.catalog}
-              schema: ${var.schema}
+          environment_key: default
+          python_wheel_task:
+            package_name: example_api_ingest
+            entry_point: setup
+            parameters:
+              - "--catalog"
+              - ${var.catalog}
+              - "--schema"
+              - ${var.schema}
         - task_key: api_ingest
-          job_cluster_key: ingest_job_cluster
           depends_on:
             - task_key: setup
           timeout_seconds: 1800
           max_retries: 2
           retry_on_timeout: true
-          notebook_task:
-            notebook_path: ./notebooks/10_api_ingest.py
-            base_parameters:
-              catalog: ${var.catalog}
-              schema: ${var.schema}
-              api_base_url: ${var.api_base_url}
-              api_endpoint: ${var.api_endpoint}
-      job_clusters:
-        - job_cluster_key: ingest_job_cluster
-          new_cluster:
-            spark_version: ${var.job_spark_version}
-            node_type_id: ${var.job_node_type}
-            num_workers: ${var.job_num_workers}
-            aws_attributes:
-              ebs_volume_count: 1
-              ebs_volume_size: 100
-              ebs_volume_type: GENERAL_PURPOSE_SSD
+          environment_key: default
+          python_wheel_task:
+            package_name: example_api_ingest
+            entry_point: ingest
+            parameters:
+              - "--catalog"
+              - ${var.catalog}
+              - "--schema"
+              - ${var.schema}
+              - "--api-base-url"
+              - ${var.api_base_url}
+              - "--api-endpoint"
+              - ${var.api_endpoint}
+      # A list of task execution environment specifications that can be referenced by tasks of this job.
+      environments:
+        - environment_key: default
+          spec:
+            environment_version: "17.3"
+            dependencies:
+              - dist/*.whl
 
 targets:
   dev:

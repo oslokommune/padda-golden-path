@@ -12,6 +12,10 @@ dev = [
     "pytest",
 ]
 
+[project.scripts]
+setup = "api_ingest.setup:main"
+ingest = "api_ingest.ingest:main"
+
 [tool.pytest.ini_options]
 pythonpath = "src"
 testpaths = [

@@ -126,6 +126,26 @@ Les hemmeligheter fra Databricks:
 api_token = dbutils.secrets.get(scope="api-secrets", key="api_token")
 ```
 
+## Test
+For å kjøre test og få test coverage rapport:
+
+```bash
+uv run pytest --cov api-ingest
+```
+
+Output
+```bash
+
+Name                                                               Stmts   Miss  Cover
+--------------------------------------------------------------------------------------
+databricks/bundles/example_api_ingest/src/api_ingest/__init__.py       2      0   100%
+databricks/bundles/example_api_ingest/src/api_ingest/client.py        43      3    93%
+databricks/bundles/example_api_ingest/src/api_ingest/common.py        30      1    97%
+databricks/bundles/example_api_ingest/src/api_ingest/ingest.py        62     16    74%
+databricks/bundles/example_api_ingest/src/api_ingest/setup.py         40     14    65%
+--------------------------------------------------------------------------------------
+TOTAL                                                                177     34    81%
+```
 ## Eksempel-API
 
 Denne Bundle'n peker mot `https://test.io.web.oslo.kommune.no/v3/salaries/current` som eksempel. Bytt til ditt eget API ved å endre variablene i `bundle.yml`.

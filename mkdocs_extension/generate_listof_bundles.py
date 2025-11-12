@@ -110,7 +110,7 @@ content_lines = [
 for title, target in bundle_entries:
     rel_path = Path(target).relative_to(Path(index_doc_path).parent)
     content_lines.append(f"## {title}")
-    content_lines.append(f"- [Les dokumentasjon]({rel_path.as_posix()})")
+    content_lines.append(f"- [Detaljert dokumentasjon]({rel_path.as_posix()})")
     content_lines.append("")
 
 write_doc(index_doc_path, "\n".join(content_lines).rstrip() + "\n")

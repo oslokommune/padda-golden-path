@@ -24,7 +24,9 @@ markdown_extensions:
 nav:
 - Home: index.md
 - Golden Paths:
-  - Databricks Bundles: golden-paths/databricks-bundles.md
+  - Databricks Bundles:
+    - Oversikt: golden-paths/databricks-bundles.md
+    - API Ingestion Example - Databricks Asset Bundle: golden-paths/databricks-bundles/example_api_ingest.md
   - Generic Pipelines: golden-paths/generic-pipelines.md
 - Guides:
   - Guider: guides/index.md
@@ -37,6 +39,7 @@ plugins:
 - gen-files:
     scripts:
     - mkdocs_extension/generate_guides_index.py
+    - mkdocs_extension/generate_listof_bundles.py
 - mkdocstrings:
     handlers:
       python:

@@ -1,16 +1,16 @@
 # API Ingestion Example - Databricks Asset Bundle
 
-This bundle demonstrates how to ingest data from an external API with DAB (Databricks Asset Bundles).
+Denne bundle'n viser hvordan vi kan hente data fra et eksternt API ved hjelp av DAB (Databricks Asset Bundles).
 
-## Overview
+## Oversikt
 
-This example shows:
-- How to set up a database schema for API data
-- How to fetch data from a REST API with retry logic
-- How to store raw API responses in a bronze Delta table
-- Error handling and logging
+Eksemplet dekker:
+- hvordan du oppretter et database-skjema for API-data
+- hvordan du henter data fra et REST-API med retry-logikk
+- hvordan du lagrer rå API-response i en bronse-Delta-tabell
+- feilhåndtering og logging
 
-## Usage
+## Bruk
 
 ### Deploy
 
@@ -18,31 +18,31 @@ This example shows:
 databricks bundle deploy
 ```
 
-### Run the Job
+### Kjør jobben
 
 ```bash
 databricks bundle run api_ingest_job
 ```
 
-### Run a Single Notebook
+### Kjør ett enkelt notat
 
 ```bash
 databricks bundle run api_ingest_job -t dev
 ```
 
-## Configuration
+## Konfigurasjon
 
-The bundle uses the following variables (defined in `bundle.yml`):
+Bundle'n bruker følgende variabler (definert i `bundle.yml`):
 
-- `catalog`: The catalog name (default: `origo_felles`)
-- `schema`: The schema/database name (default: `api_ingest`)
-- `api_base_url`: Base URL of the API (default: `https://test.io.web.oslo.kommune.no`)
-- `api_endpoint`: API endpoint path (default: `/v3/salaries/current`)
-- `alert_notification_id`: ID of a Databricks notification destination wired to Slack for on-failure alerts (default: `replace-with-notification-destination-id`)
+- `catalog`: Navnet på katalogen (standard: `origo_felles`)
+- `schema`: Navnet på schema/databasen (standard: `api_ingest`)
+- `api_base_url`: Basis-URL for API-et (standard: `https://test.io.web.oslo.kommune.no`)
+- `api_endpoint`: Selve endepunktet (standard: `/v3/salaries/current`)
+- `alert_notification_id`: ID til en Databricks notification destination som sender varsler (f.eks. til Slack) ved feil (standard: `replace-with-notification-destination-id`)
 
-### Override Variables
+### Overstyre variabler
 
-You can override variables when deploying:
+Du kan sette verdier ved deploy:
 
 ```bash
 databricks bundle deploy \
@@ -51,16 +51,16 @@ databricks bundle deploy \
   -v alert_notification_id=00000000-0000-0000-0000-000000000000
 ```
 
-## Monitoring and Alerting
+## Overvåking og varsling
 
-- Job runs are capped at 60 minutes, with per-task timeouts (`setup`: 10 minutes, `api_ingest`: 30 minutes) and retry policies to auto-recover from transient issues.
-- Webhook notifications fire whenever a job run fails. Point `alert_notification_id` at a Databricks notification destination that posts to your Slack/Teams channel.
-- Skipped or canceled runs do not send alerts; adjust `notification_settings` in `bundle.yml` if you want broader coverage.
+- Jobben har en global timeout på 10 minutter, og hver oppgave har egne tidsgrenser (`setup`: 10 minutter, `api_ingest`: 30 minutter) med retry-strategi for å fange opp forbigående feil.
+- Webhook-varsler går ut når en kjøring feiler. Pek `alert_notification_id` til en Databricks notification destination som poster til kanalen din.
+- Hopper eller avbrutte kjøringer utløser også varsler (styrt av `notification_settings` i `bundle.yml`).
 
-### Slack Alerts
+### Slack-varsler
 
-1. Store your Slack incoming webhook URL in a Databricks secret scope (for example, `dataspeilet/slack-webhook`).
-2. Create a notification destination (admin only) that references that secret:
+1. Lagre Slack-webhooken i en Databricks secret scope (for eksempel `dataspeilet/slack-webhook`).
+2. Opprett en notification destination (krever admin) som peker til hemmeligheten:
    ```bash
    databricks notification-destinations create --json '{
      "display_name": "slack-dev-alerts",
@@ -71,79 +71,61 @@ databricks bundle deploy \
      }
    }'
    ```
-3. Retrieve its ID with `databricks notification-destinations list` and set `alert_notification_id` to that value before deploying the bundle.
+3. Hent ID-en med `databricks notification-destinations list` og sett `alert_notification_id` før du deployer.
 
-## API Client Features
+## API-klient
 
-The included `APIClient` class provides:
+`APIClient`-klassen tilbyr:
 
-- **Retry Logic**: Automatic retries with exponential backoff
-- **Error Handling**: Comprehensive error handling and logging
-- **Pagination Support**: Built-in support for paginated APIs
-- **Configurable Headers**: Easy header customization
+- **Retry-logikk** med eksponentiell backoff
+- **Feilhåndtering** og logging
+- **Paginering** rett fra boksen
+- **Konfigurerbare headers** for spesialtilpasninger
 
-### Example Usage in Notebooks
+### Eksempelbruk
 
 ```python
 from api_ingest.client import APIClient
 
-# Initialize client
 client = APIClient(
     base_url="https://api.example.com",
     timeout=30,
-    max_retries=3
+    max_retries=3,
 )
 
-# Fetch data
-response = client.fetch("/endpoint")
-
-# Fetch paginated data
-response = client.fetch_paginated("/endpoint", max_pages=10)
+resultat = client.fetch("/endpoint")
 ```
 
-## Customization
+## Tilpasning
 
-### Using a Different API
+### Bytte API
 
-1. Update the `api_base_url` and `api_endpoint` variables in `bundle.yml`
-2. Modify the API client in `10_api_ingest.py` if you need custom authentication or headers
-3. Adjust the bronze table schema if the API response structure differs
+1. Oppdater `api_base_url` og `api_endpoint` i `bundle.yml`.
+2. Endre klienten i `10_api_ingest.py` om du trenger egen autentisering eller tilpassede headers.
+3. Juster bronse-tabellen hvis API-responsen ser annerledes ut.
 
-### Adding Authentication
-
-To add API authentication, modify the `fetch_api_data` function in `10_api_ingest.py`:
+### Legge til autentisering
 
 ```python
 headers = {
     "Authorization": f"Bearer {api_token}",
-    "Content-Type": "application/json"
+    "Content-Type": "application/json",
 }
 api_response = fetch_api_data(
     base_url=api_base_url,
     endpoint=api_endpoint,
-    headers=headers
+    headers=headers,
 )
 ```
 
-### Using Secrets
+### Hemmeligheter
 
-For sensitive data like API keys, use Databricks secrets:
+Les hemmeligheter fra Databricks:
 
 ```python
 api_token = dbutils.secrets.get(scope="api-secrets", key="api_token")
 ```
 
-## Next Steps
+## Eksempel-API
 
-After ingesting data into the bronze layer, you can:
-
-1. Create a silver layer notebook to clean and transform the data
-2. Create a gold layer notebook for aggregated/curated data
-3. Set up scheduled jobs for regular API ingestion
-4. Add monitoring and alerting for failed ingestions
-
-## Example API
-
-This bundle targets the salary API at `https://test.io.web.oslo.kommune.no/v3/salaries/current` as an example source.
-
-Replace it with your actual API endpoint by updating the variables in `bundle.yml`.
+Denne Bundle'n peker mot `https://test.io.web.oslo.kommune.no/v3/salaries/current` som eksempel. Bytt til ditt eget API ved å endre variablene i `bundle.yml`.

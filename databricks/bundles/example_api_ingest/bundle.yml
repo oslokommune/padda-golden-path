@@ -8,7 +8,7 @@ variables:
   api_endpoint:
     default: "/v3/salaries/current"
   alert_notification_id:
-    default: "change-me-to-your-notification-id"  # Change to your desired notification ID
+    default: "replace-with-notification-destination-id"  # Change to your desired notification ID
   job_node_type:
     default: r5.large
   job_spark_version:
@@ -26,8 +26,8 @@ resources:
         on_failure:
           - id: ${var.alert_notification_id}
       notification_settings:
-        no_alert_for_skipped_runs: true
-        no_alert_for_canceled_runs: true
+        no_alert_for_skipped_runs: false
+        no_alert_for_canceled_runs: false
       tasks:
         - task_key: setup
           job_cluster_key: ingest_job_cluster

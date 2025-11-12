@@ -59,7 +59,7 @@ def fetch_api_data(
     endpoint: str,
     headers: Optional[Dict[str, str]] = None,
     params: Optional[Dict[str, Any]] = None,
-    timeout: int = 30,
+    timeout: int = 5,
     max_retries: int = 3,
 ) -> Dict[str, Any]:
     """

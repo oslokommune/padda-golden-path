@@ -1,7 +1,6 @@
-# Intro
+# Databricks Bundles
 
-Det er laget templates for vanlige DABs de er definert her:
+Oversikt over eksempelbundler tilgjengelig i dette repoet.
 
-# Liste over tilgjengelig templates og bruksområde
-
-#
+## API Ingestion Example - Databricks Asset Bundle
+- [Les dokumentasjon](databricks-bundles/example_api_ingest.md)

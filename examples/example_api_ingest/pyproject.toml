@@ -2,9 +2,9 @@
 name = "api_ingest"
 version = "0.1.0"
 authors = [{ name = "dataspeilet@origo.oslo.kommune.no" }]
-requires-python = ">= 3.11"
+requires-python = ">= 3.14"
 dependencies = [
-    "requests>=2.32",
+    "requests>=2.31,<2.33",
 ]
 
 [project.optional-dependencies]

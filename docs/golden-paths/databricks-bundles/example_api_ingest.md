@@ -20,7 +20,7 @@ Bundle'n forventer at `dist/` inneholder en fersk wheel før du deployer. Hver g
 
 ```bash
 cd examples/example_api_ingest
-uv build
+uv build --wheel
 ```
 
 ### Deploy
@@ -71,6 +71,8 @@ databricks bundle deploy \
 - Hopper eller avbrutte kjøringer utløser også varsler (styrt av `notification_settings` i `bundle.yml`).
 
 ### Slack-varsler
+
+> Merk: Slack-varsler er midlertidig deaktivert (kommentert ut) i `bundle.yml`. Følg stegene under når du vil aktivere dem igjen.
 
 1. Lagre Slack-webhooken i en Databricks secret scope (for eksempel `dataspeilet/slack-webhook`).
 2. Opprett en notification destination (krever admin) som peker til hemmeligheten:

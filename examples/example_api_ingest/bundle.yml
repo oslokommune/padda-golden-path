@@ -16,18 +16,19 @@ resources:
   jobs:
     api_ingest_job:
       name: "API Ingest Job"
-      timeout_seconds: 600  # Fail the run if it exceeds 10 minutes
+      timeout_seconds: 3000  # Fail the run if it exceeds 50 minutes
       max_concurrent_runs: 1
-      webhook_notifications:
-        on_failure:
-          - id: ${var.alert_notification_id}
-      notification_settings:
-        no_alert_for_skipped_runs: false
-        no_alert_for_canceled_runs: false
+      # Slack/webhook notifications temporarily disabled; uncomment when alerting is configured.
+      # webhook_notifications:
+      #   on_failure:
+      #     - id: ${var.alert_notification_id}
+      # notification_settings:
+      #   no_alert_for_skipped_runs: false
+      #   no_alert_for_canceled_runs: false
       job_clusters:
         - job_cluster_key: single_node_job_cluster
           new_cluster:
-            spark_version: "15.4.x-scala2.12"
+            spark_version: "17.3.x-scala2.13" # databricks clusters spark-versions --profile <profile>
             node_type_id: ${var.job_cluster_node_type}
             num_workers: 0
             spark_conf:
@@ -40,7 +41,7 @@ resources:
             runtime_engine: STANDARD
       tasks:
         - task_key: setup
-          timeout_seconds: 600
+          timeout_seconds: 1200
           max_retries: 1
           retry_on_timeout: true
           job_cluster_key: single_node_job_cluster

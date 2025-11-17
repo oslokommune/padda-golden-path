@@ -18,7 +18,7 @@ Bundle'n forventer at `dist/` inneholder en fersk wheel før du deployer. Hver g
 
 ```bash
 cd examples/example_api_ingest
-uv build
+uv build --wheel
 ```
 
 ### Deploy
@@ -50,6 +50,8 @@ Bundle'n bruker følgende variabler (definert i `bundle.yml`):
 - `alert_notification_id`: ID til en Databricks notification destination som sender varsler (f.eks. til Slack) ved feil (standard: `replace-with-notification-destination-id`)
 - `job_cluster_node_type`: Node-typen som brukes for den lille single-node jobbklyngen (standard: `m5.large`)
 
+> Jobbklyngen kjører på Databricks Runtime 22.1.x-scala2.12 (Python 3.14). Runtime-en leveres allerede med `requests`, derfor er prosjektet fortsatt låst til `requests>=2.31,<2.33` slik at wheel-installasjonen ikke prøver å laste ned avhengigheter fra internett (f.eks. i SRA-miljøer).
+
 ### Overstyre variabler
 
 Du kan sette verdier ved deploy:
@@ -69,6 +71,8 @@ databricks bundle deploy \
 - Hopper eller avbrutte kjøringer utløser også varsler (styrt av `notification_settings` i `bundle.yml`).
 
 ### Slack-varsler
+
+> Merk: Slack-varsler er midlertidig deaktivert (kommentert ut) i `bundle.yml`. Følg stegene under når du vil aktivere dem igjen.
 
 1. Lagre Slack-webhooken i en Databricks secret scope (for eksempel `dataspeilet/slack-webhook`).
 2. Opprett en notification destination (krever admin) som peker til hemmeligheten:

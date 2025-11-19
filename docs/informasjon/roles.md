@@ -10,8 +10,6 @@ Teknisk flyt:
 4. Databricks workspace mapper gruppene til Unity Catalog-roller og til workspace-/job-ACL-er.
 5. Unity Catalog kontrollerer sluttbrukerens tilgang til databaser, tabeller, volum og katalogmetadata.
 
-Denne kjeden gjør at tilganger kan spores hele veien fra Entra ID-gruppe til konkrete objekter.
-
 ## SSO
 Databricks er konfigurert med Entra ID som Identity Provider. Brukere:
 
@@ -31,7 +29,6 @@ TODO!!!
 | `Dataprodusent-Utvikler` | Eierskap til egne Catalog/Schemas i Unity Catalog, samt jobbplaner | Team som publiserer datasett |
 | `Ansatt-Browse` | Lesetilgang til metadata i Unity Catalog, ingen runtime-tilgang | Forretningsbrukere |
 
-Tabellen bør suppleres av faktisk Entra ID-navn (prefiks/suffix) i Access-matrise-dokumentasjonen.
 
 ## Hvordan gjøres tilgangsstyring i Unity Catalog
 Unity Catalog benytter RBAC. Vi bruker følgende prinsipper:

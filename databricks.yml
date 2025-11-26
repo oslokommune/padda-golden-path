@@ -2,7 +2,7 @@ bundle:
   name: example-api-ingest
 
 include:
-  - examples/example_api_ingest/bundle.yml
-  - examples/example_api_ingest/resources/*.yaml
+  - examples/api_ingest/bundle.yml
+  - examples/api_ingest/resources/*.yaml
 
 # Add the rest of bundles here when they are created

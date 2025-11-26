@@ -17,7 +17,7 @@ targets:
     mode: development
     default: true
     workspace:
-      host: https://dbc-5af0a03e-12e6.cloud.databricks.com
+      host: https://dbc-d17b7ed1-eac0.cloud.databricks.com
     presets:
       artifacts_dynamic_version: true
 

@@ -1,0 +1,31 @@
+# Databricks asset bundle definition for vscode-demo.
+bundle:
+  name: vscode-demo
+  uuid: 4d8b9b7c-7fef-42a3-943b-414606cf0f02
+
+artifacts:
+  python_artifact:
+    type: whl
+    build: uv build --wheel
+
+include:
+  - resources/*.yml
+  - resources/*/*.yml
+
+targets:
+  dev:
+    mode: development
+    default: true
+    workspace:
+      host: https://dbc-00000000-0001.cloud.databricks.com
+    presets:
+      artifacts_dynamic_version: true
+
+  prod:
+    mode: production
+    workspace:
+      host: https://dbc-00000000-0002.cloud.databricks.com
+      root_path: /Workspace/Users/ola.nordmann@example.org/.bundle/${bundle.name}/${bundle.target}
+    permissions:
+      - user_name: ola.nordmann@example.org
+        level: CAN_MANAGE

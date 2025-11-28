@@ -18,11 +18,16 @@ extra_css:
 markdown_extensions:
 - admonition
 - pymdownx.details
-- pymdownx.superfences
+- pymdownx.superfences:
+    custom_fences:
+    - class: mermaid
+      format: !!python/name:mermaid2.fence.fence_mermaid_custom ''
+      name: mermaid
 - pymdownx.keys
 - attr_list
 nav:
 - Home: index.md
+- Implementering: architecture/progress.md
 - Golden Paths:
   - Databricks Bundles:
     - Oversikt: golden-paths/databricks-bundles.md
@@ -35,6 +40,7 @@ nav:
     - Secrets: guides/developer/secrets.md
 plugins:
 - search
+- mermaid2
 - gen-files:
     scripts:
     - mkdocs_extension/generate_guides_index.py

@@ -57,9 +57,9 @@ Bundle'n bruker følgende variabler (definert i `bundle.yml`):
 - `api_base_url`: Basis-URL for API-et (standard: `https://test.io.web.oslo.kommune.no`)
 - `api_endpoint`: Selve endepunktet (standard: `/v3/salaries/current`)
 - `alert_notification_id`: ID til en Databricks notification destination som sender varsler (f.eks. til Slack) ved feil (standard: `replace-with-notification-destination-id`)
-- `job_cluster_node_type`: Node-typen som brukes for den lille single-node jobbklyngen (standard: `m5.large`)
+- `job_cluster_node_type`: Node-typen som brukes for den lille single-node klusteret (standard: `m5.large`)
 
-> Jobbklyngen kjører på Databricks Runtime 22.1.x-scala2.12 (Python 3.14). Runtime-en leveres allerede med `requests`, derfor er prosjektet fortsatt låst til `requests>=2.31,<2.33` slik at wheel-installasjonen ikke prøver å laste ned avhengigheter fra internett (f.eks. i SRA-miljøer).
+> Klusteret kjører på Databricks Runtime 22.1.x-scala2.12 (Python 3.14). Runtime-en leveres allerede med `requests`, derfor er prosjektet fortsatt låst til `requests>=2.31,<2.33` slik at wheel-installasjonen ikke prøver å laste ned avhengigheter fra internett (f.eks. i SRA-miljøer).
 
 ### Overstyre variabler
 

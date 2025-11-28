@@ -19,13 +19,41 @@ try:
         yaml.dump(data, stream)
 
 except ImportError:
+    import functools
+    import types
+
     import yaml
 
     def load_yaml(stream):
-        return yaml.safe_load(stream)
+        import mermaid2  # noqa: F401 - needed for yaml python/name tags
+
+        return yaml.full_load(stream)
+
+    class PythonNameDumper(yaml.SafeDumper):
+        """Allow emitting python/name tags when ruamel.yaml is unavailable."""
+
+    def _represent_python_name(dumper, obj):
+        module = getattr(obj, "__module__", None)
+        name = getattr(obj, "__name__", None)
+        if isinstance(obj, functools.partial):
+            module = getattr(obj.func, "__module__", module)
+            name = name or getattr(obj.func, "__name__", None)
+        if module and name:
+            tag = f"tag:yaml.org,2002:python/name:{module}.{name}"
+            return yaml.nodes.ScalarNode(tag=tag, value="")
+        return dumper.represent_scalar("tag:yaml.org,2002:str", str(obj))
+
+    PythonNameDumper.add_representer(types.FunctionType, _represent_python_name)
+    PythonNameDumper.add_representer(functools.partial, _represent_python_name)
 
     def dump_yaml(data, stream):
-        yaml.safe_dump(data, stream, default_flow_style=False, allow_unicode=True)
+        yaml.dump(
+            data,
+            stream,
+            Dumper=PythonNameDumper,
+            default_flow_style=False,
+            allow_unicode=True,
+        )
 
 
 docs_dir = Path("docs")

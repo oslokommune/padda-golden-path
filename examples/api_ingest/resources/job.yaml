@@ -1,0 +1,41 @@
+# Job configuration for API ingestion
+# This file can be used to define additional job configurations
+# The main job is defined in bundle.yml
+
+# Example: Scheduled job that runs daily
+# Uncomment and modify as needed:
+#
+# resources:
+#   jobs:
+#     api_ingest_scheduled:
+#       name: "API Ingest - Daily Schedule"
+#       schedule:
+#         quartz_cron_expression: "0 0 2 * * ?"  # Run daily at 2 AM
+#         timezone_id: "Europe/Oslo"
+#       timeout_seconds: 3600
+#       webhook_notifications:
+#         on_failure:
+#           - {{secrets/...}}  # Example: reference a Databricks secret
+#       notification_settings:
+#         no_alert_for_skipped_runs: true
+#       tasks:
+#         - task_key: setup
+#           timeout_seconds: 600
+#           max_retries: 1
+#           notebook_task:
+#             notebook_path: ./notebooks/00_setup
+#             base_parameters:
+#               catalog: main
+#               schema: api_ingest
+#         - task_key: api_ingest
+#           depends_on:
+#             - setup
+#           timeout_seconds: 1800
+#           max_retries: 2
+#           notebook_task:
+#             notebook_path: ./notebooks/10_api_ingest
+#             base_parameters:
+#               catalog: main
+#               schema: api_ingest
+#               api_base_url: "https://test.io.web.oslo.kommune.no"
+#               api_endpoint: "/v3/salaries/current"

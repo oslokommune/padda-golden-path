@@ -1,1 +1,7 @@
 *.pyc
+.databricks
+.DS_Store
+.pytest_cache
+.ruff_cache
+.venv
+.coverage

@@ -2,7 +2,7 @@ copyright: 'Made with ❤️ by Oslo Origo
 
   '
 docs_dir: ./docs
-edit_uri: edit/main/docs/
+edit_uri: https://github.com/oslokommune/padda-golden-path/tree/main/docs
 extra:
   social:
   - icon: fontawesome/brands/github
@@ -43,8 +43,8 @@ plugins:
 - mermaid2
 - gen-files:
     scripts:
-    - mkdocs_extension/generate_guides_index.py
-    - mkdocs_extension/generate_listof_bundles.py
+    - docs/mkdocs_extension/generate_guides_index.py
+    - docs/mkdocs_extension/generate_listof_bundles.py
 - mkdocstrings:
     handlers:
       python:

@@ -201,6 +201,7 @@ name = "golden-path"
 version = "0.0.1"
 source = { editable = "." }
 dependencies = [
+    { name = "mkdocs" },
     { name = "mkdocs-gen-files" },
     { name = "pyspark" },
     { name = "requests" },
@@ -230,6 +231,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "mkdocs", specifier = ">=1.6.1" },
     { name = "mkdocs-gen-files", specifier = ">=0.5.0" },
     { name = "mkdocs-material", marker = "extra == 'dev'" },
     { name = "mkdocs-material", marker = "extra == 'docs'" },

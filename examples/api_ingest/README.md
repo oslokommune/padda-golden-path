@@ -14,7 +14,16 @@ Eksemplet dekker:
 
 ### Bygg wheel
 
-Bundle'n forventer at `dist/` inneholder en fersk wheel før du deployer. Hver gang du endrer kode i `src/`, kjør:
+Det er ikke behov å bygge wheel da det er et skritt definert i bundle.yml:
+
+```yaml
+artifacts:
+  python_artifact:
+    type: whl
+    build: uv build --wheel
+```
+
+Dersom du allikevell vil det så gjøres det gjennom:
 
 ```bash
 cd examples/api_ingest

@@ -35,10 +35,13 @@ jobs:
           python-version: "3.13"
 
       - name: Install dependencies
-        run: uv sync
+        run: uv sync --extra docs
 
       - name: Build site
-        run: uv run mkdocs build
+        env:
+          NOTION_API_TOKEN: ${{ secrets.NOTION_API_TOKEN }}
+          NOTION_PAGE_IDS: ${{ secrets.NOTION_PAGE_IDS }}
+        run: uv run --extra docs mkdocs build
 
       - name: Setup Pages
         uses: actions/configure-pages@v5

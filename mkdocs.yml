@@ -33,7 +33,6 @@ nav:
   - Developer:
     - Dev Setup: guides/developer/dev-setup.md
     - Secrets: guides/developer/secrets.md
-    - Uv Workspace Howto: guides/developer/uv-workspace-howto.md
 plugins:
 - search
 - gen-files:

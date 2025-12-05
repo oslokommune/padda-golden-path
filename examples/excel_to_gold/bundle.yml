@@ -1,0 +1,53 @@
+variables:
+  catalog:
+    default: padda_catalog_1234567890123456
+  schema:
+    default: wheels
+  table_name:
+    default: excel_gold
+  excel_input_path:
+    default: dbfs:/Volumes/padda_catalog_1234567890123456/wheels/deps/exceltest-fil.xlsx
+  openpyxl_whl_path:
+    default: dbfs:/Volumes/padda_catalog_1234567890123456/wheels/deps/openpyxl-3.1.5-py2.py3-none-any.whl
+  et_xmlfile_whl_path:
+    default: dbfs:/Volumes/padda_catalog_1234567890123456/wheels/deps/et_xmlfile-2.0.0-py3-none-any.whl
+  job_cluster_node_type:
+    default: m5.large
+  existing_cluster_id:
+    default: 1121-093723-tcjem03x # Change to your existing cluster ID
+
+resources:
+  jobs:
+    excel_to_gold_job:
+      name: "Excel to Gold"
+      timeout_seconds: 3600
+      max_concurrent_runs: 1
+      tasks:
+        - task_key: excel_to_gold
+          existing_cluster_id: ${var.existing_cluster_id}
+          timeout_seconds: 1800
+          notebook_task:
+            notebook_path: ./notebooks/01_excel_to_gold.py
+            base_parameters:
+              catalog: ${var.catalog}
+              schema: ${var.schema}
+              table_name: ${var.table_name}
+              excel_input_path: ${var.excel_input_path}
+              openpyxl_whl_path: ${var.openpyxl_whl_path}
+              et_xmlfile_whl_path: ${var.et_xmlfile_whl_path}
+
+targets:
+  dev:
+    mode: development
+    default: true
+    workspace:
+      host: https://dbc-00000000-0001.cloud.databricks.com
+
+  prod:
+    mode: production
+    workspace:
+      host: https://dbc-00000000-0001.cloud.databricks.com
+      root_path: /Workspace/Users/CHANGEME/.bundle/${bundle.name}/${bundle.target}
+    permissions:
+      - user_name: CHANGEME
+        level: CAN_MANAGE

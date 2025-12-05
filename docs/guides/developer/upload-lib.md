@@ -29,7 +29,7 @@ databricks fs cp -r \
 ```
 
 ## 4) Bruk wheel i notebooks/kode
-- I `examples/excel_to_gold/notebooks/01_excel_to_gold.py` installeres wheelene lokalt på driveren fra Volume. Sett variablene `openpyxl_whl_path` og `et_xmlfile_whl_path` til Volume-stiene (f.eks. `dbfs:/Volumes/<catalog>/<schema>/wheels/deps/openpyxl-3.1.5-py2.py3-none-any.whl`).
+- I `examples/excel_ingest/notebooks/01_ingest_excel.py` (bundle-navn "Ingest Excel") installeres wheelene lokalt på driveren fra Volume. Sett variablene `openpyxl_whl_path` og `et_xmlfile_whl_path` til Volume-stiene (f.eks. `dbfs:/Volumes/<catalog>/<schema>/wheels/deps/openpyxl-3.1.5-py2.py3-none-any.whl`).
 - Notebooken gjør deretter:
   ```python
   local_whls = [

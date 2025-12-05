@@ -20,7 +20,7 @@ display: Any = None
 
 dbutils.widgets.text("catalog", "padda_catalog_2727440053493594")
 dbutils.widgets.text("schema", "wheels")
-dbutils.widgets.text("table_name", "excel_gold")
+dbutils.widgets.text("table_name", "excel_bronze")
 dbutils.widgets.text(
     "excel_input_path",
     "dbfs:/Volumes/padda_catalog_2727440053493594/wheels/deps/exceltest-fil.xlsx",

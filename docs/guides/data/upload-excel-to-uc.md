@@ -1,6 +1,6 @@
 # Laste opp Excel til Unity Catalog og skrive Delta-tabell
 
-Denne guiden viser hvordan du laster opp en Excel-fil til en Unity Catalog Volume og deretter skriver den som en Delta-tabell (som i `examples/excel_to_gold`).
+Denne guiden viser hvordan du laster opp en Excel-fil til en Unity Catalog Volume og deretter skriver den som en Delta-tabell (som i `examples/excel_ingest`, bundle-navn "Ingest Excel").
 
 ## Forutsetninger
 - Du har en katalog og et schema du kan skrive til (f.eks. `dig_felles_dev_green.bronze_default`).
@@ -21,12 +21,12 @@ databricks fs cp \
 ```
 
 
-## 3) Kjør bundle-eksempelet (excel_to_gold)
+## 3) Kjør bundle-eksempelet (Ingest Excel)
 I repoet ligger et DAB-eksempel som leser Excel og skriver en Delta-tabell:
 ```bash
-cd examples/excel_to_gold
+cd examples/excel_ingest
 databricks bundle deploy
-databricks bundle run excel_to_gold_job \
+databricks bundle run ingest_excel_job \
   -v excel_input_path=dbfs:/Volumes/<catalog>/<schema>/excel_test/min_fil.xlsx \
   -v catalog=<catalog> \
   -v schema=<schema> \

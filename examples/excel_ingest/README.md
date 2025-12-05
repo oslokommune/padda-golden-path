@@ -1,4 +1,4 @@
-# Excel to Gold - Databricks Asset Bundle
+# Ingest Excel - Databricks Asset Bundle
 
 En enkel DAB som leser en Excel-fil og lagrer den som en Delta-tabell i gull-laget.
 
@@ -9,7 +9,7 @@ En enkel DAB som leser en Excel-fil og lagrer den som en Delta-tabell i gull-lag
 ## Variabler (bundle.yml)
 - `catalog` (default: `padda_catalog_2727440053493594`)
 - `schema` (default: `wheels`)
-- `table_name` (default: `excel_gold`)
+- `table_name` (default: `excel_bronze`)
 - `excel_input_path` (default: `dbfs:/Volumes/dig_felles_dev_green/bronze_default/excel_test/exceltest-fil.xlsx`)
 - `job_cluster_node_type` (default: `m5.large`)
 
@@ -27,7 +27,7 @@ En enkel DAB som leser en Excel-fil og lagrer den som en Delta-tabell i gull-lag
    ```
 3. Sett `excel_input_path` til filstien du lastet opp:
    ```bash
-   databricks bundle run excel_to_gold_job \
+   databricks bundle run ingest_excel_job \
      -v excel_input_path=dbfs:/Volumes/<catalog>/<schema>/excel/min_fil.xlsx \
      -v catalog=<catalog> \
      -v schema=<schema> \
@@ -37,16 +37,16 @@ En enkel DAB som leser en Excel-fil og lagrer den som en Delta-tabell i gull-lag
 
 ## Kjøring
 ```bash
-cd examples/excel_to_gold
+cd examples/excel_ingest
 databricks bundle deploy
-databricks bundle run excel_to_gold_job \
+databricks bundle run ingest_excel_job \
   -v excel_input_path=dbfs:/Volumes/padda_catalog_2727440053493594/wheels/deps/myfile.xlsx \
   -v catalog=padda_catalog_2727440053493594 \
   -v schema=wheels \
-  -v table_name=excel_gold
+  -v table_name=excel_bronze
 ```
 
-Jobben kjører notebooken `notebooks/01_excel_to_gold.py`, leser Excel-filen med `pandas`/`openpyxl`, skriver en Delta-tabell til `${catalog}.${schema}.${table_name}`, og viser resultatet.
+Jobben kjører notebooken `notebooks/01_ingest_excel.py`, leser Excel-filen med `pandas`/`openpyxl`, skriver en Delta-tabell til `${catalog}.${schema}.${table_name}`, og viser resultatet.
 
 ## Tilpasning
 - Overstyr variablene via `-v` når du kjører.

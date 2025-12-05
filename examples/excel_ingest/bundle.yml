@@ -4,7 +4,7 @@ variables:
   schema:
     default: wheels
   table_name:
-    default: excel_gold
+    default: excel_bronze
   excel_input_path:
     default: dbfs:/Volumes/padda_catalog_2727440053493594/wheels/deps/exceltest-fil.xlsx
   openpyxl_whl_path:
@@ -18,16 +18,16 @@ variables:
 
 resources:
   jobs:
-    excel_to_gold_job:
-      name: "Excel to Gold"
+    ingest_excel_job:
+      name: "Ingest Excel"
       timeout_seconds: 3600
       max_concurrent_runs: 1
       tasks:
-        - task_key: excel_to_gold
+        - task_key: ingest_excel_task
           existing_cluster_id: ${var.existing_cluster_id}
           timeout_seconds: 1800
           notebook_task:
-            notebook_path: ./notebooks/01_excel_to_gold.py
+            notebook_path: ./notebooks/01_ingest_excel.py
             base_parameters:
               catalog: ${var.catalog}
               schema: ${var.schema}

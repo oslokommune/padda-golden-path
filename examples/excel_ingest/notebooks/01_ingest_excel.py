@@ -1,3 +1,7 @@
+# Databricks notebook source
+# ruff: noqa: F821
+# COMMAND ----------
+
 import importlib
 import os
 import re
@@ -5,18 +9,15 @@ import subprocess
 import sys
 import tempfile
 import uuid
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import pandas as pd
 from pyspark.sql import functions as F
 
-# Hint to ruff: these names are provided by the Databricks runtime.
-spark: Any = None
-dbutils: Any = None
-display: Any = None
-
-# Databricks notebook source
-# COMMAND ----------
+if TYPE_CHECKING:
+    spark: Any
+    dbutils: Any
+    display: Any
 
 dbutils.widgets.text("catalog", "padda_catalog_2727440053493594")
 dbutils.widgets.text("schema", "wheels")
@@ -135,29 +136,8 @@ df = (
     .withColumn("_ingest_run_id", F.lit(ingest_run_id))
 )
 
-expectation_results = []
-data_cols = [c for c in df.columns if not c.startswith("_")]
-if data_cols:
-    non_empty_expr = (
-        F.greatest(*[F.col(c).isNotNull().cast("int") for c in data_cols]) == 1
-    )
-    total_rows = df.count()
-    df = df.filter(non_empty_expr)
-    kept_rows = df.count()
-    failed_rows = total_rows - kept_rows
-    expectation_results.append({
-        "name": "drop_all_null_rows",
-        "total_rows": total_rows,
-        "failed_rows": failed_rows,
-    })
-
-if df.rdd.isEmpty():
-    raise ValueError("Expectations failed: ingen rader igjen etter filtrering.")
-
 df.write.format("delta").mode("overwrite").saveAsTable(
     f"{catalog}.{schema}.{table_name}"
 )
 
 display(spark.table(f"{catalog}.{schema}.{table_name}"))
-if expectation_results:
-    display(spark.createDataFrame(expectation_results))

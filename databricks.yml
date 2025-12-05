@@ -4,4 +4,4 @@ bundle:
 include:
   - examples/api_ingest/bundle.yml
   - examples/api_ingest/resources/*.yaml
-  - examples/excel_to_gold/bundle.yml
+  - examples/excel_ingest/bundle.yml

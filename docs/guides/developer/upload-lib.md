@@ -28,19 +28,33 @@ databricks fs cp -r \
   dbfs:/Volumes/padda_catalog_1234567890123456/wheels/deps/
 ```
 
-## 4) Bruk wheel i scripts/notebooks
-- Referer til wheel-stien i `libraries` eller i kode:
-  - Legg til variabel `openpyxl_whl_path` = `dbfs:/Volumes/eksempelteam_dev_green/analyst_default/wheels/openpyxl-3.1.5-py2.py3-none-any.whl`
-  - Libraries i bundle:
-    ```yaml
-    libraries:
-      - whl: ${var.openpyxl_whl_path}
-    ```
-- I notebook kan du installere midlertidig:
+## 4) Bruk wheel i notebooks/kode
+- I `examples/excel_to_gold/notebooks/01_excel_to_gold.py` installeres wheelene lokalt på driveren fra Volume. Sett variablene `openpyxl_whl_path` og `et_xmlfile_whl_path` til Volume-stiene (f.eks. `dbfs:/Volumes/<catalog>/<schema>/wheels/deps/openpyxl-3.1.5-py2.py3-none-any.whl`).
+- Notebooken gjør deretter:
   ```python
-  whl = "dbfs:/Volumes/<catalog>/<schema>/<volume>/openpyxl-3.1.5-py2.py3-none-any.whl"
-  spark.sparkcontext.addPyFile(whl)
+  local_whls = [
+      to_local_volume_path(et_xmlfile_whl_path),
+      to_local_volume_path(openpyxl_whl_path),
+  ]
+  extra_lib_dir = tempfile.mkdtemp(prefix="openpyxl_whl_")
+  for whl in local_whls:
+      subprocess.check_call(
+          [
+              sys.executable,
+              "-m",
+              "pip",
+              "install",
+              "--no-deps",
+              "--target",
+              extra_lib_dir,
+              whl,
+          ],
+      )
+  if extra_lib_dir not in sys.path:
+      sys.path.insert(0, extra_lib_dir)
+  importlib.invalidate_caches()
   ```
+  Dette gjør wheels tilgjengelige for pandas/openpyxl i samme runtime.
 
 ## Tips
 - Hold en egen `deps`-mappe per prosjekt/schema for å slippe navnekollisjoner.

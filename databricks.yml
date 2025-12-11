@@ -1,8 +1,7 @@
 bundle:
-  name: example-api-ingest
+  name: goldenpath-examples
 
 include:
   - examples/api_ingest/bundle.yml
   - examples/api_ingest/resources/*.yaml
-
-# Add the rest of bundles here when they are created
+  - examples/excel_ingest/bundle.yml

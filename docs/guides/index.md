@@ -12,4 +12,5 @@ Her listes alle guider som er tilgjengelige innenfor respektive område.
 
 - [Dev Setup](developer/dev-setup.md)
 - [Secrets](developer/secrets.md)
+- [Slack Alerts](developer/slack-alerts.md)
 - [Upload Lib](developer/upload-lib.md)

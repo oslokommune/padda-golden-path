@@ -1,11 +1,12 @@
 # padda-golden-path
-Golden paths for padda, dataplattformen for data engineers i oslo kommune.
+
+Golden paths for padda, dataplattformen for data engineers i Oslo kommune.
 
 ## Dokumentasjon (MkDocs)
 
- Ligger i `docs/` og er konfigurert via `mkdocs.yml`.
- For mer informasjon gå til egen readme[./docs/README.md]
- Gå til oslokommune.github.io/padda-golden-path for offisiell dokumentasjon av Padda
+Ligger i `docs/` og er konfigurert via `mkdocs.yml`.
+For mer informasjon gå til egen [readme](./docs/README.md).
+Gå til [oslokommune.github.io/padda-golden-path](https://oslokommune.github.io/padda-golden-path) for offisiell dokumentasjon av Padda.
 
 ## Linting (Ruff)
 
@@ -21,13 +22,13 @@ uvx ruff format .
 ```
 
 ## Test
-pytest er brukt 
 
+Testene kjøres med pytest:
 ```bash
 uv run pytest
 ```
 
-for coverage rapport:
+For coverage-rapport:
 ```bash
 uv run pytest --cov=libs
 ```

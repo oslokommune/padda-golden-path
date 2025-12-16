@@ -41,9 +41,15 @@ nav:
   - Data: guides/data/laste-opp-excel-til-uc.md
   - Developer:
     - Dev Setup: guides/developer/dev-setup.md
+    - Laste Opp Lib: guides/developer/laste-opp-lib.md
     - Secrets: guides/developer/secrets.md
-    - Slack Alerts: guides/developer/slack-alarmer.md
-    - Upload Lib: guides/developer/upload-lib.md
+    - Slack Alarmer: guides/developer/slack-alarmer.md
+  - Roller:
+    - Ansatt Datautforsker: guides/roller/ansatt-datautforsker.md
+    - Dataanalytikere: guides/roller/dataanalytikere.md
+    - Dataansvarlig: guides/roller/dataansvarlig.md
+    - Dataplattform Admin: guides/roller/dataplattform-admin.md
+    - Workspace Admin: guides/roller/workspace-admin.md
 - Notion-sider:
   - notion/index.md
   - Referansearkitektur: notion/arkitektur-wip.md

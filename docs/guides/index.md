@@ -5,12 +5,21 @@ Her listes alle guider som er tilgjengelige innenfor respektive område.
 ## Data
 
 
-- [Upload Excel To Uc](data/upload-excel-to-uc.md)
+- [Laste Opp Excel Til Uc](data/laste-opp-excel-til-uc.md)
 
 ## Developer
 
 
 - [Dev Setup](developer/dev-setup.md)
+- [Laste Opp Lib](developer/laste-opp-lib.md)
 - [Secrets](developer/secrets.md)
-- [Slack Alerts](developer/slack-alerts.md)
-- [Upload Lib](developer/upload-lib.md)
+- [Slack Alarmer](developer/slack-alarmer.md)
+
+## Roller
+
+
+- [Ansatt Datautforsker](roller/ansatt-datautforsker.md)
+- [Dataanalytikere](roller/dataanalytikere.md)
+- [Dataansvarlig](roller/dataansvarlig.md)
+- [Dataplattform Admin](roller/dataplattform-admin.md)
+- [Workspace Admin](roller/workspace-admin.md)

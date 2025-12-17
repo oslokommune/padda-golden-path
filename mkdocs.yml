@@ -40,6 +40,7 @@ nav:
   - Developer:
     - Dev Setup: guides/developer/dev-setup.md
     - Secrets: guides/developer/secrets.md
+    - Slack Alerts: guides/developer/slack-alerts.md
     - Upload Lib: guides/developer/upload-lib.md
 - Notion-sider:
   - notion/index.md

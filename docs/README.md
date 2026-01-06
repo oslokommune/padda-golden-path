@@ -6,9 +6,9 @@ uv sync --extra docs
 
 ## Kjøre dokumentasjon lokalt
 ```bash
-uv run --extra docs mkdocs serve -a 0.0.0.0:8000
+uv run --extra docs mkdocs serve -a 0.0.0.0:8000 -f mkdocs.local.yml
 ```
-Dokumentasjonen kjører nå på `http://127.0.0.1:8000` i prosjektets virtuelle miljø.
+Dokumentasjonen kjører nå på `http://localhost:8000` i prosjektets virtuelle miljø
 
 ## Notion-sider
 Notion-innhold hentes automatisk under bygg dersom:

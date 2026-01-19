@@ -6,7 +6,7 @@ Landing zone er koblet til hvert workspace en S3-bucket opprettes for innkommend
 
 ## Struktur og tilgang
 
-- 1:1, Ett workspace har en landing zone-bucket
+- 1:1 - Et workspace har en og bare en landing zone-bucket
 - Hver sender representerer en ekstern aktør som skal kunne laste opp filer.
 - For hver sender opprettes tre sub-prefikser (green/yellow/red).
 - For hvert prefix lages en IAM-bruker slik at en bruker kun kan laste opp til sitt eget område.
@@ -22,7 +22,7 @@ For hver bruker kan det utstedes sikkerhetsnøkler for å gi tilgang til brukere
 En enkel måte å teste nøklene på er ved å bruke AWS CLI. Her overføres en fil fra lokal maskin til landing zone:
 
 ```bash
-AWS_PROFILE="key-test" aws s3 cp test.txt s3://69d82-padda-landing-zone/testing_bucket/green/test.txt
+AWS_PROFILE="key-test" aws s3 cp test.txt s3://69d82-padda-landing-zone/test_sender/green/test.txt
 ```
 
 Konfigurasjonsfilen `~/.aws/config` ser da slik ut:

@@ -33,3 +33,7 @@ region = eu-west-1
 aws_access_key_id = OPELCORSAFOREVER
 aws_secret_access_key = LEATHERSEATSTASTEBETTERTHANCHOCOLATE
 ```
+
+### Produksjon
+
+Nøyaktig hvilken mekanisme man bruker i prod kommer litt an på, men la oss si at du bygger et program i Rust med AWS SDK. SDKet vil da finne nøklene via noe a la [`DefaultCredentialsChain`](https://docs.rs/aws-config/latest/aws_config/default_provider/credentials/struct.DefaultCredentialsChain.html). Her er et [eksempel på hvordan filkopiering kan gjøres](https://github.com/awsdocs/aws-doc-sdk-examples/blob/main/rustv1/examples/s3/src/bin/copy-object.rs). Eksempelet bruker [`RegionProviderChain`](https://docs.rs/aws-config/latest/aws_config/meta/region/struct.RegionProviderChain.html), men det er bare en wrapper rundt `DefaultCredentialsChain`. Det er mange måter å gi nøklene til `DefaultCredentialsChain` på, men det går helt greit å legge de i `~/.aws/config`, akkurat som i avsnittet om testing. Andre språk kan være litt mer implisitte rundt det hele, men fungerer på samme måte. Her er dokumentasjonen for [Javas DefaultCredentialsProvider](https://sdk.amazonaws.com/java/api/latest/software/amazon/awssdk/auth/credentials/DefaultCredentialsProvider.html) og [tilsvarende i Python](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/credentials.html). Felles for alle er at det er en prioritert rekkefølge av steder SDKet ser etter credentials, blant annet environment variables, `~/.aws/config`, `~/.aws/credentials`, samt mange andre muligheter, skjønt mange er til for andre typer credentials enn nøkler.

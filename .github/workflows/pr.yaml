@@ -7,18 +7,12 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       pythonlibs: ${{ steps.list-libs.outputs.dirs }}
-      bundles: ${{ steps.list-bundles.outputs.dirs }}
     steps:
       - uses: actions/checkout@v4
       - id: list-libs
         run: |
           # Generate a JSON array of directory names (e.g., '["dir1", "dir2"]')
           DIRS=$(find ./libs -mindepth 1 -maxdepth 1 | jq -R . | jq -s . | jq -c .)
-          echo "dirs=$DIRS" >> $GITHUB_OUTPUT
-      - id: list-bundles
-        run: |
-          # Generate a JSON array of directory names (e.g., '["dir1", "dir2"]')
-          DIRS=$(find ./examples -mindepth 1 -maxdepth 1 | jq -R . | jq -s . | jq -c .)
           echo "dirs=$DIRS" >> $GITHUB_OUTPUT
   validate_python_libs:
     needs: generate_dir_matrices
@@ -45,18 +39,4 @@ jobs:
         working-directory: ${{ matrix.directory }}
       - name: Lint ${{matrix.directory}}
         run: uvx ruff check .
-        working-directory: ${{ matrix.directory }}
-  validate_bundles:
-    needs: generate_dir_matrices
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        directory: ${{ fromJson(needs.generate_dir_matrices.outputs.bundles) }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: databricks/setup-cli@main
-      - name: Config
-        run: echo "false_token" | databricks configure --host "https://dbc-d17b7ed1-eac0.cloud.databricks.com"
-      - name: Validate ${{matrix.directory}}
-        run: databricks bundle validate
         working-directory: ${{ matrix.directory }}

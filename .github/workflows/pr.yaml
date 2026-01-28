@@ -34,6 +34,9 @@ jobs:
       - name: Format ${{matrix.directory}}
         run: uv format --check
         working-directory: ${{ matrix.directory }}
+      - name: Typecheck ${{matrix.directory}}
+        run: uvx ty check
+        working-directory: ${{ matrix.directory }}
       - name: Lint ${{matrix.directory}}
         run: uvx ruff check .
         working-directory: ${{ matrix.directory }}

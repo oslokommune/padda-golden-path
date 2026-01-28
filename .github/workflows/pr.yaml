@@ -3,20 +3,41 @@ on:
   pull_request:
     branches: ["main"]
 jobs:
-  check_python_code:
+  generate_dir_matrix:
     runs-on: ubuntu-latest
+    outputs:
+      directories: ${{ steps.list-dirs.outputs.dirs }}
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
-      - name: Install uv
-        uses: astral-sh/setup-uv@803947b9bd8e9f986429fa0c5a41c367cd732b41
-        with:
-          version: "latest"
-          enable-cache: true
-      - name: Set up Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
-        with:
-          python-version: "3.14"
-      - name: Format
-        run: uv format --check
-      - name: Lint
-        run: uvx ruff check
+      - id: list-dirs
+        run: |
+          # Generate a JSON array of directory names (e.g., '["dir1", "dir2"]')
+          DIRS=$(find ./tf -mindepth 2 -maxdepth 2 -type d -not -path './tf/modules*' | jq -R . | jq -s . | jq -c .)
+          echo "dirs=$DIRS" >> $GITHUB_OUTPUT
+  validate_configurations:
+    needs: generate_dir_matrix
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        directory: ${{ fromJson(needs.generate_dir_matrix.outputs.directories) }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - uses: hashicorp/setup-terraform@v3
+      - name: Set up SSH
+        run: |
+          whoami
+          mkdir -p ~/.ssh
+          echo "${{ secrets.GOLDEN_PATH_IAC_PRIVATE_DEPLOY_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          cp .github/known_hosts ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+          chmod 700 ~/.ssh/id_ed25519
+      - name: Init ${{matrix.directory}}
+        run: terraform init -backend=false
+        working-directory: ${{ matrix.directory }}
+      - name: Checking formatting of ${{matrix.directory}}
+        run: terraform fmt -check
+        working-directory: ${{ matrix.directory }}
+      - name: Validate ${{matrix.directory}}
+        run: terraform validate
+        working-directory: ${{ matrix.directory }}

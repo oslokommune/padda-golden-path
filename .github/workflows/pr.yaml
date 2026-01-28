@@ -7,12 +7,18 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       pythonlibs: ${{ steps.list-libs.outputs.dirs }}
+      bundles: ${{ steps.list-bundles.outputs.dirs }}
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
       - id: list-libs
         run: |
           # Generate a JSON array of directory names (e.g., '["dir1", "dir2"]')
           DIRS=$(find ./libs -mindepth 1 -maxdepth 1 | jq -R . | jq -s . | jq -c .)
+          echo "dirs=$DIRS" >> $GITHUB_OUTPUT
+      - id: list-bundles
+        run: |
+          # Generate a JSON array of directory names (e.g., '["dir1", "dir2"]')
+          DIRS=$(find ./examples -mindepth 1 -maxdepth 1 | jq -R . | jq -s . | jq -c .)
           echo "dirs=$DIRS" >> $GITHUB_OUTPUT
   validate_python_libs:
     needs: generate_python_dir_matrix
@@ -39,4 +45,16 @@ jobs:
         working-directory: ${{ matrix.directory }}
       - name: Lint ${{matrix.directory}}
         run: uvx ruff check .
+        working-directory: ${{ matrix.directory }}
+  validate_bundles:
+    needs: generate_python_dir_matrix
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        directory: ${{ fromJson(needs.generate_python_dir_matrix.outputs.bundles) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: databricks/setup-cli@main
+      - name: Validate ${{matrix.directory}}
+        run: databricks bundle validate
         working-directory: ${{ matrix.directory }}

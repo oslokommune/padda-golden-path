@@ -6,10 +6,10 @@ jobs:
   generate_python_dir_matrix:
     runs-on: ubuntu-latest
     outputs:
-      directories: ${{ steps.list-dirs.outputs.dirs }}
+      pythonlibs: ${{ steps.list-libs.outputs.dirs }}
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
-      - id: list-dirs
+      - id: list-libs
         run: |
           # Generate a JSON array of directory names (e.g., '["dir1", "dir2"]')
           DIRS=$(find ./libs -mindepth 1 -maxdepth 1 | jq -R . | jq -s . | jq -c .)
@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        directory: ${{ fromJson(needs.generate_python_dir_matrix.outputs.directories) }}
+        directory: ${{ fromJson(needs.generate_python_dir_matrix.outputs.pythonlibs) }}
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
       - name: Install uv

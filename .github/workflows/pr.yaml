@@ -3,7 +3,7 @@ on:
   pull_request:
     branches: ["main"]
 jobs:
-  generate_python_dir_matrix:
+  generate_dir_matrices:
     runs-on: ubuntu-latest
     outputs:
       pythonlibs: ${{ steps.list-libs.outputs.dirs }}
@@ -21,11 +21,11 @@ jobs:
           DIRS=$(find ./examples -mindepth 1 -maxdepth 1 | jq -R . | jq -s . | jq -c .)
           echo "dirs=$DIRS" >> $GITHUB_OUTPUT
   validate_python_libs:
-    needs: generate_python_dir_matrix
+    needs: generate_dir_matrices
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        directory: ${{ fromJson(needs.generate_python_dir_matrix.outputs.pythonlibs) }}
+        directory: ${{ fromJson(needs.generate_dir_matrices.outputs.pythonlibs) }}
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
       - name: Install uv
@@ -47,11 +47,11 @@ jobs:
         run: uvx ruff check .
         working-directory: ${{ matrix.directory }}
   validate_bundles:
-    needs: generate_python_dir_matrix
+    needs: generate_dir_matrices
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        directory: ${{ fromJson(needs.generate_python_dir_matrix.outputs.bundles) }}
+        directory: ${{ fromJson(needs.generate_dir_matrices.outputs.bundles) }}
     steps:
       - uses: actions/checkout@v4
       - uses: databricks/setup-cli@main

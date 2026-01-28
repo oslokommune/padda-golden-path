@@ -3,7 +3,7 @@ on:
   pull_request:
     branches: ["main"]
 jobs:
-  generate_dir_matrix:
+  generate_python_dir_matrix:
     runs-on: ubuntu-latest
     outputs:
       directories: ${{ steps.list-dirs.outputs.dirs }}
@@ -12,32 +12,24 @@ jobs:
       - id: list-dirs
         run: |
           # Generate a JSON array of directory names (e.g., '["dir1", "dir2"]')
-          DIRS=$(find ./tf -mindepth 2 -maxdepth 2 -type d -not -path './tf/modules*' | jq -R . | jq -s . | jq -c .)
+          DIRS=$(find ./libs -mindepth 1 -maxdepth 1 | jq -R . | jq -s . | jq -c .)
           echo "dirs=$DIRS" >> $GITHUB_OUTPUT
-  validate_configurations:
-    needs: generate_dir_matrix
+  validate_python_libs:
+    needs: generate_python_dir_matrix
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        directory: ${{ fromJson(needs.generate_dir_matrix.outputs.directories) }}
+        directory: ${{ fromJson(needs.generate_python_dir_matrix.outputs.directories) }}
     steps:
       - uses: actions/checkout@v4
-      - uses: hashicorp/setup-terraform@v3
-      - name: Set up SSH
-        run: |
-          whoami
-          mkdir -p ~/.ssh
-          echo "${{ secrets.GOLDEN_PATH_IAC_PRIVATE_DEPLOY_KEY }}" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
-          cp .github/known_hosts ~/.ssh/known_hosts
-          chmod 600 ~/.ssh/known_hosts
-          chmod 700 ~/.ssh/id_ed25519
-      - name: Init ${{matrix.directory}}
-        run: terraform init -backend=false
-        working-directory: ${{ matrix.directory }}
-      - name: Checking formatting of ${{matrix.directory}}
-        run: terraform fmt -check
-        working-directory: ${{ matrix.directory }}
-      - name: Validate ${{matrix.directory}}
-        run: terraform validate
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "latest"
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Format ${{matrix.directory}}
+        run: uv format --check
         working-directory: ${{ matrix.directory }}

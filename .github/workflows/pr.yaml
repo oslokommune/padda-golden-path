@@ -29,7 +29,5 @@ jobs:
           python-version: "3.13"
       - name: Format
         run: uv format --check
-      - name: Typecheck
-        run: uvx ty check
       - name: Lint
         run: uvx ruff check

@@ -15,11 +15,7 @@ jobs:
           DIRS=$(find ./libs -mindepth 1 -maxdepth 1 | jq -R . | jq -s . | jq -c .)
           echo "dirs=$DIRS" >> $GITHUB_OUTPUT
   validate_python_libs:
-    needs: generate_dir_matrices
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        directory: ${{ fromJson(needs.generate_dir_matrices.outputs.pythonlibs) }}
     steps:
       - uses: actions/checkout@v4
       - name: Install uv
@@ -31,12 +27,9 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.13"
-      - name: Format ${{matrix.directory}}
+      - name: Format
         run: uv format --check
-        working-directory: ${{ matrix.directory }}
-      - name: Typecheck ${{matrix.directory}}
-        run: uvx ty check .
-        working-directory: ${{ matrix.directory }}
-      - name: Lint ${{matrix.directory}}
-        run: uvx ruff check .
-        working-directory: ${{ matrix.directory }}
+      - name: Typecheck
+        run: uvx ty check
+      - name: Lint
+        run: uvx ruff check

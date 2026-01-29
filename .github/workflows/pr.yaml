@@ -3,18 +3,7 @@ on:
   pull_request:
     branches: ["main"]
 jobs:
-  generate_dir_matrices:
-    runs-on: ubuntu-latest
-    outputs:
-      pythonlibs: ${{ steps.list-libs.outputs.dirs }}
-    steps:
-      - uses: actions/checkout@v4
-      - id: list-libs
-        run: |
-          # Generate a JSON array of directory names (e.g., '["dir1", "dir2"]')
-          DIRS=$(find ./libs -mindepth 1 -maxdepth 1 | jq -R . | jq -s . | jq -c .)
-          echo "dirs=$DIRS" >> $GITHUB_OUTPUT
-  validate_python_libs:
+  check_python_code:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

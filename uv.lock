@@ -884,6 +884,16 @@ wheels = [
 name = "vscode-demo"
 version = "0.1.0"
 source = { editable = "examples/vscode-demo" }
+dependencies = [
+    { name = "pyspark" },
+    { name = "pytest" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "pyspark", specifier = ">=4.0.1" },
+    { name = "pytest", specifier = ">=8.4.2" },
+]
 
 [[package]]
 name = "watchdog"

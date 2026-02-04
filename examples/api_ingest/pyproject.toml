@@ -28,3 +28,6 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/api_ingest"]
+
+[tool.ty.environment]
+python = "../../.venv"

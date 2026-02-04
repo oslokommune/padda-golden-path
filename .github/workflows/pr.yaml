@@ -12,7 +12,7 @@ jobs:
       - id: list-libs
         run: |
           # Generate a JSON array of directory names (e.g., '["dir1", "dir2"]')
-          DIRS=$(find . -name pyproject.toml | sed 's/\/pyproject.toml//g' | jq -R . | jq -s . | jq -c .)
+          DIRS=$(find . -mindepth 2 -name pyproject.toml | sed 's/\/pyproject.toml//g' | jq -R . | jq -s . | jq -c .)
           echo "dirs=$DIRS" >> $GITHUB_OUTPUT
   validate_python_code:
     needs: generate_dir_matrices

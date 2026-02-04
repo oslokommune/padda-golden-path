@@ -12,10 +12,14 @@ jobs:
       - id: list-libs
         run: |
           # Generate a JSON array of directory names (e.g., '["dir1", "dir2"]')
-          DIRS=$(find ./libs -mindepth 1 -maxdepth 1 | jq -R . | jq -s . | jq -c .)
+          DIRS=$(find ./libs ./examples -mindepth 1 -maxdepth 1 | jq -R . | jq -s . | jq -c .)
           echo "dirs=$DIRS" >> $GITHUB_OUTPUT
-  validate_python_libs:
+  validate_python_code:
+    needs: generate_dir_matrices
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        directory: ${{ fromJson(needs.generate_dir_matrices.outputs.pythonlibs) }}
     steps:
       - uses: actions/checkout@v4
       - name: Install uv
@@ -27,9 +31,12 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.13"
-      - name: Format
+      - name: Format ${{matrix.directory}}
         run: uv format --check
-      - name: Typecheck
-        run: uvx ty check
-      - name: Lint
-        run: uvx ruff check
+        working-directory: ${{ matrix.directory }}
+      - name: Typecheck ${{matrix.directory}}
+        run: uvx ty check .
+        working-directory: ${{ matrix.directory }}
+      - name: Lint ${{matrix.directory}}
+        run: uvx ruff check .
+        working-directory: ${{ matrix.directory }}

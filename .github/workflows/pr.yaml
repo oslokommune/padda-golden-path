@@ -34,9 +34,10 @@ jobs:
       - name: Format ${{matrix.directory}}
         run: uv format --check
         working-directory: ${{ matrix.directory }}
-      - name: Sync ${{matrix.directory}}
+      - name: Venv
+        run: uv venv
+      - name: Sync
         run: uv sync
-        working-directory: ${{ matrix.directory }}
       - name: Typecheck ${{matrix.directory}}
         run: uvx ty check .
         working-directory: ${{ matrix.directory }}

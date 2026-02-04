@@ -55,8 +55,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: databricks/setup-cli@main
-      - name: Config
-        run: echo "false_token" | databricks configure --host "https://dbc-d17b7ed1-eac0.cloud.databricks.com"
       - name: Validate ${{matrix.directory}}
         run: databricks bundle validate
         working-directory: ${{ matrix.directory }}
+        env:
+          DATABRICKS_CLIENT_ID: ${{ secrets.dbx_client_id }}
+          DATABRICKS_CLIENT_SECRET: ${{ secrets.dbx_client_secret }}

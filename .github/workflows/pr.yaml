@@ -61,3 +61,4 @@ jobs:
         env:
           DATABRICKS_CLIENT_ID: ${{ secrets.dbx_client_id }}
           DATABRICKS_CLIENT_SECRET: ${{ secrets.dbx_client_secret }}
+          DATABRICKS_AUTH_TYPE: "oauth-m2m"

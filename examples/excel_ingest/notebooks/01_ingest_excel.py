@@ -9,15 +9,17 @@ import subprocess
 import sys
 import tempfile
 import uuid
-from typing import TYPE_CHECKING, Any
-
-import pandas as pd
-from pyspark.sql import functions as F
+from typing import TYPE_CHECKING, Any, cast
 
 if TYPE_CHECKING:
-    spark: Any
-    dbutils: Any
-    display: Any
+    spark = cast(Any, None)
+    dbutils = cast(Any, None)
+    display = cast(Any, None)
+    pd = cast(Any, None)
+    F = cast(Any, None)
+else:
+    import pandas as pd
+    from pyspark.sql import functions as F
 
 dbutils.widgets.text("catalog", "padda_catalog_2727440053493594")
 dbutils.widgets.text("schema", "wheels")
@@ -131,7 +133,8 @@ spark.sql(f"CREATE SCHEMA IF NOT EXISTS {catalog}.{schema}")
 
 df = spark.createDataFrame(pdf)
 df = (
-    df.withColumn("_ingest_timestamp", F.current_timestamp())
+    df
+    .withColumn("_ingest_timestamp", F.current_timestamp())
     .withColumn("_ingest_source_path", F.lit(excel_input_path))
     .withColumn("_ingest_run_id", F.lit(ingest_run_id))
 )

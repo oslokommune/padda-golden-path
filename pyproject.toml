@@ -6,8 +6,12 @@ build-backend = "hatchling.build"
 
 [tool.uv.workspace]
 members = [
-  "libs/padda.pipelines",
-  "libs/padda.common"
+  "libs/*",
+  "examples/*"
+]
+exclude = [
+  "examples/excel_ingest",
+  "examples/using-pipelines-lib",
 ]
 
 [project]

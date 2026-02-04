@@ -133,8 +133,7 @@ spark.sql(f"CREATE SCHEMA IF NOT EXISTS {catalog}.{schema}")
 
 df = spark.createDataFrame(pdf)
 df = (
-    df
-    .withColumn("_ingest_timestamp", F.current_timestamp())
+    df.withColumn("_ingest_timestamp", F.current_timestamp())
     .withColumn("_ingest_source_path", F.lit(excel_input_path))
     .withColumn("_ingest_run_id", F.lit(ingest_run_id))
 )

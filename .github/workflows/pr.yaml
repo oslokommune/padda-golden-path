@@ -62,5 +62,5 @@ jobs:
         run: databricks bundle validate
         working-directory: ${{ matrix.directory }}
         env:
-          DATABRICKS_CLIENT_ID: "71825481430200"
+          DATABRICKS_CLIENT_ID: "0753b933-82b9-4e68-a848-47bd34b0b189"
           DATABRICKS_AUTH_TYPE: "github-oidc"

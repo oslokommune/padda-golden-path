@@ -80,3 +80,9 @@ jobs:
       - name: Lint ${{matrix.directory}}
         run: uvx ruff check .
         working-directory: ${{ matrix.directory }}
+      - name: Plan ${{matrix.directory}}
+        run: databricks bundle plan
+        working-directory: ${{ matrix.directory }}
+        env:
+          DATABRICKS_CLIENT_ID: "5503fd85-196d-4df6-92f6-2809834231de"
+          DATABRICKS_AUTH_TYPE: "github-oidc"

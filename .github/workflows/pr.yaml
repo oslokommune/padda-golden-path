@@ -64,3 +64,19 @@ jobs:
         env:
           DATABRICKS_CLIENT_ID: "5503fd85-196d-4df6-92f6-2809834231de"
           DATABRICKS_AUTH_TYPE: "github-oidc"
+      - name: Install uv
+        uses: astral-sh/setup-uv@803947b9bd8e9f986429fa0c5a41c367cd732b41
+        with:
+          version: "latest"
+          enable-cache: true
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405
+        with:
+          python-version: "3.14"
+      - name: Format ${{matrix.directory}}
+        run: uv format --check
+        working-directory: ${{ matrix.directory }}
+      # No typecheck, as this is a bit tricky
+      - name: Lint ${{matrix.directory}}
+        run: uvx ruff check .
+        working-directory: ${{ matrix.directory }}

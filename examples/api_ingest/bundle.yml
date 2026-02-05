@@ -51,7 +51,7 @@ resources:
           retry_on_timeout: true
           job_cluster_key: single_node_job_cluster
           libraries:
-            - whl: dist/*.whl
+            - whl: ../../dist/*.whl
           python_wheel_task:
             package_name: api_ingest
             entry_point: setup

@@ -2,6 +2,9 @@ name: CI
 on:
   pull_request:
     branches: ["main"]
+permissions:
+  id-token: write
+  contents: read
 jobs:
   generate_dir_matrices:
     runs-on: ubuntu-latest
@@ -59,6 +62,5 @@ jobs:
         run: databricks bundle validate
         working-directory: ${{ matrix.directory }}
         env:
-          DATABRICKS_CLIENT_ID: ${{ secrets.dbx_client_id }}
-          DATABRICKS_CLIENT_SECRET: ${{ secrets.dbx_client_secret }}
-          DATABRICKS_AUTH_TYPE: "oauth-m2m"
+          DATABRICKS_CLIENT_ID: "71825481430200"
+          DATABRICKS_AUTH_TYPE: "github-oidc"

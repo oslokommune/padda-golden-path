@@ -6,8 +6,11 @@ permissions:
   id-token: write
   contents: read
 jobs:
-  format_and_lint:
+  check_bundle:
     runs-on: ubuntu-latest
+    env:
+      DATABRICKS_CLIENT_ID: "5503fd85-196d-4df6-92f6-2809834231de"
+      DATABRICKS_AUTH_TYPE: "github-oidc"
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
       - name: Install uv
@@ -23,13 +26,6 @@ jobs:
         run: uv format --check
       - name: Lint
         run: uvx ruff check
-  validate_bundle:
-    runs-on: ubuntu-latest
-    env:
-      DATABRICKS_CLIENT_ID: "5503fd85-196d-4df6-92f6-2809834231de"
-      DATABRICKS_AUTH_TYPE: "github-oidc"
-    steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
       - uses: databricks/setup-cli@8f31045b51b51b0ffe719d36a4aaf9c556691b3b
       - name: Validate bundle
         run: databricks bundle validate

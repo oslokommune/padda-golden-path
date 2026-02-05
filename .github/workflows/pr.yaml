@@ -52,6 +52,7 @@ jobs:
   validate_bundles:
     needs: generate_dir_matrices
     runs-on: ubuntu-latest
+    environment: dev
     strategy:
       matrix:
         directory: ${{ fromJson(needs.generate_dir_matrices.outputs.bundles) }}

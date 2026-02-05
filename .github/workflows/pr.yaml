@@ -27,6 +27,7 @@ jobs:
     needs: generate_dir_matrices
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         directory: ${{ fromJson(needs.generate_dir_matrices.outputs.pythonlibs) }}
     steps:
@@ -53,6 +54,7 @@ jobs:
     needs: generate_dir_matrices
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         directory: ${{ fromJson(needs.generate_dir_matrices.outputs.bundles) }}
     steps:

@@ -8,20 +8,20 @@ variables:
   api_endpoint:
     default: "/v3/salaries/current"
   alert_notification_id:
-    default: "ab3a5764-aab1-48b5-aab4-5c0f5b63acae"  # Change to your desired notification ID
+    default: "ab3a5764-aab1-48b5-aab4-5c0f5b63acae" # Change to your desired notification ID
   job_cluster_node_type:
-    default: "m5.large"  # Cheapest supported general-purpose node type; override if needed
+    default: "m5.large" # Cheapest supported general-purpose node type; override if needed
 
 artifacts:
   python_artifact:
     type: whl
     build: uv build --wheel
-    
+
 resources:
   jobs:
     api_ingest_job:
       name: "API Ingest Job"
-      timeout_seconds: 3000  # Fail the run if it exceeds 50 minutes
+      timeout_seconds: 3000 # Fail the run if it exceeds 50 minutes
       max_concurrent_runs: 1
       # Slack/webhook notifications temporarily disabled; uncomment when alerting is configured.
       # webhook_notifications:
@@ -51,7 +51,7 @@ resources:
           retry_on_timeout: true
           job_cluster_key: single_node_job_cluster
           libraries:
-          - whl: dist/*.whl
+            - whl: dist/*.whl
           python_wheel_task:
             package_name: api_ingest
             entry_point: setup
@@ -79,7 +79,7 @@ resources:
               - ${var.api_base_url}
               - "--api-endpoint"
               - ${var.api_endpoint}
-              
+
 targets:
   dev:
     # The default target uses 'mode: development' to create a development copy.
@@ -89,12 +89,12 @@ targets:
     mode: development
     default: true
     workspace:
-      host:  https://dbc-d17b7ed1-eac0.cloud.databricks.com
+      host: https://dbc-d17b7ed1-eac0.cloud.databricks.com
 
   prod:
     mode: production
     workspace:
-      host:  https://dbc-d17b7ed1-eac0.cloud.databricks.com
+      host: https://dbc-d17b7ed1-eac0.cloud.databricks.com
       root_path: /Workspace/Users/CHANGEME/.bundle/${bundle.name}/${bundle.target}
     permissions:
       - user_name: CHANGEME

@@ -38,7 +38,10 @@ nav:
   - Generic Pipelines: golden-paths/generic-pipelines.md
 - Guides:
   - Guider: guides/index.md
-  - Data: guides/data/laste-opp-excel-til-uc.md
+  - Data:
+    - Ingest Api: guides/data/ingest-api.md
+    - Landing Zone: guides/data/landing-zone.md
+    - Laste Opp Excel Til Uc: guides/data/laste-opp-excel-til-uc.md
   - Developer:
     - Dev Setup: guides/developer/dev-setup.md
     - Laste Opp Lib: guides/developer/laste-opp-lib.md

@@ -1,5 +1,6 @@
 # padda-golden-path
 
+
 Golden paths for padda, dataplattformen for data engineers i Oslo kommune.
 
 ## Dokumentasjon (MkDocs)

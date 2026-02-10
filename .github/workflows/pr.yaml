@@ -2,9 +2,15 @@ name: CI
 on:
   pull_request:
     branches: ["main"]
+permissions:
+  id-token: write
+  contents: read
 jobs:
-  check_python_code:
+  check_bundle:
     runs-on: ubuntu-latest
+    env:
+      DATABRICKS_CLIENT_ID: "00000000-0000-0000-0000-000000000004"
+      DATABRICKS_AUTH_TYPE: "github-oidc"
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
       - name: Install uv
@@ -20,3 +26,8 @@ jobs:
         run: uv format --check
       - name: Lint
         run: uvx ruff check
+      - uses: databricks/setup-cli@8f31045b51b51b0ffe719d36a4aaf9c556691b3b
+      - name: Validate bundle
+        run: databricks bundle validate
+      - name: Plan bundle
+        run: databricks bundle plan

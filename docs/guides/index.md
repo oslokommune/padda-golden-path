@@ -5,6 +5,8 @@ Her listes alle guider som er tilgjengelige innenfor respektive område.
 ## Data
 
 
+- [Ingest Api](data/ingest-api.md)
+- [Landing Zone](data/landing-zone.md)
 - [Laste Opp Excel Til Uc](data/laste-opp-excel-til-uc.md)
 
 ## Developer

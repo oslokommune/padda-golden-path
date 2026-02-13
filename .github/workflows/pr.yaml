@@ -31,3 +31,22 @@ jobs:
         run: databricks bundle validate
       - name: Plan bundle
         run: databricks bundle plan
+  deploy_lambda:
+    runs-on: ubuntu-latest
+    environment:
+      name: dev
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - name: configure aws credentials
+        uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502
+        with:
+          role-to-assume: "padda_workspace_deploy"
+          role-session-name: samplerolesession
+          aws-region: "eu-west-1"
+      - name: Upload lambda function code
+        run: |
+          zip /tmp/padda_test_pull_lambda.zip lambdas/padda_test_pull_lambda/pull.py
+          aws lambda update-function-code --function-name padda_test_pull_lambda --zip-file fileb:///tmp/padda_test_pull_lambda.zip

@@ -3,4 +3,4 @@ import json
 
 def lambda_handler(event, context):
     # TODO implement
-    return {"statusCode": 200, "body": json.dumps("World from Lambda, hello!")}
+    return {"statusCode": 200, "body": json.dumps("Hello from bundle repo!")}

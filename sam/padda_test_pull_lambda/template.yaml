@@ -1,34 +1,30 @@
-AWSTemplateFormatVersion: '2010-09-09'
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >-
+  Schedule CloudWatch Event that triggers Lambda function every hour
 Transform: AWS::Serverless-2016-10-31
-Description: >
-  padda_test_pull_lambda
-
-  Sample SAM Template for padda_test_pull_lambda
-
-# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
-Globals:
-  Function:
-    Timeout: 3
-
-    # You can add LoggingConfig parameters such as the Logformat, Log Group, and SystemLogLevel or ApplicationLogLevel. Learn more here https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-function.html#sam-function-loggingconfig.
-    LoggingConfig:
-      LogFormat: JSON
 Resources:
-  HelloWorldFunction:
-    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+  # This is the Lambda function definition associated with the source code: sqs-payload-logger.js. For all available properties, see
+  # https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+  ScheduledEventLogger:
+    Type: AWS::Serverless::Function
     Properties:
-      CodeUri: hello_world/
-      Handler: app.lambda_handler
+      Description: A Lambda function that logs the payload of messages from a
+        scheduled CloudWatch Event
+      CodeUri: src/
+      Handler: pull.lambda_handler
       Runtime: python3.14
       Architectures:
-      - x86_64
+        - x86_64
+      MemorySize: 512
+      Timeout: 300
+      # This property associates this Lambda function with a scheduled CloudWatch Event. For all available properties, see
+      # https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#schedule
+      # This example runs every hour.
       Events:
-        HelloWorld:
-          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+        CloudWatchEvent:
+          Type: Schedule
           Properties:
-            Path: /hello
-            Method: get
-
+            Schedule: cron(0 * * * ? *)
   ApplicationResourceGroup:
     Type: AWS::ResourceGroups::Group
     Properties:
@@ -41,18 +37,9 @@ Resources:
     Properties:
       ResourceGroupName:
         Ref: ApplicationResourceGroup
-      AutoConfigurationEnabled: 'true'
-Outputs:
-  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
-  # Find out more about other implicit resources you can reference within SAM
-  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
-  HelloWorldApi:
-    Description: API Gateway endpoint URL for Prod stage for Hello World 
-      function
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}/Prod/hello/"
-  HelloWorldFunction:
-    Description: Hello World Lambda Function ARN
-    Value: !GetAtt HelloWorldFunction.Arn
-  HelloWorldFunctionIamRole:
-    Description: Implicit IAM Role created for Hello World function
-    Value: !GetAtt HelloWorldFunctionRole.Arn
+      AutoConfigurationEnabled: "true"
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    LoggingConfig:
+      LogFormat: JSON

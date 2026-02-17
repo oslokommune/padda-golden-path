@@ -15,7 +15,7 @@ jobs:
       - id: list-dirs
         run: |
           # Generate a JSON array of directory names (e.g., '["dir1", "dir2"]')
-          DIRS=$(/bin/find lambdas -mindepth 1 -maxdepth 1 | jq -R . | jq -s . | jq -c .)
+          DIRS=$(/bin/find sam -mindepth 1 -maxdepth 1 | jq -R . | jq -s . | jq -c .)
           echo "lambdas=$DIRS" >> $GITHUB_OUTPUT
   deploy_lambdas:
     needs: generate_lambda_matrix

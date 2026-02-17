@@ -1,6 +1,6 @@
 name: CD
 on:
-  pull_request:
+  push:
     branches: ["main"]
 permissions:
   id-token: write
@@ -51,5 +51,53 @@ jobs:
       - name: Upload lambda function code (${{ matrix.directory }})
         run: |
           mkdir -p /tmp/lambdas/dev
+          zip /tmp/${{ matrix.directory }}.zip ${{ matrix.directory }}/pull.py
+          aws lambda update-function-code --function-name $(echo "${{ matrix.directory }}" | cut -d"/" -f3) --zip-file fileb:///tmp/${{ matrix.directory }}.zip
+  deploy_lambda_stage:
+    needs: generate_lambda_matrix
+    runs-on: ubuntu-latest
+    environment:
+      name: stage
+    permissions:
+      id-token: write
+      contents: read
+    strategy:
+      matrix:
+        directory: ${{ fromJson(needs.generate_lambda_matrix.outputs.stage) }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - name: configure aws credentials
+        uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502
+        with:
+          role-to-assume: "arn:aws:iam::316489803684:role/stadda_workspace_deploy"
+          role-session-name: samplerolesession
+          aws-region: "eu-west-1"
+      - name: Upload lambda function code (${{ matrix.directory }})
+        run: |
+          mkdir -p /tmp/lambdas/stage
+          zip /tmp/${{ matrix.directory }}.zip ${{ matrix.directory }}/pull.py
+          aws lambda update-function-code --function-name $(echo "${{ matrix.directory }}" | cut -d"/" -f3) --zip-file fileb:///tmp/${{ matrix.directory }}.zip
+  deploy_lambda_prod:
+    needs: generate_lambda_matrix
+    runs-on: ubuntu-latest
+    environment:
+      name: prod
+    permissions:
+      id-token: write
+      contents: read
+    strategy:
+      matrix:
+        directory: ${{ fromJson(needs.generate_lambda_matrix.outputs.prod) }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - name: configure aws credentials
+        uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502
+        with:
+          role-to-assume: "arn:aws:iam::316489803684:role/prodda_workspace_deploy"
+          role-session-name: samplerolesession
+          aws-region: "eu-west-1"
+      - name: Upload lambda function code (${{ matrix.directory }})
+        run: |
+          mkdir -p /tmp/lambdas/prod
           zip /tmp/${{ matrix.directory }}.zip ${{ matrix.directory }}/pull.py
           aws lambda update-function-code --function-name $(echo "${{ matrix.directory }}" | cut -d"/" -f3) --zip-file fileb:///tmp/${{ matrix.directory }}.zip

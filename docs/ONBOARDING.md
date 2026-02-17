@@ -34,28 +34,33 @@ For å få tilgang til Padda dataplattform må du bekrefte at du har lest og for
 ## Steg for steg
 
 1. **Les retningslinjene** ovenfor.
-2. **Opprett en ny branch** fra `main`:
+
+2. **Hent repoet til din maskin**
+    ```bash
+    git clone https://github.com/oslokommune/padda-golden-path.git
+    ```
+3. **Opprett en ny branch** fra `main`:
    ```bash
    git checkout main && git pull
    git checkout -b onboarding/ditt.navn
    ```
-3. **Lag en fil** i `onboarding/brukere/` med ditt navn som filnavn, f.eks. `ola.nordmann.md`:
+4. **Lag en fil** i `onboarding/brukere/` med ditt navn som filnavn, f.eks. `ola.nordmann.md`:
    ```bash
    touch onboarding/brukere/ola.nordmann.md
    ```
-4. **Legg til følgende innhold** i filen:
+5. **Legg til følgende innhold** i filen:
    ```markdown
    # Ola Nordmann
    - Dato: 2026-02-17
    - Jeg bekrefter at jeg har lest og forstått retningslinjene i ONBOARDING.md
    ```
-5. **Commit og push**:
+6. **Commit og push**:
    ```bash
    git add onboarding/brukere/ola.nordmann.md
    git commit -m "onboarding: ola nordmann"
    git push -u origin onboarding/ditt.navn
    ```
-6. **Opprett en PR** mot `main`-branchen og be om review fra team dataspeilet.
+7. **Opprett en PR** mot `main`-branchen og be om review fra team dataspeilet.
 
 ## Hvorfor denne prosessen?
 

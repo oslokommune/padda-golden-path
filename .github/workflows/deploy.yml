@@ -21,7 +21,7 @@ jobs:
     needs: generate_lambda_matrix
     runs-on: ubuntu-latest
     environment:
-      name: ${{ github.ref_name == 'main' && 'prod' || github.ref_name }}
+      name: dev #${{ github.ref_name == 'main' && 'prod' || github.ref_name }}
     permissions:
       id-token: write
       contents: read

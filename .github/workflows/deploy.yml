@@ -10,22 +10,24 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       dev: ${{ steps.list-dirs-dev.outputs.dev }}
+      stage: ${{ steps.list-dirs-dev.outputs.stage }}
+      prod: ${{ steps.list-dirs-dev.outputs.prod }}
     steps:
       - uses: actions/checkout@v4
       - id: list-dirs-dev
         run: |
           # Generate a JSON array of directory names (e.g., '["dir1", "dir2"]')
-          DIRS=$(/bin/find ./lambdas/dev -mindepth 1 -maxdepth 1 | jq -R . | jq -s . | jq -c .)
+          DIRS=$(/bin/find lambdas/dev -mindepth 1 -maxdepth 1 | jq -R . | jq -s . | jq -c .)
           echo "dev=$DIRS" >> $GITHUB_OUTPUT
       - id: list-dirs-stage
         run: |
           # Generate a JSON array of directory names (e.g., '["dir1", "dir2"]')
-          DIRS=$(/bin/find ./lambdas/stage -mindepth 1 -maxdepth 1 | jq -R . | jq -s . | jq -c .)
+          DIRS=$(/bin/find lambdas/stage -mindepth 1 -maxdepth 1 | jq -R . | jq -s . | jq -c .)
           echo "stage=$DIRS" >> $GITHUB_OUTPUT
       - id: list-dirs-prod
         run: |
           # Generate a JSON array of directory names (e.g., '["dir1", "dir2"]')
-          DIRS=$(/bin/find ./lambdas/prod -mindepth 1 -maxdepth 1 | jq -R . | jq -s . | jq -c .)
+          DIRS=$(/bin/find lambdas/prod -mindepth 1 -maxdepth 1 | jq -R . | jq -s . | jq -c .)
           echo "prod=$DIRS" >> $GITHUB_OUTPUT
   deploy_lambda_dev:
     needs: generate_lambda_matrix
@@ -46,7 +48,8 @@ jobs:
           role-to-assume: "arn:aws:iam::316489803684:role/padda_workspace_deploy"
           role-session-name: samplerolesession
           aws-region: "eu-west-1"
-      - name: Upload lambda function code
+      - name: Upload lambda function code (${{ matrix.directory }})
         run: |
-          zip /tmp/padda_test_pull_lambda.zip lambdas/padda_test_pull_lambda/pull.py
-          aws lambda update-function-code --function-name padda_test_pull_lambda --zip-file fileb:///tmp/padda_test_pull_lambda.zip
+          mkdir -p /tmp/lambdas/dev
+          zip /tmp/${{ matrix.directory }}.zip ${{ matrix.directory }}/pull.py
+          aws lambda update-function-code --function-name $(echo "${{ matrix.directory }}" | cut -d"/" -f3) --zip-file fileb:///tmp/${{ matrix.directory }}.zip

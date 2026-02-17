@@ -6,19 +6,7 @@ permissions:
   id-token: write
   contents: read
 jobs:
-  generate_lambda_matrix:
-    runs-on: ubuntu-latest
-    outputs:
-      directories: ${{ steps.list-dirs.outputs.dirs }}
-    steps:
-      - uses: actions/checkout@v4
-      - id: list-dirs
-        run: |
-          # Generate a JSON array of directory names (e.g., '["dir1", "dir2"]')
-          DIRS=$(find ./tf -mindepth 2 -maxdepth 2 -type d -not -path './tf/modules*' | jq -R . | jq -s . | jq -c .)
-          echo "dirs=$DIRS" >> $GITHUB_OUTPUT
   check_bundle:
-    needs: generate_lambda_matrix
     runs-on: ubuntu-latest
     env:
       DATABRICKS_CLIENT_ID: "5503fd85-196d-4df6-92f6-2809834231de"

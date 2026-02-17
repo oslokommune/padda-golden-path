@@ -29,9 +29,30 @@ Dataplattformen tar ikke backup av datasettene i løsningen.
 
 # Onboarding — slik bekrefter du
 
-For å få tilgang til Padda dataplattform må du bekrefte at du har lest og forstått retningslinjene våre. Dette gjør du ved å opprette en pull request (PR) til https://github.com/oslokommune/padda-golden-path
+For å få tilgang til Padda dataplattform må du bekrefte at du har lest og forstått retningslinjene våre. Dette gjør du ved å opprette en pull request (PR) direkte på GitHub.
 
-## Steg for steg
+## Steg for steg - GUI
+
+1. **Les retningslinjene** ovenfor.
+
+2. **Gå til mappen [`onboarding/brukere/`](https://github.com/oslokommune/padda-golden-path/tree/main/onboarding/brukere)** på GitHub.
+
+3. **Klikk "Add file"** → **"Create new file"**.
+
+4. **Gi filen navn** med ditt navn som filnavn, f.eks. `ola.nordmann.md`.
+
+5. **Legg til følgende innhold** i editoren:
+   ```markdown
+   # Ola Nordmann
+   - Dato: 2026-02-17
+   - Jeg bekrefter at jeg har lest og forstått retningslinjene i ONBOARDING.md
+   ```
+
+6. **Klikk "Commit changes..."**, velg **"Create a new branch for this commit and start a pull request"**, og klikk **"Propose changes"**.
+
+7. **Fyll ut PR-malen** — kryss av alle punktene i sjekklisten og fyll inn navn og dato. Klikk **"Create pull request"**.
+
+## Steg for steg - IDE
 
 1. **Les retningslinjene** ovenfor.
 
@@ -61,7 +82,6 @@ For å få tilgang til Padda dataplattform må du bekrefte at du har lest og for
    git push -u origin onboarding/ditt.navn
    ```
 7. **Opprett en PR** mot `main`-branchen og be om review fra team dataspeilet.
-
 ## Hvorfor denne prosessen?
 
 - Skaper en sporbar logg over hvem som har lest og godtatt retningslinjene.

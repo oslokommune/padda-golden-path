@@ -1,19 +1,102 @@
 # Landing zone
 
-Landing zone er koblet til hvert workspace en S3-bucket opprettes for innkommende data. Hver landing zone har en liste med "sendere" som skal laste opp data til bucketen. For hver sender blir det opprettet tre prefikser (green, yellow, red) med tilhorende brukere som kan laste opp til disse, etter skjemaet:
+!!! tip "Ny bruker?"
+    Se [Kom i gang](../../getting-started.md) for en komplett oversikt over hele dataflyten fra applikasjon til PowerBI.
+
+Landing zone er en S3-bucket som opprettes for hvert Databricks-workspace for innkommende data. Hver landing zone har en liste med "sendere" som skal laste opp data til bucketen. For hver sender blir det opprettet tre prefikser (green, yellow, red) med tilhørende brukere som kan laste opp til disse, etter skjemaet:
 
 `s3://bucket_name/sender_name/confidentiality_color/`
 
 ## Struktur og tilgang
 
-- 1:1 - Et workspace har en og bare en landing zone-bucket
-- Hver sender representerer en ekstern aktør som skal kunne laste opp filer.
-- For hver sender opprettes tre sub-prefikser (green/yellow/red).
-- For hvert prefix lages en IAM-bruker slik at en bruker kun kan laste opp til sitt eget område.
+- 1:1 — Et workspace har en og bare en landing zone-bucket
+- Hver sender representerer en ekstern aktør (f.eks. en applikasjon) som skal kunne laste opp filer
+- For hver sender opprettes tre sub-prefikser basert på konfidensialitetsnivå:
+    - **green** — offentlige/åpne data
+    - **yellow** — interne data
+    - **red** — konfidensielle data
+- For hvert prefiks lages en IAM-bruker slik at en bruker kun kan laste opp til sitt eget område
+
+```
+s3://69d82-workspace-landing-zone/
+├── sender-a/
+│   ├── green/
+│   ├── yellow/
+│   └── red/
+└── sender-b/
+    ├── green/
+    ├── yellow/
+    └── red/
+```
+
+## Hvordan får jeg en landing zone-sender?
+
+Landing zone-bucketen administreres av plattformteamet via Terraform. Du oppretter **ikke** bucketen selv.
+
+**Slik ber du om en sender:**
+
+1. Kontakt plattformteamet via [#dig-dataplattform](https://oslokommune.slack.com/archives/C01SFNFEXK7)
+2. Oppgi:
+    - Hvilket workspace du tilhører
+    - Ønsket sendernavn (f.eks. `min-app`)
+    - Eventuell IP-begrensning for opplasting
+3. Plattformteamet oppretter senderen og du mottar IAM-nøkler over sikker kanal
 
 ## Tilgang til IAM-brukere
 
-For hver bruker kan det utstedes sikkerhetsnøkler for å gi tilgang til brukeren. Disse må formiddles til den tjenesten eller mennesket som skal bruke de over sikker kanal.
+For hver sender opprettes IAM-brukere med nøkler (access key + secret key). Nøklene gir kun tilgang til senderens egne prefikser og må formidles over sikker kanal.
+
+Hver IAM-bruker kan:
+
+- `s3:ListBucket` — liste filer i sitt prefiks
+- `s3:PutObject` — laste opp filer
+- `s3:GetObject` — lese filer
+- `s3:DeleteObject` — slette filer
+
+## Anbefalt filformat og struktur
+
+Databricks støtter mange filformater. Vi anbefaler:
+
+| Format | Når | Merknad |
+|--------|-----|---------|
+| **Parquet** | Store datasett, kolonnebasert analyse | Best ytelse |
+| **JSON** (ndjson) | API-responser, nestede strukturer | En JSON-rad per linje |
+| **CSV** | Enkle tabulære data | Husk UTF-8 og header-rad |
+
+### Organisering for inkrementell innlasting
+
+Organiser filene i mapper etter dato eller batch slik at Databricks Auto Loader enkelt kan plukke opp nye filer:
+
+```
+s3://bucket/min-app/green/2026/02/17/data-001.parquet
+s3://bucket/min-app/green/2026/02/17/data-002.parquet
+s3://bucket/min-app/green/2026/02/18/data-001.parquet
+```
+
+Auto Loader holder styr på hvilke filer som allerede er prosessert, slik at kun nye filer leses inn ved neste kjøring.
+
+## Kobling til Databricks
+
+Landing zone er automatisk tilgjengelig i Databricks via en **External Location** som plattformteamet setter opp. Du trenger ikke gjøre noe ekstra for å koble S3 til Databricks — det er allerede på plass.
+
+For å lese data fra landing zone i en notebook:
+
+```python
+# Med Auto Loader (anbefalt for inkrementell innlasting)
+df = (
+    spark.readStream.format("cloudFiles")
+    .option("cloudFiles.format", "parquet")
+    .option("cloudFiles.schemaLocation", "/tmp/schema/min-app")
+    .load("s3://69d82-workspace-landing-zone/min-app/green/")
+)
+
+# Eller med enkel batch-lesning
+df = spark.read.format("parquet").load(
+    "s3://69d82-workspace-landing-zone/min-app/green/2026/02/17/"
+)
+```
+
+Se [Kom i gang](../../getting-started.md) for en komplett oversikt over hele dataflyten.
 
 ## Bruk av sikkerhetsnøkler
 
@@ -30,10 +113,27 @@ Konfigurasjonsfilen `~/.aws/config` ser da slik ut:
 ```ini
 [profile key-test]
 region = eu-west-1
-aws_access_key_id = OPELCORSAFOREVER
-aws_secret_access_key = LEATHERSEATSTASTEBETTERTHANCHOCOLATE
+aws_access_key_id = DIN_ACCESS_KEY
+aws_secret_access_key = DIN_SECRET_KEY
 ```
 
 ### Produksjon
 
-Nøyaktig hvilken mekanisme man bruker i prod kommer litt an på, men la oss si at du bygger et program i Rust med AWS SDK. SDKet vil da finne nøklene via noe a la [`DefaultCredentialsChain`](https://docs.rs/aws-config/latest/aws_config/default_provider/credentials/struct.DefaultCredentialsChain.html). Her er et [eksempel på hvordan filkopiering kan gjøres](https://github.com/awsdocs/aws-doc-sdk-examples/blob/main/rustv1/examples/s3/src/bin/copy-object.rs). Eksempelet bruker [`RegionProviderChain`](https://docs.rs/aws-config/latest/aws_config/meta/region/struct.RegionProviderChain.html), men det er bare en wrapper rundt `DefaultCredentialsChain`. Det er mange måter å gi nøklene til `DefaultCredentialsChain` på, men det går helt greit å legge de i `~/.aws/config`, akkurat som i avsnittet om testing. Andre språk kan være litt mer implisitte rundt det hele, men fungerer på samme måte. Her er dokumentasjonen for [Javas DefaultCredentialsProvider](https://sdk.amazonaws.com/java/api/latest/software/amazon/awssdk/auth/credentials/DefaultCredentialsProvider.html) og [tilsvarende i Python](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/credentials.html). Felles for alle er at det er en prioritert rekkefølge av steder SDKet ser etter credentials, blant annet environment variables, `~/.aws/config`, `~/.aws/credentials`, samt mange andre muligheter, skjønt mange er til for andre typer credentials enn nøkler.
+I produksjon bruker du AWS SDK for ditt språk. SDK-et finner nøklene automatisk via en prioritert credential chain (environment variables, `~/.aws/config`, `~/.aws/credentials`, m.m.).
+
+**Python (boto3):**
+```python
+import boto3
+
+s3 = boto3.client("s3", region_name="eu-west-1")
+s3.upload_file("data.parquet", "69d82-workspace-landing-zone", "min-app/green/2026/02/17/data.parquet")
+```
+
+Se credential-dokumentasjon for ditt språk:
+
+- [Python (boto3)](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/credentials.html)
+- [Java (DefaultCredentialsProvider)](https://sdk.amazonaws.com/java/api/latest/software/amazon/awssdk/auth/credentials/DefaultCredentialsProvider.html)
+- [Rust (DefaultCredentialsChain)](https://docs.rs/aws-config/latest/aws_config/default_provider/credentials/struct.DefaultCredentialsChain.html)
+- [.NET (FallbackCredentialsFactory)](https://docs.aws.amazon.com/sdk-for-net/v3/developer-guide/creds-assign.html)
+
+Felles for alle er at det er en prioritert rekkefølge av steder SDK-et ser etter credentials. I produksjon anbefaler vi environment variables eller en secrets manager fremfor å lagre nøkler i filer.

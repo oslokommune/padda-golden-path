@@ -38,6 +38,7 @@ jobs:
           aws-region: "eu-west-1"
       - name: Upload lambda function code (${{ matrix.directory }})
         run: |
+          sam --version
           mkdir -p /tmp/lambdas
           zip /tmp/${{ matrix.directory }}.zip ${{ matrix.directory }}/pull.py
           aws lambda update-function-code --function-name $(echo "${{ matrix.directory }}" | cut -d"/" -f2) --zip-file fileb:///tmp/${{ matrix.directory }}.zip

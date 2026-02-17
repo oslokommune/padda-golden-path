@@ -1,0 +1,43 @@
+name: CD
+on:
+  pull_request:
+    branches: ["main", "dev", "stage"]
+permissions:
+  id-token: write
+  contents: read
+jobs:
+  generate_lambda_matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      lambdas: ${{ steps.list-dirs.outputs.lambdas }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: list-dirs
+        run: |
+          # Generate a JSON array of directory names (e.g., '["dir1", "dir2"]')
+          DIRS=$(/bin/find lambdas -mindepth 1 -maxdepth 1 | jq -R . | jq -s . | jq -c .)
+          echo "lambdas=$DIRS" >> $GITHUB_OUTPUT
+  deploy_lambdas:
+    needs: generate_lambda_matrix
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ github.ref_name == 'main' && 'prod' || github.ref_name }}
+    permissions:
+      id-token: write
+      contents: read
+    strategy:
+      matrix:
+        directory: ${{ fromJson(needs.generate_lambda_matrix.outputs.lambdas) }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      - name: configure aws credentials
+        uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502
+        with:
+          role-to-assume: ${{ github.ref_name == 'main' && 'arn:aws:iam::316489803684:role/padda_workspace_deploy_prod' || github.ref_name == 'stage' && 'arn:aws:iam::316489803684:role/padda_workspace_deploy_stage' || github.ref_name == 'dev' && 'arn:aws:iam::316489803684:role/padda_workspace_deploy' || 'arn:aws:iam::316489803684:role/padda_workspace_deploy' }}
+          role-session-name: samplerolesession
+          aws-region: "eu-west-1"
+      - name: Upload lambda function code (${{ matrix.directory }})
+        run: |
+          mkdir -p /tmp/lambdas
+          zip /tmp/${{ matrix.directory }}.zip ${{ matrix.directory }}/pull.py
+          aws lambda update-function-code --function-name $(echo "${{ matrix.directory }}" | cut -d"/" -f2) --zip-file fileb:///tmp/${{ matrix.directory }}.zip

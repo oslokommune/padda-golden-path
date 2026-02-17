@@ -21,7 +21,7 @@ jobs:
     needs: generate_lambda_matrix
     runs-on: ubuntu-latest
     environment:
-      name: ${{ github.ref_name }} # TODO replace main->prod, also the role....
+      name: ${{ github.ref_name == 'main' && 'prod' || github.ref_name }}
     permissions:
       id-token: write
       contents: read
@@ -33,7 +33,7 @@ jobs:
       - name: configure aws credentials
         uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502
         with:
-          role-to-assume: "arn:aws:iam::316489803684:role/padda_workspace_deploy"
+          role-to-assume: ${{ github.ref_name == 'main' && 'arn:aws:iam::316489803684:role/padda_workspace_deploy_prod' || github.ref_name == 'stage' && 'arn:aws:iam::316489803684:role/padda_workspace_deploy_stage' || github.ref_name == 'dev' && 'arn:aws:iam::316489803684:role/padda_workspace_deploy' || 'arn:aws:iam::316489803684:role/padda_workspace_deploy' }}
           role-session-name: samplerolesession
           aws-region: "eu-west-1"
       - name: Upload lambda function code (${{ matrix.directory }})

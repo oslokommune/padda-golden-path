@@ -6,7 +6,19 @@ permissions:
   id-token: write
   contents: read
 jobs:
+  generate_lambda_matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      directories: ${{ steps.list-dirs.outputs.dirs }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: list-dirs
+        run: |
+          # Generate a JSON array of directory names (e.g., '["dir1", "dir2"]')
+          DIRS=$(find ./tf -mindepth 2 -maxdepth 2 -type d -not -path './tf/modules*' | jq -R . | jq -s . | jq -c .)
+          echo "dirs=$DIRS" >> $GITHUB_OUTPUT
   check_bundle:
+    needs: generate_lambda_matrix
     runs-on: ubuntu-latest
     env:
       DATABRICKS_CLIENT_ID: "5503fd85-196d-4df6-92f6-2809834231de"
@@ -31,22 +43,3 @@ jobs:
         run: databricks bundle validate
       - name: Plan bundle
         run: databricks bundle plan
-  deploy_lambda:
-    runs-on: ubuntu-latest
-    environment:
-      name: dev
-    permissions:
-      id-token: write
-      contents: read
-    steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
-      - name: configure aws credentials
-        uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502
-        with:
-          role-to-assume: "arn:aws:iam::316489803684:role/padda_workspace_deploy"
-          role-session-name: samplerolesession
-          aws-region: "eu-west-1"
-      - name: Upload lambda function code
-        run: |
-          zip /tmp/padda_test_pull_lambda.zip lambdas/padda_test_pull_lambda/pull.py
-          aws lambda update-function-code --function-name padda_test_pull_lambda --zip-file fileb:///tmp/padda_test_pull_lambda.zip

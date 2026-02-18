@@ -1,0 +1,209 @@
+# Databricks notebook source
+# MAGIC %md
+# MAGIC **Notebook name:** initialize
+# MAGIC **Functionality:** initializes the necessary configruation values for the rest of the process into a json
+
+# COMMAND ----------
+
+# MAGIC %run ./common
+
+# COMMAND ----------
+
+# replace values for accounts exec
+hostname = (
+    dbutils.notebook.entry_point.getDbutils()
+    .notebook()
+    .getContext()
+    .apiUrl()
+    .getOrElse(None)
+)
+cloud_type = getCloudType(hostname)
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ##### Modify JSON values
+# MAGIC * **account_id** Account ID. Can get this from the accounts console
+# MAGIC * **sql_warehouse_id** SQL Warehouse ID to import dashboard
+# MAGIC * **verbosity** (optional). debug, info, warning, error, critical
+# MAGIC * **maxpages** for paginated calls, how many max pages to iterate before stopping
+# MAGIC * **timebetweencalls** time in secs between api calls. This is to prevent rejections with too many api calls
+# MAGIC * **master_name_scope** Secret Scope for Account Name
+# MAGIC * **master_name_key** Secret Key for Account Name
+# MAGIC * **master_pwd_scope** Secret Scope for Account Password
+# MAGIC * **master_pwd_key** Secret Key for Account Password
+# MAGIC * **workspace_pat_scope** Secret Scope for Workspace PAT
+# MAGIC * **workspace_pat_token_prefix** Secret Key prefix for Workspace PAT. Workspace ID will automatically be appended to this per workspace
+# MAGIC * **use_mastercreds** (optional) Use master account credentials for all workspaces
+# MAGIC * **sat_version** Version of the SAT version being used
+
+# COMMAND ----------
+
+SECRETS_SCOPE = "sat_scope"
+
+# COMMAND ----------
+
+import json
+
+def _quote_schema(schema_str):
+    """Backtick-quote each part of a catalog.schema identifier so hyphens are valid SQL."""
+    parts = schema_str.split(".")
+    return ".".join(f"`{p}`" for p in parts)
+
+_raw_analysis_schema = dbutils.secrets.get(scope=SECRETS_SCOPE, key="analysis_schema_name")
+
+json_ = {
+    "account_id": dbutils.secrets.get(scope=SECRETS_SCOPE, key="account-console-id"),
+    "sql_warehouse_id": dbutils.secrets.get(scope=SECRETS_SCOPE, key="sql-warehouse-id"),
+    "analysis_schema_name": _quote_schema(_raw_analysis_schema),
+    "verbosity": "info",
+    "maxpages":10,
+    "timebetweencalls":1,
+    "proxies": json.loads(dbutils.secrets.get(scope=SECRETS_SCOPE, key="proxies")),
+}
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ##### Intermediate Schema Creation
+# MAGIC The following section creates an intermediate schema for storing temporary tables. Previously, these were created as global temp views, but since serverless does not support global temp views, they are now created as tables.
+
+# COMMAND ----------
+
+intermediate_schema_name = (
+    f"`{_raw_analysis_schema.split('.')[0]}`.`intermediate_schema`"
+    if '.' in _raw_analysis_schema
+    else "`hive_metastore`.`intermediate_schema`"
+)
+json_.update(
+    {
+        "intermediate_schema" : intermediate_schema_name
+    }
+
+)
+
+# COMMAND ----------
+
+json_.update(
+    {
+        "master_name_scope": SECRETS_SCOPE,
+        "master_name_key": "user",
+        "master_pwd_scope": SECRETS_SCOPE,
+        "master_pwd_key": "pass",
+        "workspace_pat_scope": SECRETS_SCOPE,
+        "workspace_pat_token_prefix": "sat-token",
+        "dashboard_id": "317f4809-8d9d-4956-a79a-6eee51412217",
+        "dashboard_folder": f"{basePath()}/dashboards/",
+        "dashboard_tag": "SAT",
+        "use_mastercreds": True,
+        "use_parallel_runs": True,
+        # accounts_console: URL for accounts console in special environments (gov cloud, DoD)
+        # Leave empty for standard environments. Examples:
+        #   - GovCloud (FedRAMP): "https://accounts.cloud.databricks.us"
+        #   - DoD (IL4/IL5): See https://docs.databricks.com/aws/en/security/privacy/gov-cloud
+        "accounts_console": "",
+        "sat_version": "0.6.0",
+    }
+)
+
+
+# COMMAND ----------
+
+# DBTITLE 1,GCP configurations
+if cloud_type == "gcp":
+    sp_auth = {
+        "use_sp_auth": "False",
+        "client_id": "",
+        "client_secret_key": "client-secret",
+    }
+    try:
+        use_sp_auth = (
+            dbutils.secrets.get(scope=SECRETS_SCOPE, key="use-sp-auth").lower() == "true"
+        )
+        if use_sp_auth:
+            sp_auth["use_sp_auth"] = "True"
+            sp_auth["client_id"] = dbutils.secrets.get(
+                scope=SECRETS_SCOPE, key="client-id"
+            )
+    except:
+        pass
+    json_.update(sp_auth)
+
+# COMMAND ----------
+
+# DBTITLE 1,Azure configurations
+if cloud_type == "azure":
+    json_.update(
+        {
+            "subscription_id": dbutils.secrets.get(
+                scope=SECRETS_SCOPE, key="subscription-id"
+            ),  # Azure subscriptionId
+            "tenant_id": dbutils.secrets.get(
+                scope=SECRETS_SCOPE, key="tenant-id"
+            ),  # The Directory (tenant) ID for the application registered in Azure AD.
+            "client_id": dbutils.secrets.get(
+                scope=SECRETS_SCOPE, key="client-id"
+            ),  # The Application (client) ID for the application registered in Azure AD.
+            "client_secret_key": "client-secret",  # The secret generated by AAD during your confidential app registration
+            "use_mastercreds": True,
+        }
+    )
+
+
+# COMMAND ----------
+
+# DBTITLE 1,AWS configurations
+if cloud_type == "aws":
+    sp_auth = {
+        "use_sp_auth": "False",
+        "client_id": "",
+        "client_secret_key": "client-secret",
+    }
+    try:
+        use_sp_auth = (
+            dbutils.secrets.get(scope=SECRETS_SCOPE, key="use-sp-auth").lower() == "true"
+        )
+        if use_sp_auth:
+            sp_auth["use_sp_auth"] = "True"
+            sp_auth["client_id"] = dbutils.secrets.get(
+                scope=SECRETS_SCOPE, key="client-id"
+            )
+    except:
+        pass
+    json_.update(sp_auth)
+
+# COMMAND ----------
+
+###%pip install PyYAML dbl-sat-sdk=="0.0.109"
+
+# COMMAND ----------
+
+
+from core.logging_utils import LoggingUtils
+
+LoggingUtils.set_logger_level(LoggingUtils.get_log_level(json_["verbosity"]))
+loggr = LoggingUtils.get_logger()
+
+# COMMAND ----------
+
+#spark.sql(f"DROP DATABASE IF EXISTS {json_['intermediate_schema']} CASCADE")
+
+# COMMAND ----------
+
+create_schema()
+create_security_checks_table()
+create_account_info_table()
+create_account_workspaces_table()
+create_notebooks_secret_scan_results_table()
+create_clusters_secret_scan_results_table()
+create_workspace_run_complete_table()
+
+# COMMAND ----------
+
+# Initialize best practices
+readBestPracticesConfigsFile()
+
+# COMMAND ----------
+
+# Initialize sat dasf mapping
+load_sat_dasf_mapping()

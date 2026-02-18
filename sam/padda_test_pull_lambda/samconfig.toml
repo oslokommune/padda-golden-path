@@ -3,7 +3,7 @@
 version = 0.1
 
 [default.global.parameters]
-stack_name = "padda_test_pull_lambda"
+stack_name = "padda-test-pull-lambda"
 s3_bucket = "69d82-padda-sam"
 resolve_s3 = false
 

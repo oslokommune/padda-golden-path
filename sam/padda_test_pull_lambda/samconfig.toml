@@ -4,6 +4,7 @@ version = 0.1
 
 [default.global.parameters]
 stack_name = "padda_test_pull_lambda"
+s3_bucket = "padda_sam"
 
 [default.build.parameters]
 cached = true

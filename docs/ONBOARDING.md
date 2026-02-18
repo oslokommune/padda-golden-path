@@ -8,22 +8,19 @@ Padda er Oslo kommunes dataplattform for datainnsamling, prosessering og analyse
 
 ## Sjekkliste før bruk av Dataplattformen (Databricks)
 
-1. Dataeierskap og samtykke
+**Dataeierskap og samtykke**
 Du har ansvar for at dataeier har samtykket til opplasting og er kjent med risikoen ved bruk av plattformen.
 
-2. Risikovurdering (ROS)
-Det må gjennomføres en egen risikovurdering for bruk av dine data. Vi har utarbeidet mal for gjennomføring av en ROS-prosess som kan benyttes om ønskelig, som ligger her.
-Vi har også utarbeidet en mal for en ROS-rapport som kan benyttes, som ligger her.
-Risikovurdering av Databrikcs er beskrevet i gjeldende ROS.
-Du må ha satt deg inn i dette før plattformen tas i bruk. 
+**Risikovurdering (ROS)**
+Det må gjennomføres en egen risikovurdering for bruk av dine data samt en personvernvurdering dersom det behandles personopplysninger.Risikovurdering av Databrikcs er beskrevet i [gjeldende ROS](https://docs.google.com/document/d/1uh4AcDAb_cwKZcGJqxAXN_t5kNA-ia3V/edit%E2%80%A8https://oslokommune.sharepoint.com/:w:/s/TEAM-DIG-jipii/IQDruTSV8dMRSoENWpvHFgecAe8nV6vvjEM6sAak3U202F4?e=CmCuJf).Du må ha satt deg inn i dette før plattformen tas i bruk. Vi har utarbeidet mal for gjennomføring av en ROS-prosess som kan benyttes om ønskelig, som ligger [her](https://miro.com/app/board/uXjVGQbi2BY=/).Vi har også utarbeidet en mal for en ROS-rapport som kan benyttes, som ligger [her](https://oslokommune.sharepoint.com/:w:/r/sites/TEAM-DIG-JIPI/Delte%20dokumenter/General/ROS%20Metoder/ROS-NextGen/MAL%20Rosrapport%20Databricks%20dataproduktteam.docx?d=w3ceef0c9ba314bc595e458967e19342d&csf=1&web=1&e=lCahPa).
 
-3. Tilgangsstyring
+**Tilgangsstyring**
 Du er ansvarlig for å forstå og velge riktig tilgangsnivå for datasettene dine.
 
-4. Ingen SLA
+**Ingen SLA**
 Plattformen er under utvikling, og det foreligger per i dag ingen SLA knyttet til oppetid eller tilgjengelighet.
 
-5. Backup og redundans
+**Backup og redundans**
 Du er selv ansvarlig for å sørge for redundant lagring av dataene.
 Dataplattformen tar ikke backup av datasettene i løsningen.
 

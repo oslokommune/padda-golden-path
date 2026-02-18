@@ -38,5 +38,5 @@ jobs:
           aws-region: "eu-west-1"
       - name: Upload lambda function code (${{ matrix.directory }})
         run: |
-          sam deploy --debug
+          sam deploy --debug --no-confirm-changeset
         working-directory: ${{ matrix.directory }}

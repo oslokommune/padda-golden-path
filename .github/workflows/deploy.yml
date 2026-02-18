@@ -38,5 +38,5 @@ jobs:
           aws-region: "eu-west-1"
       - name: Upload lambda function code (${{ matrix.directory }})
         run: |
-          sam deploy
+          sam deploy --stack-name olololol
         working-directory: ${{ matrix.directory }}

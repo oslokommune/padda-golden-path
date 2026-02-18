@@ -4,7 +4,8 @@ version = 0.1
 
 [default.global.parameters]
 stack_name = "padda_test_pull_lambda"
-s3_bucket = "padda_sam"
+s3_bucket = "69d82-padda-sam"
+resolve_s3 = false
 
 [default.build.parameters]
 cached = true
@@ -16,10 +17,6 @@ lint = true
 [default.deploy.parameters]
 capabilities = "CAPABILITY_IAM"
 confirm_changeset = true
-resolve_s3 = true
-
-[default.package.parameters]
-resolve_s3 = false
 
 [default.sync.parameters]
 watch = true

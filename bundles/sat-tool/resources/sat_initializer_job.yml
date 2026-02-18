@@ -1,0 +1,17 @@
+resources:
+  jobs:
+    sat_initializer:
+      name: "SAT Initializer Notebook (one-time)"
+      tags:
+        Application: SAT
+
+      environments:
+        - environment_key: "Default"
+          spec:
+            environment_version: "2"
+
+      tasks:
+        - task_key: "sat_initializer"
+          environment_key: "Default"
+          notebook_task:
+            notebook_path: ../notebooks/security_analysis_initializer.py

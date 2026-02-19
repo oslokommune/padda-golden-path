@@ -8,6 +8,7 @@ Resources:
   ScheduledEventLogger:
     Type: AWS::Serverless::Function
     Properties:
+      Role: arn:aws:iam::316489803684:role/padda_test_pull_lambda20260213112326203100000001
       Description: A Lambda function that logs the payload of messages from a
         scheduled CloudWatch Event
       CodeUri: src/

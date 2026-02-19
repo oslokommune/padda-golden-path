@@ -11,6 +11,7 @@ Resources:
   paddatestpulllambda:
     Type: AWS::Serverless::Function
     Properties:
+      Role: arn:aws:iam::316489803684:role/padda_test_pull_lambda20260213112326203100000001
       CodeUri: src/
       Description: ""
       MemorySize: 128

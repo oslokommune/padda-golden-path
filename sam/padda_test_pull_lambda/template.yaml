@@ -1,46 +1,62 @@
+# This AWS SAM template has been generated from your function's configuration. If
+# your function has one or more triggers, note that the AWS resources associated
+# with these triggers aren't fully specified in this template and include
+# placeholder values. Open this template in AWS Infrastructure Composer or your
+# favorite IDE and modify it to specify a serverless application with other AWS
+# resources.
 AWSTemplateFormatVersion: "2010-09-09"
-Description: >-
-  Schedule CloudWatch Event that triggers Lambda function every hour
 Transform: AWS::Serverless-2016-10-31
+Description: An AWS Serverless Application Model template describing your function.
 Resources:
-  # This is the Lambda function definition associated with the source code: sqs-payload-logger.js. For all available properties, see
-  # https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
-  ScheduledEventLogger:
+  paddatestpulllambda:
     Type: AWS::Serverless::Function
     Properties:
-      Role: arn:aws:iam::316489803684:role/padda_test_pull_lambda20260213112326203100000001
-      Description: A Lambda function that logs the payload of messages from a
-        scheduled CloudWatch Event
       CodeUri: src/
+      Description: ""
+      MemorySize: 128
+      Timeout: 300
       Handler: pull.lambda_handler
       Runtime: python3.14
       Architectures:
-        - x86_64
-      MemorySize: 512
-      Timeout: 300
-      # This property associates this Lambda function with a scheduled CloudWatch Event. For all available properties, see
-      # https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#schedule
-      # This example runs every hour.
+        - arm64
+      EphemeralStorage:
+        Size: 512
+      EventInvokeConfig:
+        MaximumEventAgeInSeconds: 21600
+        MaximumRetryAttempts: 2
+      PackageType: Zip
+      Policies:
+        - Statement:
+            - Action:
+                - s3:ListBucket
+              Condition:
+                StringLike:
+                  s3:prefix: tmp_test_removeme/green/*
+              Effect: Allow
+              Resource: arn:aws:s3:::69d82-padda-landing-zone
+            - Action:
+                - s3:PutObject
+                - s3:GetObject
+                - s3:DeleteObject
+              Effect: Allow
+              Resource: arn:aws:s3:::69d82-padda-landing-zone/tmp_test_removeme/green/*
+            - Effect: Allow
+              Action:
+                - logs:CreateLogGroup
+                - logs:CreateLogStream
+                - logs:PutLogEvents
+              Resource: "*"
+      RecursiveLoop: Terminate
+      SnapStart:
+        ApplyOn: None
+      Tags:
+        CreatedBy: ok-golden-path
+        Environment: padda-dev
+        Team: Dataspeilet
       Events:
-        CloudWatchEvent:
+        Schedule1:
           Type: Schedule
           Properties:
-            Schedule: cron(0 * * * ? *)
-  ApplicationResourceGroup:
-    Type: AWS::ResourceGroups::Group
-    Properties:
-      Name:
-        Fn::Sub: ApplicationInsights-SAM-${AWS::StackName}
-      ResourceQuery:
-        Type: CLOUDFORMATION_STACK_1_0
-  ApplicationInsightsMonitoring:
-    Type: AWS::ApplicationInsights::Application
-    Properties:
-      ResourceGroupName:
-        Ref: ApplicationResourceGroup
-      AutoConfigurationEnabled: "true"
-# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
-Globals:
-  Function:
-    LoggingConfig:
-      LogFormat: JSON
+            Schedule: cron(0 6 * * ? *)
+      RuntimeManagementConfig:
+        UpdateRuntimeOn: Auto

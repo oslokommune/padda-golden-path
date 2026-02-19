@@ -15,7 +15,7 @@ parallel = true
 lint = true
 
 [default.deploy.parameters]
-capabilities = []
+capabilities = "CAPABILITY_IAM"
 confirm_changeset = true
 
 [default.sync.parameters]

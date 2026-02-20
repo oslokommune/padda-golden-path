@@ -62,6 +62,6 @@ Resources:
         Schedule1:
           Type: Schedule
           Properties:
-            Schedule: cron(0 6 * * ? *)
+            Schedule: cron(0 8 * * ? *)
       RuntimeManagementConfig:
         UpdateRuntimeOn: Auto

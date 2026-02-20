@@ -11,8 +11,6 @@ Resources:
   paddatestpulllambda:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: padda_test_pull_lambda
-      Role: arn:aws:iam::316489803684:role/padda_test_pull_lambda20260213112326203100000001
       CodeUri: src/
       Description: ""
       MemorySize: 128
@@ -26,22 +24,29 @@ Resources:
       EventInvokeConfig:
         MaximumEventAgeInSeconds: 21600
         MaximumRetryAttempts: 2
+        DestinationConfig: {}
       PackageType: Zip
       Policies:
         - Statement:
-            - Action:
-                - s3:ListBucket
-              Condition:
+            - Condition:
                 StringLike:
                   s3:prefix: tmp_test_removeme/green/*
-              Effect: Allow
+              Action:
+                - s3:ListBucket
               Resource: arn:aws:s3:::69d82-padda-landing-zone
+              Effect: Allow
             - Action:
                 - s3:PutObject
                 - s3:GetObject
                 - s3:DeleteObject
-              Effect: Allow
               Resource: arn:aws:s3:::69d82-padda-landing-zone/tmp_test_removeme/green/*
+              Effect: Allow
+            - Action:
+                - logs:CreateLogGroup
+                - logs:CreateLogStream
+                - logs:PutLogEvents
+              Resource: "*"
+              Effect: Allow
             - Effect: Allow
               Action:
                 - logs:CreateLogGroup
@@ -55,10 +60,11 @@ Resources:
         CreatedBy: ok-golden-path
         Environment: padda-dev
         Team: Dataspeilet
+        lambda:createdBy: SAM
       Events:
         Schedule1:
           Type: Schedule
           Properties:
-            Schedule: cron(0 7 * * ? *)
+            Schedule: cron(0 6 * * ? *)
       RuntimeManagementConfig:
         UpdateRuntimeOn: Auto

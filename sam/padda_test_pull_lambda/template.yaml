@@ -58,9 +58,6 @@ Resources:
       RecursiveLoop: Terminate
       SnapStart:
         ApplyOn: None
-      Tags:
-        Environment: padda-dev
-        Team: Dataspeilet
       Events:
         Schedule1:
           Type: Schedule

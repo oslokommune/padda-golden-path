@@ -7,4 +7,5 @@ Fordi lambda-funksjonene kjører i en felles AWS-konto, er det strenge begrensni
 Arbeidsflyt er altså følgende:
 
 1. Opprett PR med ny lambda-funksjon i `padda-iac`-repoet. Her er det noen få variabler, men det viktigste er datakilde og sensitivitet. PRen har gjerne dummy-kode.
-2. Når PR er godkjent blir denne deployet i AWS. Deretter kan den modifiseres med SAM. SAM kjøres ikke for hånd, men gjennom GitHub Actions.
+2. PR godkjennes og merges av Dataspeilet.
+3. Lambdaen kan nå modifiseres med SAM. SAM kjøres ikke for hånd, men gjennom GitHub Actions.

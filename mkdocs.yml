@@ -37,6 +37,7 @@ nav:
     - API Ingestion Example - Databricks Asset Bundle: golden-paths/databricks-bundles/api_ingest.md
     - Ingest Excel - Databricks Asset Bundle: golden-paths/databricks-bundles/excel_ingest.md
   - Generic Pipelines: golden-paths/generic-pipelines.md
+  - Lambdaer og SAM: golden-paths/sam.md
 - Guides:
   - Guider: guides/index.md
   - Data:

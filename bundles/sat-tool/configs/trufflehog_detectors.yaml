@@ -8,7 +8,6 @@
       - dapi
     regex:
       id: (?i)\b(dapi[a-h0-9]{32})
-  
 - name: DkeaToken
     description: "Databricks DKEA token detector"
     keywords:
@@ -34,19 +33,19 @@
 settings:
   excluded_detectors:
     - DatabricksToken  # Exclude built-in Databricks token detector to avoid false positives
-  
+
   scan_options:
     no_update: true
     json_output: true
-    
+
   rate_limiting:
     api_sleep_seconds: 10  # Sleep between API calls to prevent rate limiting
-    
+
   file_paths:
     temp_config: "/tmp/trufflehog_config.yaml"
     temp_notebooks: "/tmp/notebooks"
     results_log: "/tmp/trufflehog_scan_results.json"
-    
+
   search_settings:
     page_size: 50
     days_back: 1  # Number of days back to search for modified notebooks

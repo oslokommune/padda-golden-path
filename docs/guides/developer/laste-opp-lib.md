@@ -24,7 +24,7 @@ Denne guiden viser hvordan du legger en wheel-fil (f.eks. `openpyxl`) på en UC 
 cd wheels
 databricks fs cp -r \
   --profile DEFAULT \
-  ./ \     
+  ./ \
   dbfs:/Volumes/padda_catalog_2727440053493594/wheels/deps/
 ```
 
@@ -59,4 +59,4 @@ databricks fs cp -r \
 ## Tips
 - Hold en egen `deps`-mappe per prosjekt/schema for å slippe navnekollisjoner.
 - Versjoner filer tydelig (f.eks. `openpyxl-3.1.5-py2.py3-none-any.whl`).
-- Kluster som skal installere fra volume må defineres med: data_security_mode: SINGLE_USER eller USER_ISOLATION
+- Kluster som skal installere fra volume må defineres med: `data_security_mode`: `SINGLE_USER` eller `USER_ISOLATION`.

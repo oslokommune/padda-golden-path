@@ -8,7 +8,7 @@ Denne guiden viser hvordan du laster opp en Excel-fil til en Unity Catalog Volum
 
 ## 1) Opprett (eller bruk) en Volume
 - I GUI: `Catalog` → velg katalog og schema → `Volumes` → `Create volume` (f.eks. navn `excel_test`).
-- Volum-sti blir da `dbfs:/Volumes/<catalog>/<schema>/excel_test/`. (f.eks: /Volumes/eksempelteam_dev_green/bronze_default/excel_test)
+- Volum-sti blir da `dbfs:/Volumes/<catalog>/<schema>/excel_test/`. (f.eks.: `/Volumes/eksempelteam_dev_green/bronze_default/excel_test`)
 
 ## 2) Last opp Excel-filen til volumet
 

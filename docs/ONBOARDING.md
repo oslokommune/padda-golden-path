@@ -88,5 +88,5 @@ For å få tilgang til Padda dataplattform må du bekrefte at du har lest og for
 
 Har du spørsmål eller trenger hjelp? Ta kontakt via:
 
-- **Slack**: [#dig-dataplattform](https://oslokommune.slack.com/archives/C01SFNFEXK7)
+- **Slack**: [#dig-dataspeilet](https://oslokommune.slack.com/archives/C01SFNFEXK7)
 - **GitHub**: [oslokommune/padda-golden-path](https://github.com/oslokommune/padda-golden-path) — opprett et issue eller ta kontakt via PR

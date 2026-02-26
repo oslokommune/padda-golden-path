@@ -52,6 +52,5 @@ dev = [
 [tool.pytest.ini_options]
 pythonpath = [
   "src",
-  "examples/api_ingest/src",
   "examples/etl/src",
 ]

@@ -1,0 +1,134 @@
+# =============================================================================
+# Zensical configuration for Padda Golden Path
+#
+# Native Zensical config — replaces mkdocs.yml for the Zensical build.
+# The existing mkdocs.yml is kept for now until migration is complete.
+# =============================================================================
+
+[project]
+site_name = "Padda Golden Path"
+# site_url is set during CI/CD build. Leaving it unset locally avoids
+# redirect issues with the dev server.
+#site_url = "https://oslokommune.github.io/padda-golden-path/"
+site_description = "Golden paths, Databricks bundles, and shared libs"
+site_author = "Oslo Origo"
+copyright = "Made with &hearts; by Oslo Origo"
+repo_url = "https://github.com/oslokommune/padda-golden-path"
+repo_name = "oslokommune/padda-golden-path"
+edit_uri = "tree/main/docs"
+docs_dir = "docs"
+
+extra_css = [
+  "zensical-stylesheets/punkt-tokens.css",
+  "zensical-stylesheets/oslo-theme.css",
+]
+
+# ---------------------------------------------------------------------------
+# Navigation
+# ---------------------------------------------------------------------------
+nav = [
+  { "Home" = "index.md" },
+  { "Kom i gang" = "getting-started.md" },
+  { "Onboarding" = "ONBOARDING.md" },
+  { "Arkitektur" = [
+    { "Oversikt" = "architecture/dataflyt_sye.md" },
+  ]},
+  { "Implementering" = "architecture/progresjon.md" },
+  { "Golden Paths" = [
+    { "Databricks Bundles" = [
+      { "Oversikt" = "golden-paths/databricks-bundles.md" },
+      { "API Ingestion Example" = "golden-paths/databricks-bundles/api_ingest.md" },
+      { "Ingest Excel" = "golden-paths/databricks-bundles/excel_ingest.md" },
+    ]},
+    { "Generic Pipelines" = "golden-paths/generic-pipelines.md" },
+  ]},
+  { "Guides" = [
+    { "Guider" = "guides/index.md" },
+    { "Data" = [
+      { "Ingest Api" = "guides/data/ingest-api.md" },
+      { "Landing Zone" = "guides/data/landing-zone.md" },
+      { "Laste Opp Excel Til Uc" = "guides/data/laste-opp-excel-til-uc.md" },
+    ]},
+    { "Developer" = [
+      { "Dev Setup" = "guides/developer/dev-setup.md" },
+      { "Laste Opp Lib" = "guides/developer/laste-opp-lib.md" },
+      { "Secrets" = "guides/developer/secrets.md" },
+      { "Slack Alarmer" = "guides/developer/slack-alarmer.md" },
+    ]},
+    { "Roller" = [
+      { "Ansatt Datautforsker" = "guides/roller/ansatt-datautforsker.md" },
+      { "Dataanalytikere" = "guides/roller/dataanalytikere.md" },
+      { "Dataansvarlig" = "guides/roller/dataansvarlig.md" },
+      { "Dataplattform Admin" = "guides/roller/dataplattform-admin.md" },
+      { "Workspace Admin" = "guides/roller/workspace-admin.md" },
+    ]},
+  ]},
+  { "Notion-sider" = [
+    { "Oversikt" = "notion/index.md" },
+    { "Referansearkitektur" = "notion/arkitektur-wip.md" },
+    { "Github Struktur Iac Dab Ci Cd" = "notion/github-struktur-iac-dab-ci-cd.md" },
+    { "Tilgangsstyring Og Roller" = "notion/tilgangsstyring-og-roller.md" },
+  ]},
+]
+
+# ---------------------------------------------------------------------------
+# Theme
+# ---------------------------------------------------------------------------
+[project.theme]
+language = "nb"
+favicon = "assets/favicon.ico"
+features = [
+  "content.action.edit",
+  "content.code.annotate",
+  "content.code.copy",
+  "content.tabs.link",
+  "content.tooltips",
+  "navigation.footer",
+  "navigation.indexes",
+  "navigation.instant",
+  "navigation.instant.prefetch",
+  "navigation.tabs",
+  "navigation.tracking",
+  "search.highlight",
+]
+
+# Disable Google Fonts entirely — we load Oslo Sans via custom CSS
+# and set the code font via CSS as well.
+font = false
+
+[project.theme.icon]
+logo = "fontawesome/solid/database"
+repo = "fontawesome/brands/github"
+edit = "lucide/file-pen"
+admonition = { example = "lucide/ship" }
+
+# Single light scheme — Oslo kommune does not use dark mode
+[[project.theme.palette]]
+scheme = "default"
+primary = "custom"
+accent = "custom"
+
+# ---------------------------------------------------------------------------
+# Social links (footer)
+# ---------------------------------------------------------------------------
+[[project.extra.social]]
+icon = "fontawesome/brands/github"
+link = "https://github.com/oslokommune"
+
+[[project.extra.social]]
+icon = "fontawesome/brands/linkedin"
+link = "https://www.linkedin.com/company/osloorigo"
+
+# ---------------------------------------------------------------------------
+# Markdown extensions
+#
+# Omitting markdown_extensions entirely gives us the rich Zensical defaults
+# which include admonition, pymdownx.superfences (with Mermaid), pymdownx.keys,
+# attr_list, pymdownx.highlight, content tabs, task lists, and more.
+# ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# Plugins
+# ---------------------------------------------------------------------------
+[project.plugins]
+search = { enabled = true }

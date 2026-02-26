@@ -47,6 +47,7 @@ dev = [
 dev = [
     "pytest>=8.4.2",
     "pytest-cov>=7.0.0",
+    "zensical>=0.0.23",
 ]
 
 [tool.pytest.ini_options]

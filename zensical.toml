@@ -11,8 +11,8 @@ site_name = "Padda Golden Path"
 # redirect issues with the dev server.
 #site_url = "https://oslokommune.github.io/padda-golden-path/"
 site_description = "Golden paths, Databricks bundles, and shared libs"
-site_author = "Oslo Origo"
-copyright = "Made with &hearts; by Oslo Origo"
+site_author = "Digitaliseringsetaten"
+copyright = "Made with &hearts; by Digitaliseringsetaten"
 repo_url = "https://github.com/oslokommune/padda-golden-path"
 repo_name = "oslokommune/padda-golden-path"
 edit_uri = "tree/main/docs"
@@ -78,6 +78,7 @@ nav = [
 language = "nb"
 favicon = "assets/favicon.ico"
 features = [
+  "header.autohide",
   "content.action.edit",
   "content.code.annotate",
   "content.code.copy",
@@ -88,6 +89,7 @@ features = [
   "navigation.instant",
   "navigation.instant.prefetch",
   "navigation.tabs",
+  "navigation.tabs.sticky",
   "navigation.tracking",
   "search.highlight",
 ]

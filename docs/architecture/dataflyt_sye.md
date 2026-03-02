@@ -7,7 +7,7 @@ flowchart TD
     sqldb[(SQL DB)] --> etl1[ETL] --> lh[Lakehouse] --> etl2[ETL]
   end
 
-  gw([Oslo kommune\nGateway])
+  gw([Oslo kommune<br>Gateway])
 
   subgraph SYE
     grunndata[Grunndata]
@@ -15,11 +15,11 @@ flowchart TD
 
   subgraph DIG["DIG Dataplattform — Databricks"]
     direction LR
-    landing[(s3:\nexternal_landing_hel)] --> spark[Spark Job]
+    landing[(s3:<br>external_landing_hel)] --> spark[Spark Job]
     cluster[Serverless Cluster] -.-> spark
     cluster -.-> p1
     cluster -.-> p2
-    sye_prod[(Catalog:\nSYE_PROD)] --> p2
+    sye_prod[(Catalog:<br>SYE_PROD)] --> p2
     spark --> bronze[(Bronze)] --> p1[Pipeline] --> silver[(Silver)] --> p2[Pipeline] --> gold[(Gold)]
   end
 

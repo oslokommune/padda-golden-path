@@ -12,42 +12,34 @@
 /* Custom primary/accent via data attributes */
 [data-md-color-scheme="default"] {
   /* Primary = Oslo dark blue */
-  --md-primary-fg-color: #2a2859;
-  --md-primary-fg-color--light: #6a698b;
-  --md-primary-fg-color--dark: #1e1d42;
-  --md-primary-bg-color: #ffffff;
-  --md-primary-bg-color--light: #ffffffb3;
+  --md-primary-fg-color: var(--pkt-color-brand-dark-blue-1000);
+  --md-primary-fg-color--light: var(--pkt-color-brand-dark-blue-700);
+  --md-primary-fg-color--dark: var(--pkt-color-brand-dark-blue-1000);
+  --md-primary-bg-color: var(--pkt-color-brand-neutrals-white);
 
   /* Accent = Oslo warm blue (interactive/active) */
-  --md-accent-fg-color: #1f42aa;
-  --md-accent-fg-color--transparent: #1f42aa1a;
-  --md-accent-bg-color: #1f42aa;
-  --md-accent-bg-color--light: #1f42aa1a;
+  --md-accent-fg-color: var(--pkt-color-brand-warm-blue-1000);
+  --md-accent-fg-color--transparent: var(--pkt-color-surface-subtle-pale-blue);
+  --md-accent-bg-color: var(--pkt-color-brand-warm-blue-1000);
+  --md-accent-bg-color--light: var(--pkt-color-surface-subtle-pale-blue);
 
   /* Default text and background */
-  --md-default-fg-color: #2a2859;
-  --md-default-fg-color--light: #6a698b;
-  --md-default-fg-color--lighter: #9a9a9a;
-  --md-default-fg-color--lightest: #cccccc;
-  --md-default-bg-color: #ffffff;
-  --md-default-bg-color--light: #f9f9f9;
-  --md-default-bg-color--lighter: #f2f2f2;
-  --md-default-bg-color--lightest: #e6e6e6;
-
-  /* Footer */
-  --md-footer-fg-color: #ffffff;
-  --md-footer-fg-color--light: #ffffffb3;
-  --md-footer-fg-color--lighter: #ffffff73;
-  --md-footer-bg-color: #2a2859;
-  --md-footer-bg-color--dark: #1e1d42;
+  --md-default-fg-color: var(--pkt-color-text-body-default);
+  --md-default-fg-color--light: var(--pkt-color-brand-dark-blue-700);
+  --md-default-fg-color--lighter: var(--pkt-color-grays-400);
+  --md-default-fg-color--lightest: var(--pkt-color-grays-200);
+  --md-default-bg-color: var(--pkt-color-background-default);
+  --md-default-bg-color--light: var(--pkt-color-background-subtle);
+  --md-default-bg-color--lighter: var(--pkt-color-brand-neutrals-200);
+  --md-default-bg-color--lightest: var(--pkt-color-grays-100);
 
   /* Code blocks */
-  --md-code-bg-color: #f9f9f9;
-  --md-code-fg-color: #2a2859;
-  --md-code-hl-color: #6fe9ff40;
+  --md-code-bg-color: var(--pkt-color-background-subtle);
+  --md-code-fg-color: var(--pkt-color-text-body-default);
+  --md-code-hl-color: var(--pkt-color-brand-blue-300);
 
   /* Typeset link color */
-  --md-typeset-a-color: #1f42aa;
+  --md-typeset-a-color: var(--pkt-color-brand-warm-blue-1000);
 }
 
 /* ============================================================================
@@ -67,47 +59,47 @@
   color: var(--pkt-color-text-body-default);
 }
 
-/* Heading hierarchy per Punkt desktop recommendations */
+/* Heading hierarchy — scaled down from Punkt desktop for doc readability */
 .md-typeset h1 {
-  font-size: 2.25rem; /* 36px — Punkt desktop H2 / mobile H1 */
+  font-size: 1.75rem; /* 28px */
   font-weight: 400;
-  line-height: 1.5;
+  line-height: 1.4;
   letter-spacing: -0.2px;
   color: var(--pkt-color-text-body-default);
 }
 
 .md-typeset h2 {
-  font-size: 1.625rem; /* 26px */
+  font-size: 1.375rem; /* 22px */
   font-weight: 400;
-  line-height: 1.54;
+  line-height: 1.45;
   letter-spacing: -0.2px;
 }
 
 .md-typeset h3 {
-  font-size: 1.375rem; /* 22px */
-  font-weight: 400;
-  line-height: 1.55;
-  letter-spacing: -0.2px;
-}
-
-.md-typeset h4 {
-  font-size: 1.125rem; /* 18px */
-  font-weight: 500;
-  line-height: 1.56;
-  letter-spacing: -0.2px;
-}
-
-.md-typeset h5 {
   font-size: 1rem; /* 16px */
   font-weight: 500;
   line-height: 1.5;
   letter-spacing: -0.2px;
 }
 
-.md-typeset h6 {
+.md-typeset h4 {
   font-size: 0.875rem; /* 14px */
   font-weight: 500;
-  line-height: 1.57;
+  line-height: 1.5;
+  letter-spacing: -0.2px;
+}
+
+.md-typeset h5 {
+  font-size: 0.8125rem; /* 13px */
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: -0.2px;
+}
+
+.md-typeset h6 {
+  font-size: 0.8125rem; /* 13px */
+  font-weight: 500;
+  line-height: 1.5;
   letter-spacing: -0.2px;
 }
 
@@ -153,7 +145,7 @@
 
 .md-typeset .note > .admonition-title,
 .md-typeset .note > summary {
-  background-color: #2a285910;
+  background-color: var(--pkt-color-background-subtle);
   border-color: var(--pkt-color-brand-dark-blue-1000);
 }
 
@@ -279,9 +271,9 @@
  * Layout refinements
  * ========================================================================= */
 
-/* Content width — slightly wider for readability at doc scale */
+/* Content width — narrower for comfortable reading */
 .md-grid {
-  max-width: 75rem; /* 1200px */
+  max-width: 61rem; /* ~976px */
 }
 
 /* ============================================================================

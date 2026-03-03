@@ -4,4 +4,37 @@
   <link rel="preload" href="https://punkt-cdn.oslo.kommune.no/latest/fonts/OsloSans-Light.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="https://punkt-cdn.oslo.kommune.no/latest/fonts/OsloSans-Regular.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="https://punkt-cdn.oslo.kommune.no/latest/fonts/OsloSans-Medium.woff2" as="font" type="font/woff2" crossorigin>
+  <script>
+    // Zensical renders the search dialog inside a closed shadow DOM.
+    // Intercept attachShadow to inject Punkt design overrides.
+    // Punkt tokens (--pkt-color-*) inherit through the shadow boundary.
+    ;(function () {
+      var orig = Element.prototype.attachShadow;
+      Element.prototype.attachShadow = function (init) {
+        var shadow = orig.call(this, init);
+        var s = document.createElement("style");
+        s.textContent =
+          ".e{" +
+            "--border-radius-1:0;" +
+            "--border-radius-2:0;" +
+            "--border-radius-3:0" +
+          "}" +
+          ".n{" +
+            "border-radius:0!important;" +
+            "background-color:var(--pkt-color-brand-neutrals-white)!important;" +
+            "box-shadow:none!important;" +
+            "border:1px solid var(--pkt-color-border-subtle)!important" +
+          "}" +
+          ".a{border-radius:0!important}" +
+          ".a:before{border-radius:0!important;background-color:var(--pkt-color-surface-subtle-light-blue)!important}" +
+          ".r{border-radius:0!important}" +
+          ".r:before{border-radius:0!important}" +
+          ".o:before{border-radius:0!important}" +
+          ".x code{border-radius:0!important}" +
+          ".a u{border-radius:0!important}";
+        shadow.appendChild(s);
+        return shadow;
+      };
+    })();
+  </script>
 {% endblock %}

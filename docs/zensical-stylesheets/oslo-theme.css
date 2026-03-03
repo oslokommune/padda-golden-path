@@ -10,7 +10,7 @@
  * ========================================================================= */
 
 /* Custom primary/accent via data attributes */
-[data-md-color-scheme="default"] {
+[data-md-color-scheme='default'] {
   /* Primary — white header with dark blue text (like km.oslo.systems) */
   --md-primary-fg-color: var(--pkt-color-brand-neutrals-white);
   --md-primary-fg-color--light: var(--pkt-color-brand-neutrals-white);
@@ -47,8 +47,8 @@
  * ========================================================================= */
 
 :root {
-  --md-text-font: "Oslo Sans", arial, sans-serif;
-  --md-code-font: "JetBrains Mono", "SFMono-Regular", "Consolas", monospace;
+  --md-text-font: 'Oslo Sans', arial, sans-serif;
+  --md-code-font: 'JetBrains Mono', 'SFMono-Regular', 'Consolas', monospace;
 }
 
 /* Body defaults per Punkt guidelines */
@@ -134,35 +134,41 @@
 }
 
 /* ============================================================================
- * Admonitions — using Punkt colors
+ * Admonitions — Punkt Alert style (left border only, no rounded corners)
  * ========================================================================= */
 
-/* Note (default) — dark blue */
+/* Base — match .pkt-alert: left border, flat corners, no shadow */
+.md-typeset .admonition,
+.md-typeset details {
+  border: none;
+  border-left: 0.25rem solid var(--pkt-color-border-blue);
+  border-radius: 0;
+  box-shadow: none;
+  background-color: var(--pkt-color-surface-default-light-blue);
+}
+
+/* Title/summary — transparent background, no extra border */
+.md-typeset .admonition-title,
+.md-typeset summary {
+  background-color: transparent;
+  border: none;
+  border-radius: 0;
+}
+
+/* Note (default) — blue */
 .md-typeset .admonition.note,
 .md-typeset details.note {
-  border-color: var(--pkt-color-brand-dark-blue-1000);
+  border-left-color: var(--pkt-color-border-blue);
+  background-color: var(--pkt-color-surface-default-light-blue);
 }
 
-.md-typeset .note > .admonition-title,
-.md-typeset .note > summary {
-  background-color: var(--pkt-color-background-subtle);
-  border-color: var(--pkt-color-brand-dark-blue-1000);
-}
-
-/* Tip/hint — dark green */
+/* Tip/hint — green (maps to Punkt success) */
 .md-typeset .admonition.tip,
 .md-typeset details.tip,
 .md-typeset .admonition.hint,
 .md-typeset details.hint {
-  border-color: var(--pkt-color-brand-dark-green-1000);
-}
-
-.md-typeset .tip > .admonition-title,
-.md-typeset .tip > summary,
-.md-typeset .hint > .admonition-title,
-.md-typeset .hint > summary {
-  background-color: var(--pkt-color-surface-default-faded-green);
-  border-color: var(--pkt-color-brand-dark-green-1000);
+  border-left-color: var(--pkt-color-border-green);
+  background-color: var(--pkt-color-surface-default-light-green);
 }
 
 /* Warning/caution — yellow */
@@ -170,15 +176,8 @@
 .md-typeset details.warning,
 .md-typeset .admonition.caution,
 .md-typeset details.caution {
-  border-color: var(--pkt-color-brand-yellow-1000);
-}
-
-.md-typeset .warning > .admonition-title,
-.md-typeset .warning > summary,
-.md-typeset .caution > .admonition-title,
-.md-typeset .caution > summary {
+  border-left-color: var(--pkt-color-border-yellow);
   background-color: var(--pkt-color-surface-default-yellow);
-  border-color: var(--pkt-color-brand-yellow-1000);
 }
 
 /* Danger/error — red */
@@ -186,39 +185,22 @@
 .md-typeset details.danger,
 .md-typeset .admonition.error,
 .md-typeset details.error {
-  border-color: var(--pkt-color-brand-red-1000);
-}
-
-.md-typeset .danger > .admonition-title,
-.md-typeset .danger > summary,
-.md-typeset .error > .admonition-title,
-.md-typeset .error > summary {
+  border-left-color: var(--pkt-color-border-red);
   background-color: var(--pkt-color-surface-default-faded-red);
-  border-color: var(--pkt-color-brand-red-1000);
 }
 
-/* Info — light blue */
+/* Info — blue */
 .md-typeset .admonition.info,
 .md-typeset details.info {
-  border-color: var(--pkt-color-brand-blue-1000);
-}
-
-.md-typeset .info > .admonition-title,
-.md-typeset .info > summary {
+  border-left-color: var(--pkt-color-border-blue);
   background-color: var(--pkt-color-surface-default-light-blue);
-  border-color: var(--pkt-color-brand-blue-1000);
 }
 
-/* Example — beige */
+/* Example — beige (no Punkt Alert equivalent) */
 .md-typeset .admonition.example,
 .md-typeset details.example {
-  border-color: var(--pkt-color-brand-dark-beige-1000);
-}
-
-.md-typeset .example > .admonition-title,
-.md-typeset .example > summary {
+  border-left-color: var(--pkt-color-brand-dark-beige-1000);
   background-color: var(--pkt-color-surface-default-light-beige);
-  border-color: var(--pkt-color-brand-dark-beige-1000);
 }
 
 /* ============================================================================
@@ -261,25 +243,30 @@
   .md-search__button {
     border-radius: 0;
     background-color: var(--pkt-color-brand-neutrals-white);
-    border: 2px solid var(--pkt-color-brand-yellow-1000);
+    border: 2px solid var(--pkt-color-text-body-default);
     color: var(--pkt-color-text-body-default);
+    line-height: 1.6rem;
   }
 
   .md-search__button:hover,
   .md-search__button:focus {
     background-color: var(--pkt-color-brand-neutrals-white);
-    border-color: var(--pkt-color-brand-yellow-1000);
+    border-color: var(--pkt-color-text-action-hover);
     color: var(--pkt-color-text-body-default);
   }
 
   .md-search__button:before {
     background-color: var(--pkt-color-text-body-default);
+    top: 50%;
+    transform: translateY(-50%);
   }
 
   .md-search__button:after {
     border-radius: 0;
-    background: var(--pkt-color-background-subtle);
+    background: transparent;
     color: var(--pkt-color-text-body-default);
+    top: 50%;
+    transform: translateY(-50%);
   }
 }
 
@@ -311,10 +298,21 @@
   opacity: 1;
 }
 
-/* Active tab — tight underline like Punkt navigation */
+.md-tabs a:hover {
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+/* Active tab — underline close to text */
 .md-tabs .md-tabs__item--active {
-  border-bottom: 2px solid var(--pkt-color-brand-blue-1000);
-  margin-bottom: -1px;
+  border-bottom: none;
+}
+
+.md-tabs .md-tabs__item--active .md-tabs__link {
+  text-decoration: underline;
+  text-decoration-color: var(--pkt-color-brand-blue-1000);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.3em;
 }
 
 /* ============================================================================
@@ -382,6 +380,7 @@
 .md-content__button,
 .md-clipboard {
   border-radius: 0;
+  background-color: transparent;
 }
 
 /* Tags */
@@ -440,3 +439,38 @@
 .md-typeset table:not([class]) {
   border: 1px solid var(--pkt-color-border-subtle);
 }
+
+/* ============================================================================
+ * Footer meta — dark blue background, white text (copyright bar)
+ * ========================================================================= */
+
+.md-footer-meta {
+  background-color: var(--pkt-color-brand-dark-blue-1000);
+}
+
+.md-copyright,
+.md-copyright__highlight {
+  color: var(--pkt-color-brand-neutrals-white);
+}
+
+html .md-footer-meta.md-typeset a,
+html .md-footer-meta.md-typeset a:not(:focus, :hover) {
+  color: var(--pkt-color-brand-neutrals-white);
+}
+
+html .md-footer-meta.md-typeset a:hover,
+html .md-footer-meta.md-typeset a:focus {
+  color: var(--pkt-color-brand-blue-300);
+}
+
+.md-footer-meta .md-social__link svg {
+  fill: var(--pkt-color-brand-neutrals-white);
+}
+
+/* ============================================================================
+ * Search dialog
+ *
+ * Zensical renders the search dialog inside a closed shadow DOM.
+ * Styles are injected via a script in docs/overrides/main.html that
+ * intercepts attachShadow and appends Punkt overrides.
+ * ========================================================================= */

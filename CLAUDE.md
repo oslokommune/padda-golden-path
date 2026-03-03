@@ -38,11 +38,11 @@ uv format --check
 # Install pre-commit hooks
 uvx pre-commit install
 
-# Serve docs locally
-uv run --extra docs mkdocs serve
+# Serve docs locally (Zensical, port 8000)
+uv run --extra docs zensical serve
 
 # Build docs
-uv run --extra docs mkdocs build
+uv run --extra docs zensical build
 
 # Validate Databricks bundles
 databricks bundle validate
@@ -73,7 +73,14 @@ Each example under `examples/` is a self-contained pipeline with:
 
 ### Documentation
 
-MkDocs with Material theme. Navigation structure in `mkdocs.yml`. Supports Mermaid diagrams, Excalidraw, and Notion sync. Custom gen-files scripts in `docs/mkdocs_extension/` generate navigation automatically.
+Zensical (fork of Material for MkDocs) with Oslo kommune Punkt design system theming. Configuration in `zensical.toml`. Navigation is defined in `zensical.toml` under `nav`. Supports Mermaid diagrams and Notion sync.
+
+Key CSS files:
+- `docs/zensical-stylesheets/punkt-tokens.css` — Punkt design tokens (colors, spacing, fonts from CDN)
+- `docs/zensical-stylesheets/oslo-theme.css` — Oslo kommune theme overrides for Zensical
+- `docs/overrides/main.html` — template override for font preloading
+
+The theme follows Oslo kommune's visual profile: white header, no rounded corners, no drop shadows, Oslo Sans font, and Punkt color tokens.
 
 ## Code style
 

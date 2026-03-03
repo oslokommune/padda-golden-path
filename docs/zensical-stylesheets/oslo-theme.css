@@ -11,11 +11,11 @@
 
 /* Custom primary/accent via data attributes */
 [data-md-color-scheme="default"] {
-  /* Primary = Oslo dark blue */
-  --md-primary-fg-color: var(--pkt-color-brand-dark-blue-1000);
-  --md-primary-fg-color--light: var(--pkt-color-brand-dark-blue-700);
-  --md-primary-fg-color--dark: var(--pkt-color-brand-dark-blue-1000);
-  --md-primary-bg-color: var(--pkt-color-brand-neutrals-white);
+  /* Primary — white header with dark blue text (like km.oslo.systems) */
+  --md-primary-fg-color: var(--pkt-color-brand-neutrals-white);
+  --md-primary-fg-color--light: var(--pkt-color-brand-neutrals-white);
+  --md-primary-fg-color--dark: var(--pkt-color-brand-neutrals-white);
+  --md-primary-bg-color: var(--pkt-color-brand-dark-blue-1000);
 
   /* Accent = Oslo warm blue (interactive/active) */
   --md-accent-fg-color: var(--pkt-color-brand-warm-blue-1000);
@@ -222,12 +222,18 @@
 }
 
 /* ============================================================================
- * Header — Oslo dark blue
+ * Header — white background, Oslo design profile
  * ========================================================================= */
 
 .md-header {
-  background-color: var(--pkt-color-brand-dark-blue-1000);
-  color: var(--pkt-color-brand-neutrals-white);
+  background-color: var(--pkt-color-brand-neutrals-white);
+  color: var(--pkt-color-text-body-default);
+}
+
+/* No drop shadow — Oslo design uses borders, not shadows */
+.md-header--shadow {
+  box-shadow: none;
+  border-bottom: 1px solid var(--pkt-color-border-subtle);
 }
 
 .md-header a,
@@ -236,15 +242,50 @@
 .md-header .md-header__topic,
 .md-header .md-header__ellipsis,
 .md-header label {
-  color: var(--pkt-color-brand-neutrals-white);
+  color: var(--pkt-color-text-body-default);
 }
 
-.md-header .md-search__input {
-  color: var(--pkt-color-brand-neutrals-white);
+/* Site title — normal weight */
+.md-header__topic:first-child {
+  font-weight: 400;
 }
 
-.md-header .md-search__input::placeholder {
-  color: rgba(255, 255, 255, 0.7);
+/* Oslo kommune logo */
+.md-header__button.md-logo img,
+.md-header__button.md-logo svg {
+  height: 1.4rem;
+}
+
+/* Search button — styled as a Punkt-like input field */
+@media screen and (min-width: 45em) {
+  .md-search__button {
+    border-radius: 0;
+    background-color: var(--pkt-color-brand-neutrals-white);
+    border: 2px solid var(--pkt-color-brand-yellow-1000);
+    color: var(--pkt-color-text-body-default);
+  }
+
+  .md-search__button:hover,
+  .md-search__button:focus {
+    background-color: var(--pkt-color-brand-neutrals-white);
+    border-color: var(--pkt-color-brand-yellow-1000);
+    color: var(--pkt-color-text-body-default);
+  }
+
+  .md-search__button:before {
+    background-color: var(--pkt-color-text-body-default);
+  }
+
+  .md-search__button:after {
+    border-radius: 0;
+    background: var(--pkt-color-background-subtle);
+    color: var(--pkt-color-text-body-default);
+  }
+}
+
+/* Buttons — sharp corners per Punkt */
+.md-typeset .md-button {
+  border-radius: 0;
 }
 
 /* ============================================================================
@@ -252,19 +293,115 @@
  * ========================================================================= */
 
 .md-tabs {
-  background-color: var(--pkt-color-brand-dark-blue-1000);
-  color: var(--pkt-color-brand-neutrals-white);
+  background-color: var(--pkt-color-brand-neutrals-white);
+  color: var(--pkt-color-text-body-default);
+  border-bottom: 1px solid var(--pkt-color-border-subtle);
 }
 
 .md-tabs a,
 .md-tabs .md-tabs__link {
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--pkt-color-text-body-default);
+  opacity: 0.7;
 }
 
 .md-tabs a:hover,
 .md-tabs .md-tabs__link--active,
 .md-tabs .md-tabs__item--active .md-tabs__link {
-  color: var(--pkt-color-brand-neutrals-white);
+  color: var(--pkt-color-text-body-default);
+  opacity: 1;
+}
+
+/* Active tab — tight underline like Punkt navigation */
+.md-tabs .md-tabs__item--active {
+  border-bottom: 2px solid var(--pkt-color-brand-blue-1000);
+  margin-bottom: -1px;
+}
+
+/* ============================================================================
+ * Sidebar navigation
+ * ========================================================================= */
+
+/* Nav links — sharp corners, underline-only hover */
+.md-nav__link {
+  border-radius: 0;
+}
+
+.md-nav--primary .md-nav__link:hover,
+.md-nav--primary .md-nav__link:focus,
+.md-nav--primary .md-nav__link[for]:hover:not(.md-nav__link--active),
+.md-nav--primary .md-nav__link[for]:focus:not(.md-nav__link--active),
+.md-nav--primary .md-nav__link[href]:hover:not(.md-nav__link--active),
+.md-nav--primary .md-nav__link[href]:focus:not(.md-nav__link--active) {
+  background-color: transparent;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+/* Active nav link — Punkt light blue background */
+.md-nav--primary .md-nav__item .md-nav__link--active {
+  background: var(--pkt-color-brand-blue-100);
+}
+
+/* Nested nav list (level 2+) — continuous gray left border, aligned with level 1 text */
+.md-nav--primary .md-nav .md-nav .md-nav__list {
+  border-left: 1px solid var(--pkt-color-border-gray);
+  margin-left: 1rem;
+  padding-top: 0;
+  padding-left: 0;
+}
+
+/* Remove spacing before/after nested items so gray line aligns with active marker */
+.md-nav--primary .md-nav .md-nav .md-nav__list::before,
+.md-nav--primary .md-nav .md-nav .md-nav__list::after {
+  display: none;
+}
+
+/* Nested nav links flush against the gray line */
+.md-nav--primary .md-nav .md-nav .md-nav__link {
+  margin-left: 0;
+}
+
+/* Active nav link — Punkt-style: blue left border next to gray line */
+.md-nav__item .md-nav__link--active {
+  background-color: var(--pkt-color-brand-blue-100);
+  border-left: 3px solid var(--pkt-color-brand-blue-1000);
+  font-weight: 500;
+  color: var(--pkt-color-text-body-default);
+}
+
+/* Source link in sidebar */
+.md-nav__source {
+  border-radius: 0;
+}
+
+/* ============================================================================
+ * Global — remove all remaining rounded corners
+ * ========================================================================= */
+
+/* Edit button, clipboard button, content action buttons */
+.md-content__button,
+.md-clipboard {
+  border-radius: 0;
+}
+
+/* Tags */
+.md-typeset .md-tag {
+  border-radius: 0;
+}
+
+/* Tooltips and dropdowns */
+.md-tooltip,
+.md-tooltip2__inner,
+.md-select__inner,
+.md-select__list {
+  border-radius: 0;
+  box-shadow: none;
+  border: 1px solid var(--pkt-color-border-subtle);
+}
+
+/* Code navigation buttons */
+.md-code__nav {
+  border-radius: 0;
 }
 
 /* ============================================================================
@@ -281,13 +418,13 @@
  * ========================================================================= */
 
 .md-typeset code {
-  border-radius: 0.25rem;
+  border-radius: 0;
   padding: 0.05em 0.35em;
 }
 
 .md-typeset pre > code {
   padding: var(--pkt-spacing-16);
-  border-radius: 0.25rem;
+  border-radius: 0;
 }
 
 /* ============================================================================

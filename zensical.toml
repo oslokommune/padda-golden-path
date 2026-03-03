@@ -75,7 +75,9 @@ nav = [
 # Theme
 # ---------------------------------------------------------------------------
 [project.theme]
+custom_dir = "docs/overrides"
 language = "nb"
+logo = "assets/oslologo.svg"
 favicon = "assets/favicon.ico"
 features = [
   "header.autohide",
@@ -99,7 +101,6 @@ features = [
 font = false
 
 [project.theme.icon]
-logo = "fontawesome/solid/database"
 repo = "fontawesome/brands/github"
 edit = "lucide/file-pen"
 admonition = { example = "lucide/ship" }

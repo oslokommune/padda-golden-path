@@ -403,6 +403,13 @@
   border-radius: 0;
 }
 
+/* Permalink anchors — scale down from heading size, align to text baseline */
+.md-typeset .headerlink {
+  font-size: 0.75em;
+  position: relative;
+  top: -0.2em;
+}
+
 /* ============================================================================
  * Layout refinements
  * ========================================================================= */

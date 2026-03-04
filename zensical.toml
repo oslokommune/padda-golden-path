@@ -1,8 +1,5 @@
 # =============================================================================
 # Zensical configuration for Padda Golden Path
-#
-# Native Zensical config — replaces mkdocs.yml for the Zensical build.
-# The existing mkdocs.yml is kept for now until migration is complete.
 # =============================================================================
 
 [project]

@@ -36,10 +36,7 @@ jobs:
         run: uv sync --extra docs
 
       - name: Build site
-        env:
-          NOTION_API_TOKEN: ${{ secrets.NOTION_API_TOKEN }}
-          NOTION_PAGE_IDS: ${{ secrets.NOTION_PAGE_IDS }}
-        run: uv run --extra docs mkdocs build
+        run: uv run --extra docs zensical build
 
       - name: Setup Pages
         uses: actions/configure-pages@v5

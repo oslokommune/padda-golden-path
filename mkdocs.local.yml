@@ -1,3 +1,0 @@
-# Local development overrides
-INHERIT: mkdocs.yml
-site_url: http://localhost:8000/

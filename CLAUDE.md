@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Golden paths for **Padda** — the data platform for data engineers at Oslo kommune. The repo contains:
 
-- MkDocs documentation (`docs/`) published to GitHub Pages
+- Zensical documentation (`docs/`) published to GitHub Pages
 - Reference implementations of Databricks pipelines (`examples/`)
 - Shared Python libraries (`libs/padda.common`, `libs/padda.pipelines`)
 - Databricks Asset Bundle (DAB) templates (`src/golden_path/dab-simple/`)
@@ -86,13 +86,13 @@ The theme follows Oslo kommune's visual profile: white header, no rounded corner
 
 - Python 3.13+, modern type hints (`dict[str, Any]`, `str | None`)
 - Ruff with preview mode, double quotes, LF line endings
-- Google-style docstrings (parsed by mkdocstrings)
+- Google-style docstrings
 - Lint rules: E, F, W, I (isort), B (bugbear), UP (pyupgrade)
 - First-party imports: `common`, `pipelines`, `etl_job`, `golden_path`
 
 ## CI
 
-PR workflow (`pr.yaml`) runs: format check → lint → DAB validate → DAB plan. Uses GitHub OIDC for Databricks auth (no hardcoded secrets). Docs are deployed to GitHub Pages on push to main.
+PR workflow (`pr.yaml`) runs: format check → lint → DAB validate → DAB plan. Uses GitHub OIDC for Databricks auth (no hardcoded secrets). Docs are built with Zensical and deployed to GitHub Pages on push to main.
 
 ## pytest configuration
 

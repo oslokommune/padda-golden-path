@@ -2,9 +2,9 @@
 
 Golden paths for padda, dataplattformen for data engineers i Oslo kommune.
 
-## Dokumentasjon (MkDocs)
+## Dokumentasjon (Zensical)
 
-Ligger i `docs/` og er konfigurert via `mkdocs.yml`.
+Ligger i `docs/` og er konfigurert via `zensical.toml`.
 For mer informasjon gå til egen [readme](./docs/README.md).
 Gå til [oslokommune.github.io/padda-golden-path](https://oslokommune.github.io/padda-golden-path) for offisiell dokumentasjon av Padda.
 

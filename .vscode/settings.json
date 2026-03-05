@@ -29,5 +29,8 @@
         },
     },
     "ruff.enable": true,
-    "ruff.organizeImports": true
+    "ruff.organizeImports": true,
+    "[markdown]": {
+        "editor.formatOnSave": false
+    }
 }

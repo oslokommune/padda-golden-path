@@ -15,11 +15,6 @@ name = "golden-path"
 version = "0.0.1"
 requires-python = ">=3.13"
 dependencies = [
-    "mkdocs>=1.6.1",
-    "mkdocs-excalidraw<=0.4.9",
-    "mkdocs-gen-files>=0.5.0",
-    "mkdocs-glightbox>=0.5.2",
-    "mkdocs-mermaid2-plugin>=1.2.3",
     "pyspark>=4.0.1",
     "requests>=2.32.5",
 ]
@@ -29,18 +24,13 @@ packages = ["src/golden_path"]
 
 [project.optional-dependencies]
 docs = [
-  "mkdocs-material",
-  "mkdocstrings[python]",
-  "pymdown-extensions",
+  "zensical>=0.0.24",
 ]
 dev = [
   "pytest",
   "pytest-cov",
   "ruff",
   "pre-commit",
-  "mkdocs-material",
-  "mkdocstrings[python]",
-  "pymdown-extensions",
 ]
 
 [dependency-groups]

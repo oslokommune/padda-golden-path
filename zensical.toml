@@ -45,6 +45,7 @@ nav = [
     ]},
     { "Developer" = [
       { "Dev Setup" = "guides/developer/dev-setup.md" },
+      { "Ingest av API, Lambda" = "guides/developer/lambda-api.md" },
       { "Laste Opp Lib" = "guides/developer/laste-opp-lib.md" },
       { "Secrets" = "guides/developer/secrets.md" },
       { "Slack Alarmer" = "guides/developer/slack-alarmer.md" },
@@ -56,12 +57,6 @@ nav = [
       { "Dataplattform Admin" = "guides/roller/dataplattform-admin.md" },
       { "Workspace Admin" = "guides/roller/workspace-admin.md" },
     ]},
-  ]},
-  { "Notion-sider" = [
-    { "Oversikt" = "notion/index.md" },
-    { "Referansearkitektur" = "notion/arkitektur-wip.md" },
-    { "Github Struktur Iac Dab Ci Cd" = "notion/github-struktur-iac-dab-ci-cd.md" },
-    { "Tilgangsstyring Og Roller" = "notion/tilgangsstyring-og-roller.md" },
   ]},
 ]
 

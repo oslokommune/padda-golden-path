@@ -43,6 +43,7 @@ nav:
     - Laste Opp Excel Til Uc: guides/data/laste-opp-excel-til-uc.md
   - Developer:
     - Dev Setup: guides/developer/dev-setup.md
+    - Lambda Api: guides/developer/lambda-api.md
     - Laste Opp Lib: guides/developer/laste-opp-lib.md
     - Secrets: guides/developer/secrets.md
     - Slack Alarmer: guides/developer/slack-alarmer.md

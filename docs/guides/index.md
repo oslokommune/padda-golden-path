@@ -12,6 +12,7 @@ Her listes alle guider som er tilgjengelige innenfor respektive område.
 
 
 - [Dev Setup](developer/dev-setup.md)
+- [Lambda Api](developer/lambda-api.md)
 - [Laste Opp Lib](developer/laste-opp-lib.md)
 - [Secrets](developer/secrets.md)
 - [Slack Alarmer](developer/slack-alarmer.md)

@@ -6,11 +6,11 @@ Denne guiden viser hvordan du bruker en kortlevd AWS Lambda-funksjon til å hent
 
 ```mermaid
 flowchart LR
-    EB[EventBridge\nSchedule] -->|trigger| Lambda
+    EB[EventBridge - Schedule] -->|trigger| Lambda
     Lambda -->|GET| API[Eksternt API]
     API -->|JSON| Lambda
-    Lambda -->|PutObject| S3[Landing zone\nS3]
-    S3 -->|Auto Loader| DB[Databricks\nBronze-lag]
+    Lambda -->|PutObject| S3[Landing zone - S3]
+    S3 -->|Auto Loader| DB[Databricks - Bronze-lag]
 ```
 
 ## Forutsetninger
@@ -182,5 +182,5 @@ df = (
     .load("s3://5a3d7-dig-databrikker-stage-landing-zone/ssb/green/")
 )
 ```
-
-Se [Landing zone](../data/landing-zone.md) for mer om filformater og Auto Loader.
+!!! info "Tips"
+    Se [Landing zone](../data/landing-zone.md) for mer om filformater og Auto Loader.

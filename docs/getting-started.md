@@ -117,7 +117,8 @@ Auto Loader overvåker landing zone og plukker automatisk opp nye filer. Bruk de
 
 ```python
 df = (
-    spark.readStream.format("cloudFiles")
+    spark.readStream
+    .format("cloudFiles")
     .option("cloudFiles.format", "parquet")
     .option("cloudFiles.schemaLocation", "/tmp/schema/min-app")
     .load("s3://69d82-workspace-landing-zone/min-app/green/")

@@ -176,7 +176,8 @@ Når dataen ligger i landing zone kan du lese den med Auto Loader i en Databrick
 
 ```python
 df = (
-    spark.readStream.format("cloudFiles")
+    spark.readStream
+    .format("cloudFiles")
     .option("cloudFiles.format", "json")
     .option("cloudFiles.schemaLocation", "/tmp/schema/ssb")
     .load("s3://abcde-dig-eksempelteam-stage-landing-zone/ssb/green/")

@@ -84,7 +84,8 @@ For å lese data fra landing zone i en notebook:
 ```python
 # Med Auto Loader (anbefalt for inkrementell innlasting)
 df = (
-    spark.readStream.format("cloudFiles")
+    spark.readStream
+    .format("cloudFiles")
     .option("cloudFiles.format", "parquet")
     .option("cloudFiles.schemaLocation", "/tmp/schema/min-app")
     .load("s3://69d82-workspace-landing-zone/min-app/green/")
@@ -126,7 +127,11 @@ I produksjon bruker du AWS SDK for ditt språk. SDK-et finner nøklene automatis
 import boto3
 
 s3 = boto3.client("s3", region_name="eu-west-1")
-s3.upload_file("data.parquet", "69d82-workspace-landing-zone", "min-app/green/2026/02/17/data.parquet")
+s3.upload_file(
+    "data.parquet",
+    "69d82-workspace-landing-zone",
+    "min-app/green/2026/02/17/data.parquet",
+)
 ```
 
 Se credential-dokumentasjon for ditt språk:

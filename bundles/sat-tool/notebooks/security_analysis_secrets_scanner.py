@@ -54,8 +54,8 @@ current_workspace = get_context().workspaceId
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ##### The analysis executes across all Databricks workspaces configured for SAT. Eligible workspaces are determined based on entries in **`workspace_configs.csv`** and the **`security_analysis.account_workspaces`** table where the **`analysis_enabled`** flag is set to **`True`**.
-# MAGIC ##### If a workspace does not appear in the results, verify that it is correctly listed and that **`analysis_enabled = True`** in both configuration sources.
+# MAGIC ##### The analysis runs on the workspace where the DAB is deployed. Workspace config is derived from the runtime context and stored in the **`security_analysis.account_workspaces`** table.
+# MAGIC ##### If a workspace does not appear in the results, verify that **`analysis_enabled = True`** in the **`account_workspaces`** table.
 # MAGIC ##### When running the job/notebook using **Serverless Compute**, the analysis is limited to the **current workspace**. To scan all eligible workspaces, use a Classic Compute cluster.
 
 # COMMAND ----------
@@ -69,9 +69,9 @@ display(workspacesdf)
 workspaces = workspacesdf.collect()
 if workspaces is None or len(workspaces) == 0:
     loggr.info(
-        "Workspaces are not configured for analysis, check the workspace_configs.csv and "
+        "Workspaces are not configured for analysis, check "
         + json_["analysis_schema_name"]
-        + ".account_workspaces if analysis_enabled flag is enabled to True. Use security_analysis_initializer to auto configure workspaces for analysis. "
+        + ".account_workspaces and verify analysis_enabled is True. Use security_analysis_initializer to auto configure workspaces for analysis. "
     )
     # dbutils.notebook.exit("Unsuccessful analysis.")
 

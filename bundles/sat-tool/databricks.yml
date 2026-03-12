@@ -14,10 +14,8 @@ sync:
 
 targets:
   dev:
-    mode: production
+    mode: development
     default: true
-    presets:
-      trigger_pause_status: UNPAUSED
     workspace:
       host: https://dbc-5e9feed1-cbb6.cloud.databricks.com
       root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/${bundle.target}

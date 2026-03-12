@@ -87,6 +87,14 @@ print(f"Installing {len(compatible)}/{len(all_wheels)} compatible wheels:")
 for w in compatible:
     print(f"  {w.split('/')[-1]}")
 
+if not compatible:
+    msg = (
+        f"No compatible wheels found in {wheels_path} "
+        f"(found {len(all_wheels)} total, 0 match {py_ver}). "
+        "Did you run download_wheels.sh before deploying?"
+    )
+    raise RuntimeError(msg)
+
 subprocess.check_call([
     sys.executable, "-m", "pip", "install",
     "--force-reinstall", "--no-deps", "--quiet",

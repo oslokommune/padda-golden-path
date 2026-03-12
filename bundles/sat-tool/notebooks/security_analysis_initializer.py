@@ -49,7 +49,7 @@ def run_notebook(notebook_path, timeout, required=True):
 
 # Steps 1 (list_account_workspaces) and 3 (test_connections) require the
 # Accounts API which is unreachable in SRA/isolated-network environments.
-# A pre-populated workspace_configs.csv is bundled in configs/ instead.
+# Workspace config is derived from the runtime context at deploy time instead.
 #
 # Steps 4 and 9 are required (load config into tables).
 # Steps 5 (dashboard) and 6 (alerts) are optional — they need a SQL warehouse

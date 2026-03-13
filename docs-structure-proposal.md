@@ -261,6 +261,99 @@ Oversikt over nytt innhold som må skrives.
 
 ---
 
+## Alternativ struktur: Ren typeseparasjon på toppnivå
+
+Hovedstrukturen over blander Diataxis-typer under domeneseksjoner (f.eks.
+«Hente inn data» inneholder både how-to, explanation og reference). Et
+alternativ er å la Diataxis-aksene styre toppnivået, og bruke pipeline-fasene
+som undergrupper der det gir mening — primært under Guider.
+
+Dette gir renere separasjon: når du er under «Guider» ser du bare handlinger,
+og når du er under «Om plattformen» leser du bare forklaringer. Modellen
+ligger tettere opp mot km.oslo.systems sin struktur, men med en tyngre
+«Om plattformen»-seksjon fordi vi har et bredere publikum (beslutningstagere,
+analytikere og data engineers).
+
+```
+Forside
+│
+├── Om plattformen
+│   ├── Overordnet
+│   │   ├── Hva tilbyr dataplattformen                    E
+│   │   ├── Er Databricks-plattformen riktig for deg?     E
+│   │   └── Bruksområder                                  E
+│   └── Konsepter
+│       ├── Arkitektur og medallion-modellen              E
+│       ├── Datainnlasting og klassifisering              E
+│       ├── Datatilgang og deling                         E
+│       └── Overvåking — ditt ansvar                      E
+│
+├── Kom i gang
+│   ├── Oversikt og sjekkliste                            —
+│   ├── Konto og tilgang                                  H
+│   ├── Sett opp utviklingsmiljøet                        H
+│   ├── Din første datapipeline                           T
+│   ├── VS Code og Databricks                             T
+│   ├── Testdata                                          H
+│   ├── Fra test til produksjon                           H
+│   └── Læringsressurser                                  —
+│
+├── Guider
+│   ├── Hente inn data
+│   │   ├── Laste opp filer til landing zone              H
+│   │   ├── Laste inn Excel til Unity Catalog             H
+│   │   ├── Hente data fra API med Lambda                 H
+│   │   ├── Hente data fra Fabric                         H
+│   │   ├── Sette opp Auto Loader                        H
+│   │   └── Håndtere secrets                              H
+│   ├── Bearbeide data
+│   │   ├── Skrive transformasjoner                       H
+│   │   ├── Bronze til silver                             H
+│   │   ├── Silver til gold                               H
+│   │   └── Laste opp Python-biblioteker                  H
+│   ├── Dele og hente ut data
+│   │   ├── Koble Power BI til SQL Warehouse              H
+│   │   ├── Dele data via Unity Catalog                   H
+│   │   └── Dele data med Fabric                          H
+│   └── Overvåke og drifte
+│       ├── Sette opp Slack-alarmer                       H
+│       ├── Feilhåndtering i pipelines                    H
+│       └── Logging                                       H
+│
+├── Referanse
+│   ├── Brukervilkår og ditt ansvar                       R
+│   ├── Landing zone-struktur                             R
+│   ├── Navnekonvensjoner                                 R
+│   ├── Roller og rettigheter                             R
+│   ├── SQL Warehouse                                     R
+│   └── Varsling og notification destinations             R
+│
+└── Hjelp
+    ├── FAQ                                               —
+    ├── Kontakt oss                                       —
+    ├── Fellesskap                                        —
+    ├── Kurs                                              —
+    └── Nyheter                                           —
+```
+
+**Hovedforskjeller fra strukturen over:**
+
+- **Toppnivået følger Diataxis-aksene**, ikke pipeline-faser. Hver seksjon
+  inneholder primært én innholdstype.
+- **Pipeline-fasene lever som undergrupper i Guider**, der de gir mest verdi:
+  når du leter etter en how-to, finner du den gruppert etter hva du jobber med.
+- **«Om plattformen» er delt i to:** «Overordnet» for beslutningstagere som
+  vil forstå verdiforslaget, og «Konsepter» for de som vil forstå tekniske
+  valg og arkitektur.
+- **All referanse er samlet** i én seksjon for rent oppslag.
+- **Forklaringssider om enkeltdomener** (f.eks. «Om medallion-arkitekturen»)
+  ligger under «Om plattformen / Konsepter» i stedet for under pipeline-fasen
+  de hører til. Avveiningen er at de blir litt frakoblet den daglige
+  arbeidsflyten, men til gjengjeld slipper brukeren å møte forklaringer
+  når de er i gjøre-modus.
+
+---
+
 ## Diataxis-balanse
 
 | Type             | Antall | Andel |

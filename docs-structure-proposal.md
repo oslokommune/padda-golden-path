@@ -6,7 +6,7 @@ Dette forslaget beskriver en ny dokumentasjonsstruktur for Padda — Databricks-
 dataplattform bygget av Digitaliseringsetaten (DIG) for Oslo kommune.
 
 Brukerne våre er **data engineers og analytikere** i kommunens etater og bydeler.
-De skriver kode (Python, SQL, R), bygger og eier sine egne pipelines, og trenger
+De skriver kode (Python og SQL), bygger og eier sine egne pipelines, og trenger
 tydelig, oppgaveorientert dokumentasjon for å være produktive på plattformen.
 
 **Beslutningstagere** trenger også å raskt forstå hva plattformen tilbyr og om den

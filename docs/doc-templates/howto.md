@@ -28,6 +28,7 @@ Denne veiledningen forutsetter at du allerede vet hvordan du:
 
 - [grunnleggende ferdighet eller oppsettstrinn]
 - [annet nødvendig forarbeid]
+    - [eksempelvis: gjennomgått beslutningstre]
 
 ## Trinn 1: [Første handling]
 

@@ -49,6 +49,8 @@ Eksempel:
 
 [Drøft hvorfor én løsning ble valgt fremfor en annen.]
 
+### Beslutningstre for bruk
+
 Sammenlign gjerne:
 
 - [alternativ A] vs. [alternativ B]

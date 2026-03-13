@@ -62,6 +62,18 @@ Vi bruker de fire Diataxis-typene — Tutorial (T), How-to (H), Explanation (E)
 og Reference (R) — som innholdstyper innenfor hver seksjon. Typene styrer
 *hva slags side man skriver*, men de driver ikke toppnivå-navigasjonen.
 
+I tabellene bruker vi én bokstav for å angi Diataxis-type:
+
+| Kode | Type        | Hva det er                                         |
+| ---- | ----------- | -------------------------------------------------- |
+| T    | Tutorial    | Læringsopplevelse — leseren bygger noe konkret      |
+| H    | How-to      | Oppgaveguide — leseren løser et bestemt problem     |
+| E    | Explanation | Forklaring — leseren forstår hvorfor noe er som det er |
+| R    | Reference   | Oppslagsverk — leseren slår opp fakta og detaljer   |
+
+Se [Skriveguider for innholdstyper](#skriveguider-for-innholdstyper) lenger
+ned for prinsipper og eksempler for hver type.
+
 Titler signaliserer typen naturlig:
 
 - «Om ...» = Explanation
@@ -263,3 +275,50 @@ How-to dominerer, noe som er forventet for en plattform rettet mot praktikere.
 Explanation-hullet er det viktigste å tette — uten det kan brukerne følge
 instruksjoner, men forstår ikke *hvorfor*, og blir avhengige av support så
 fort noe avviker fra den gylne stien.
+
+---
+
+## Skriveguider for innholdstyper
+
+For å sikre konsistent kvalitet på tvers av bidragsytere har vi laget
+skriveguider for hver av de fire Diataxis-innholdstypene. Disse er ikke
+rigide maler man fyller ut mekanisk, men **prinsippbaserte guider** som
+beskriver hva som kjennetegner hver type, hva som alltid skal med, og
+hvordan forskjellige varianter av innholdet kan struktureres.
+
+Skriveguidene ligger i `docs/doc-templates/`:
+
+| Fil                              | Innholdstype | Beskrivelse                                      |
+| -------------------------------- | ------------ | ------------------------------------------------ |
+| `skriveguide-tutorial.md`        | Tutorial     | Læringsopplevelser der leseren bygger noe konkret. Eksempler: lineær pipeline-tutorial, verktøy-tutorial. |
+| `skriveguide-howto.md`           | How-to       | Oppgavebaserte guider for brukere som vet hva de vil. Eksempler: sekvensielle trinn, forgreninger med content tabs, korte enkeltstående handlinger. |
+| `skriveguide-reference.md`       | Reference    | Nøytralt, autoritativt oppslagsmateriale. Eksempler: konfigurasjon/parametere, struktur/modell, roller/rettigheter. |
+| `skriveguide-explanation.md`     | Explanation  | Diskursiv tekst som bygger forståelse. Eksempler: arkitekturbeslutninger, konseptforklaringer, forretningsrettede forklaringer. |
+
+### Hver skriveguide inneholder
+
+1. **Prinsipper** — hva som kjennetegner typen, hva den skal og ikke skal gjøre (forankret i Diataxis)
+2. **Faste elementer** — frontmatter, åpning, og andre elementer som alltid skal med
+3. **Eksempelstrukturer** — to til tre varianter som viser bredden innenfor typen, med eksempler fra Padda-domenet
+
+### Frontmatter-konvensjoner
+
+Alle sider bruker frontmatter som Zensical forstår, pluss ett custom-felt
+for automatisert kvalitetskontroll:
+
+```yaml
+---
+title: Sidetittel
+description: Kort beskrivelse (blir HTML meta-description og vises i søk)
+diataxis: tutorial | how-to | explanation | reference
+tags:
+  - kom-i-gang
+  - hente-inn-data
+status: new                # valgfritt
+---
+```
+
+- `title` og `description` brukes av Zensical for navigasjon, søk og HTML-metadata
+- `diataxis` er et custom-felt som muliggjør automatisert validering mot skriveguidenes prinsipper
+- `tags` kategoriserer siden for brukeren (søk og filtrering)
+- `status` kan brukes til å markere nye eller utfasede sider i sidebar

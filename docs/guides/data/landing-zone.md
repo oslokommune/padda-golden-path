@@ -1,7 +1,7 @@
 # Landing zone
 
 !!! tip "Ny bruker?"
-    Se [Kom i gang](../../getting-started.md) for en komplett oversikt over hele dataflyten fra applikasjon til PowerBI.
+    Se [Kom i gang](../../getting-started.md) for en komplett oversikt over hele dataflyten fra applikasjon til Power BI.
 
 Landing zone er en S3-bucket som opprettes for hvert Databricks-workspace for innkommende data. Hver landing zone har en liste med "sendere" som skal laste opp data til bucketen. For hver sender blir det opprettet tre prefikser (green, yellow, red) med tilhørende brukere som kan laste opp til disse, etter skjemaet:
 
@@ -35,7 +35,7 @@ Landing zone-bucketen administreres av plattformteamet via Terraform. Du opprett
 
 **Slik ber du om en sender:**
 
-1. Kontakt plattformteamet via [#dig-dataplattform](https://oslokommune.slack.com/archives/C01SFNFEXK7)
+1. Kontakt plattformteamet via [#dig-dataspeilet](https://oslokommune.slack.com/archives/C01SFNFEXK7)
 2. Oppgi:
     - Hvilket workspace du tilhører
     - Ønsket sendernavn (f.eks. `min-app`)
@@ -57,11 +57,11 @@ Hver IAM-bruker kan:
 
 Databricks støtter mange filformater. Vi anbefaler:
 
-| Format | Når | Merknad |
-|--------|-----|---------|
-| **Parquet** | Store datasett, kolonnebasert analyse | Best ytelse |
-| **JSON** (ndjson) | API-responser, nestede strukturer | En JSON-rad per linje |
-| **CSV** | Enkle tabulære data | Husk UTF-8 og header-rad |
+| Format            | Når                                   | Merknad                  |
+|-------------------|---------------------------------------|--------------------------|
+| **Parquet**       | Store datasett, kolonnebasert analyse | Best ytelse              |
+| **JSON** (ndjson) | API-responser, nestede strukturer     | En JSON-rad per linje    |
+| **CSV**           | Enkle tabulære data                   | Husk UTF-8 og header-rad |
 
 ### Organisering for inkrementell innlasting
 
@@ -84,7 +84,8 @@ For å lese data fra landing zone i en notebook:
 ```python
 # Med Auto Loader (anbefalt for inkrementell innlasting)
 df = (
-    spark.readStream.format("cloudFiles")
+    spark.readStream
+    .format("cloudFiles")
     .option("cloudFiles.format", "parquet")
     .option("cloudFiles.schemaLocation", "/tmp/schema/min-app")
     .load("s3://69d82-workspace-landing-zone/min-app/green/")
@@ -126,7 +127,11 @@ I produksjon bruker du AWS SDK for ditt språk. SDK-et finner nøklene automatis
 import boto3
 
 s3 = boto3.client("s3", region_name="eu-west-1")
-s3.upload_file("data.parquet", "69d82-workspace-landing-zone", "min-app/green/2026/02/17/data.parquet")
+s3.upload_file(
+    "data.parquet",
+    "69d82-workspace-landing-zone",
+    "min-app/green/2026/02/17/data.parquet",
+)
 ```
 
 Se credential-dokumentasjon for ditt språk:
@@ -136,4 +141,4 @@ Se credential-dokumentasjon for ditt språk:
 - [Rust (DefaultCredentialsChain)](https://docs.rs/aws-config/latest/aws_config/default_provider/credentials/struct.DefaultCredentialsChain.html)
 - [.NET (FallbackCredentialsFactory)](https://docs.aws.amazon.com/sdk-for-net/v3/developer-guide/creds-assign.html)
 
-Felles for alle er at det er en prioritert rekkefølge av steder SDK-et ser etter credentials. I produksjon anbefaler vi environment variables eller en secrets manager fremfor å lagre nøkler i filer.
+Felles for alle er at det er en prioritert rekkefølge av steder SDK-et ser etter credentials. I produksjon anbefaler vi Secrets Manager eller Parameter Store fremfor å lagre nøkler i miljøvariabler eller filer.

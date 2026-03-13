@@ -7,7 +7,7 @@ Kilde: [https://docs.databricks.com/aws/en/assets/files/reference-architecture-d
 
 
 # TLDR - Kortversjon
-Vi beholder medallion-konseptet (Landing → Bronze → Silver → Gold) implementert som Delta-tabeller i S3, administrert via Databricks og styrt gjennom Unity Catalog for policy/tilgang/lineage. Ingest og streaming håndteres gjennom Auto Loader / Lakeflow (Delta Live Tables) eller Structured Streaming; batch via jobs/Workflows og deployet gjennom DAB (Data Asset Bundle). 
+Vi beholder medallion-konseptet (Landing → Bronze → Silver → Gold) implementert som Delta-tabeller i S3, administrert via Databricks og styrt gjennom Unity Catalog for policy/tilgang/lineage. Ingest og streaming håndteres gjennom Auto Loader / Lakeflow (Delta Live Tables) eller Structured Streaming; batch via jobs/Workflows og deployet gjennom DAB (Data Asset Bundle).
 
 
 
@@ -58,7 +58,7 @@ Ved hjelp av predefinerte pipelines flyter disse videre fra landing til bronse f
 
 
 ## Systembasert kilde (API, DB, stream)
-Typiske systembaserte kilder har for push mulighet å benytte CLI for å pushe data til landing som en fil eller push som strøm. Det er også mulig at benytte API-basert enten som fil eller som strøm men da som en pull. Videre er det mulig å koble seg rett til database som batch eller strøm. 
+Typiske systembaserte kilder har for push mulighet å benytte CLI for å pushe data til landing som en fil eller push som strøm. Det er også mulig at benytte API-basert enten som fil eller som strøm men da som en pull. Videre er det mulig å koble seg rett til database som batch eller strøm.
 
 ### Pull gjennom API
 Bruk av pyspark custom data sources enten som batch eller stream. Defineres som Brolagt sti.
@@ -84,7 +84,7 @@ Dette prosesskrittet håndteres av dataproduserende team med føringer fra Datas
 
 **Landing → Bronse inkluderer**
 
-- **Unity Catalog – External locations & storage credentials** for styrt landning‑sti i S3. Dette gir tilgangsstyring og logging fra start. 
+- **Unity Catalog – External locations & storage credentials** for styrt landning‑sti i S3. Dette gir tilgangsstyring og logging fra start.
 
 - **Auto Loader** for inkrementell filinnlasting fra S3 til Bronse‑tabeller (batch/streaming). som del av Lakeflow‑pipeline
 
@@ -136,5 +136,5 @@ Shortcut
 Delta lake til adslv2
 
 
-## PowerBI
+## Power BI
 Bruk Databricks‑connectoren mot et SQL warehouse for DirectQuery/Import og SQL‑spørringer.

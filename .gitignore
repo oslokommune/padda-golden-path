@@ -5,4 +5,5 @@
 .ruff_cache
 .venv
 .coverage
-site/
+site*/
+deploy-v2-docs.sh

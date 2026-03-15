@@ -1,0 +1,489 @@
+/*
+ * Oslo kommune theme for Zensical
+ *
+ * Applies Punkt design tokens to Zensical's built-in theme variables.
+ * Depends on punkt-tokens.css being loaded first.
+ */
+
+/* ============================================================================
+ * Color scheme — map Punkt tokens to Zensical/Material CSS variables
+ * ========================================================================= */
+
+/* Custom primary/accent via data attributes */
+[data-md-color-scheme='default'] {
+  /* Primary — white header with dark blue text (like km.oslo.systems) */
+  --md-primary-fg-color: var(--pkt-color-brand-neutrals-white);
+  --md-primary-fg-color--light: var(--pkt-color-brand-neutrals-white);
+  --md-primary-fg-color--dark: var(--pkt-color-brand-neutrals-white);
+  --md-primary-bg-color: var(--pkt-color-brand-dark-blue-1000);
+
+  /* Accent = Oslo warm blue (interactive/active) */
+  --md-accent-fg-color: var(--pkt-color-brand-warm-blue-1000);
+  --md-accent-fg-color--transparent: var(--pkt-color-surface-subtle-pale-blue);
+  --md-accent-bg-color: var(--pkt-color-brand-warm-blue-1000);
+  --md-accent-bg-color--light: var(--pkt-color-surface-subtle-pale-blue);
+
+  /* Default text and background */
+  --md-default-fg-color: var(--pkt-color-text-body-default);
+  --md-default-fg-color--light: var(--pkt-color-brand-dark-blue-700);
+  --md-default-fg-color--lighter: var(--pkt-color-grays-400);
+  --md-default-fg-color--lightest: var(--pkt-color-grays-200);
+  --md-default-bg-color: var(--pkt-color-background-default);
+  --md-default-bg-color--light: var(--pkt-color-background-subtle);
+  --md-default-bg-color--lighter: var(--pkt-color-brand-neutrals-200);
+  --md-default-bg-color--lightest: var(--pkt-color-grays-100);
+
+  /* Code blocks */
+  --md-code-bg-color: var(--pkt-color-background-subtle);
+  --md-code-fg-color: var(--pkt-color-text-body-default);
+  --md-code-hl-color: var(--pkt-color-brand-blue-300);
+
+  /* Typeset link color */
+  --md-typeset-a-color: var(--pkt-color-brand-warm-blue-1000);
+}
+
+/* ============================================================================
+ * Typography — Oslo Sans as the main text font
+ * ========================================================================= */
+
+:root {
+  --md-text-font: 'Oslo Sans', arial, sans-serif;
+  --md-code-font: 'JetBrains Mono', 'SFMono-Regular', 'Consolas', monospace;
+}
+
+/* Body defaults per Punkt guidelines */
+.md-typeset {
+  font-weight: 300;
+  letter-spacing: normal;
+  line-height: 1.5;
+  color: var(--pkt-color-text-body-default);
+}
+
+/* Heading hierarchy — scaled down from Punkt desktop for doc readability */
+.md-typeset h1 {
+  font-size: 1.75rem; /* 28px */
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: -0.2px;
+  color: var(--pkt-color-text-body-default);
+}
+
+.md-typeset h2 {
+  font-size: 1.375rem; /* 22px */
+  font-weight: 400;
+  line-height: 1.45;
+  letter-spacing: -0.2px;
+}
+
+.md-typeset h3 {
+  font-size: 1rem; /* 16px */
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: -0.2px;
+}
+
+.md-typeset h4 {
+  font-size: 0.875rem; /* 14px */
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: -0.2px;
+}
+
+.md-typeset h5 {
+  font-size: 0.8125rem; /* 13px */
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: -0.2px;
+}
+
+.md-typeset h6 {
+  font-size: 0.8125rem; /* 13px */
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: -0.2px;
+}
+
+/* Bold text uses medium weight per Punkt */
+.md-typeset strong,
+.md-typeset b {
+  font-weight: 500;
+}
+
+/* ============================================================================
+ * Links — Oslo design profile
+ * ========================================================================= */
+
+.md-typeset a {
+  color: var(--pkt-color-text-action-normal);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.15em;
+}
+
+.md-typeset a:hover,
+.md-typeset a:focus {
+  color: var(--pkt-color-text-action-hover);
+}
+
+/* Navigation and header links should not be underlined */
+.md-header a,
+.md-nav a,
+.md-footer a,
+.md-tabs a {
+  text-decoration: none;
+}
+
+/* ============================================================================
+ * Admonitions — Punkt Alert style (left border only, no rounded corners)
+ * ========================================================================= */
+
+/* Base — match .pkt-alert: left border, flat corners, no shadow */
+.md-typeset .admonition,
+.md-typeset details {
+  border: none;
+  border-left: 0.25rem solid var(--pkt-color-border-blue);
+  border-radius: 0;
+  box-shadow: none;
+  background-color: var(--pkt-color-surface-default-light-blue);
+}
+
+/* Title/summary — transparent background, no extra border */
+.md-typeset .admonition-title,
+.md-typeset summary {
+  background-color: transparent;
+  border: none;
+  border-radius: 0;
+}
+
+/* Note (default) — blue */
+.md-typeset .admonition.note,
+.md-typeset details.note {
+  border-left-color: var(--pkt-color-border-blue);
+  background-color: var(--pkt-color-surface-default-light-blue);
+}
+
+/* Tip/hint — green (maps to Punkt success) */
+.md-typeset .admonition.tip,
+.md-typeset details.tip,
+.md-typeset .admonition.hint,
+.md-typeset details.hint {
+  border-left-color: var(--pkt-color-border-green);
+  background-color: var(--pkt-color-surface-default-light-green);
+}
+
+/* Warning/caution — yellow */
+.md-typeset .admonition.warning,
+.md-typeset details.warning,
+.md-typeset .admonition.caution,
+.md-typeset details.caution {
+  border-left-color: var(--pkt-color-border-yellow);
+  background-color: var(--pkt-color-surface-default-yellow);
+}
+
+/* Danger/error — red */
+.md-typeset .admonition.danger,
+.md-typeset details.danger,
+.md-typeset .admonition.error,
+.md-typeset details.error {
+  border-left-color: var(--pkt-color-border-red);
+  background-color: var(--pkt-color-surface-default-faded-red);
+}
+
+/* Info — blue */
+.md-typeset .admonition.info,
+.md-typeset details.info {
+  border-left-color: var(--pkt-color-border-blue);
+  background-color: var(--pkt-color-surface-default-light-blue);
+}
+
+/* Example — beige (no Punkt Alert equivalent) */
+.md-typeset .admonition.example,
+.md-typeset details.example {
+  border-left-color: var(--pkt-color-brand-dark-beige-1000);
+  background-color: var(--pkt-color-surface-default-light-beige);
+}
+
+/* ============================================================================
+ * Header — white background, Oslo design profile
+ * ========================================================================= */
+
+.md-header {
+  background-color: var(--pkt-color-brand-neutrals-white);
+  color: var(--pkt-color-text-body-default);
+}
+
+/* No drop shadow — Oslo design uses borders, not shadows */
+.md-header--shadow {
+  box-shadow: none;
+  border-bottom: 1px solid var(--pkt-color-border-subtle);
+}
+
+.md-header a,
+.md-header .md-icon,
+.md-header .md-header__title,
+.md-header .md-header__topic,
+.md-header .md-header__ellipsis,
+.md-header label {
+  color: var(--pkt-color-text-body-default);
+}
+
+/* Site title — normal weight */
+.md-header__topic:first-child {
+  font-weight: 400;
+}
+
+/* Oslo kommune logo */
+.md-header__button.md-logo img,
+.md-header__button.md-logo svg {
+  height: 1.4rem;
+}
+
+/* Search button — styled as a Punkt-like input field */
+@media screen and (min-width: 45em) {
+  .md-search__button {
+    border-radius: 0;
+    background-color: var(--pkt-color-brand-neutrals-white);
+    border: 2px solid var(--pkt-color-text-body-default);
+    color: var(--pkt-color-text-body-default);
+    line-height: 1.6rem;
+  }
+
+  .md-search__button:hover,
+  .md-search__button:focus {
+    background-color: var(--pkt-color-brand-neutrals-white);
+    border-color: var(--pkt-color-text-action-hover);
+    color: var(--pkt-color-text-body-default);
+  }
+
+  .md-search__button:before {
+    background-color: var(--pkt-color-text-body-default);
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  .md-search__button:after {
+    border-radius: 0;
+    background: transparent;
+    color: var(--pkt-color-text-body-default);
+    top: 50%;
+    transform: translateY(-50%);
+  }
+}
+
+/* Buttons — sharp corners per Punkt */
+.md-typeset .md-button {
+  border-radius: 0;
+}
+
+/* ============================================================================
+ * Navigation tabs
+ * ========================================================================= */
+
+.md-tabs {
+  background-color: var(--pkt-color-brand-neutrals-white);
+  color: var(--pkt-color-text-body-default);
+  border-bottom: 1px solid var(--pkt-color-border-subtle);
+}
+
+.md-tabs a,
+.md-tabs .md-tabs__link {
+  color: var(--pkt-color-text-body-default);
+  opacity: 0.7;
+}
+
+.md-tabs a:hover,
+.md-tabs .md-tabs__link--active,
+.md-tabs .md-tabs__item--active .md-tabs__link {
+  color: var(--pkt-color-text-body-default);
+  opacity: 1;
+}
+
+.md-tabs a:hover {
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+/* Active tab — underline close to text */
+.md-tabs .md-tabs__item--active {
+  border-bottom: none;
+}
+
+.md-tabs .md-tabs__item--active .md-tabs__link {
+  text-decoration: underline;
+  text-decoration-color: var(--pkt-color-brand-blue-1000);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.3em;
+}
+
+/* ============================================================================
+ * Sidebar navigation
+ * ========================================================================= */
+
+/* Nav links — sharp corners, underline-only hover */
+.md-nav__link {
+  border-radius: 0;
+}
+
+.md-nav--primary .md-nav__link:hover,
+.md-nav--primary .md-nav__link:focus,
+.md-nav--primary .md-nav__link[for]:hover:not(.md-nav__link--active),
+.md-nav--primary .md-nav__link[for]:focus:not(.md-nav__link--active),
+.md-nav--primary .md-nav__link[href]:hover:not(.md-nav__link--active),
+.md-nav--primary .md-nav__link[href]:focus:not(.md-nav__link--active) {
+  background-color: transparent;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+/* Active nav link — Punkt light blue background */
+.md-nav--primary .md-nav__item .md-nav__link--active {
+  background: var(--pkt-color-brand-blue-100);
+}
+
+/* Nested nav list (level 2+) — continuous gray left border, aligned with level 1 text */
+.md-nav--primary .md-nav .md-nav .md-nav__list {
+  border-left: 1px solid var(--pkt-color-border-gray);
+  margin-left: 1rem;
+  padding-top: 0;
+  padding-left: 0;
+}
+
+/* Remove spacing before/after nested items so gray line aligns with active marker */
+.md-nav--primary .md-nav .md-nav .md-nav__list::before,
+.md-nav--primary .md-nav .md-nav .md-nav__list::after {
+  display: none;
+}
+
+/* Nested nav links flush against the gray line */
+.md-nav--primary .md-nav .md-nav .md-nav__link {
+  margin-left: 0;
+}
+
+/* Active nav link — Punkt-style: blue left border next to gray line */
+.md-nav__item .md-nav__link--active {
+  background-color: var(--pkt-color-brand-blue-100);
+  border-left: 3px solid var(--pkt-color-brand-blue-1000);
+  font-weight: 500;
+  color: var(--pkt-color-text-body-default);
+}
+
+/* Section labels (folders) — bold like Punkt sidebar headings */
+.md-nav--primary label.md-nav__link {
+  font-weight: 500;
+  color: var(--pkt-color-text-body-default);
+}
+
+/* Source link in sidebar */
+.md-nav__source {
+  border-radius: 0;
+}
+
+/* ============================================================================
+ * Global — remove all remaining rounded corners
+ * ========================================================================= */
+
+/* Edit button, clipboard button, content action buttons */
+.md-content__button,
+.md-clipboard {
+  border-radius: 0;
+  background-color: transparent;
+}
+
+/* Tags */
+.md-typeset .md-tag {
+  border-radius: 0;
+}
+
+/* Tooltips and dropdowns */
+.md-tooltip,
+.md-tooltip2__inner,
+.md-select__inner,
+.md-select__list {
+  border-radius: 0;
+  box-shadow: none;
+  border: 1px solid var(--pkt-color-border-subtle);
+}
+
+/* Code navigation buttons */
+.md-code__nav {
+  border-radius: 0;
+}
+
+/* Permalink anchors — scale down from heading size, align to text baseline */
+.md-typeset .headerlink {
+  font-size: 0.75em;
+  position: relative;
+  top: -0.2em;
+}
+
+/* ============================================================================
+ * Layout refinements
+ * ========================================================================= */
+
+/* Content width — narrower for comfortable reading */
+.md-grid {
+  max-width: 61rem; /* ~976px */
+}
+
+/* ============================================================================
+ * Code blocks
+ * ========================================================================= */
+
+.md-typeset code {
+  border-radius: 0;
+  padding: 0.05em 0.35em;
+}
+
+.md-typeset pre > code {
+  padding: var(--pkt-spacing-16);
+  border-radius: 0;
+}
+
+/* ============================================================================
+ * Tables
+ * ========================================================================= */
+
+.md-typeset table:not([class]) th {
+  background-color: var(--pkt-color-surface-default-gray);
+  color: var(--pkt-color-text-body-default);
+  font-weight: 500;
+}
+
+.md-typeset table:not([class]) {
+  border: 1px solid var(--pkt-color-border-subtle);
+}
+
+/* ============================================================================
+ * Footer meta — dark blue background, white text (copyright bar)
+ * ========================================================================= */
+
+.md-footer-meta {
+  background-color: var(--pkt-color-brand-dark-blue-1000);
+}
+
+.md-copyright,
+.md-copyright__highlight {
+  color: var(--pkt-color-brand-neutrals-white);
+}
+
+html .md-footer-meta.md-typeset a,
+html .md-footer-meta.md-typeset a:not(:focus, :hover) {
+  color: var(--pkt-color-brand-neutrals-white);
+}
+
+html .md-footer-meta.md-typeset a:hover,
+html .md-footer-meta.md-typeset a:focus {
+  color: var(--pkt-color-brand-blue-300);
+}
+
+.md-footer-meta .md-social__link svg {
+  fill: var(--pkt-color-brand-neutrals-white);
+}
+
+/* ============================================================================
+ * Search dialog
+ *
+ * Zensical renders the search dialog inside a closed shadow DOM.
+ * Styles are injected via a script in docs/overrides/main.html that
+ * intercepts attachShadow and appends Punkt overrides.
+ * ========================================================================= */

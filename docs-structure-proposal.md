@@ -261,16 +261,16 @@ Oversikt over nytt innhold som må skrives.
 
 ---
 
-## Alternativ struktur: Ren typeseparasjon på toppnivå
+## Valgt struktur: Ren typeseparasjon på toppnivå
 
-Hovedstrukturen over blander Diataxis-typer under domeneseksjoner (f.eks.
-«Hente inn data» inneholder både how-to, explanation og reference). Et
-alternativ er å la Diataxis-aksene styre toppnivået, og bruke pipeline-fasene
-som undergrupper der det gir mening — primært under Guider.
+> **Denne varianten er implementert i `docs-v2/`.** Treet under gjenspeiler
+> den faktiske navigasjonen i `zensical-v2.toml`.
 
-Dette gir renere separasjon: når du er under «Guider» ser du bare handlinger,
-og når du er under «Om plattformen» leser du bare forklaringer. Modellen
-ligger tettere opp mot km.oslo.systems sin struktur, men med en tyngre
+Diataxis-aksene styrer toppnivået, og pipeline-fasene er undergrupper under
+Guider. Dette gir ren separasjon: under «Guider» ser du bare handlinger,
+under «Om plattformen» leser du bare forklaringer.
+
+Modellen ligger tett opp mot km.oslo.systems sin struktur, men med en tyngre
 «Om plattformen»-seksjon fordi vi har et bredere publikum (beslutningstagere,
 analytikere og data engineers).
 
@@ -278,79 +278,94 @@ analytikere og data engineers).
 Forside
 │
 ├── Om plattformen
-│   ├── Overordnet
-│   │   ├── Hva tilbyr dataplattformen                    E
-│   │   ├── Er Databricks-plattformen riktig for deg?     E
-│   │   └── Bruksområder                                  E
-│   └── Konsepter
-│       ├── Arkitektur og medallion-modellen              E
-│       ├── Datainnlasting og klassifisering              E
-│       ├── Datatilgang og deling                         E
-│       └── Overvåking — ditt ansvar                      E
+│   ├── Hva tilbyr dataplattformen                        E
+│   ├── Velg riktig dataplattform                         E
+│   ├── Bruksområder                                      E
+│   ├── Målgrupper og forutsetninger                      E
+│   ├── Arkitektur                                        E
+│   ├── Datainnlasting og klassifisering                  E
+│   ├── Datatilgang og deling                             E
+│   └── Overvåking — ditt ansvar                          E
 │
 ├── Kom i gang
-│   ├── Oversikt og sjekkliste                            —
-│   ├── Konto og tilgang                                  H
-│   ├── Sett opp utviklingsmiljøet                        H
-│   ├── Din første datapipeline                           T
+│   ├── Slik får du tilgang                               T
+│   ├── Sett opp utviklingsmiljøet                        T
 │   ├── VS Code og Databricks                             T
-│   ├── Testdata                                          H
-│   ├── Fra test til produksjon                           H
-│   └── Læringsressurser                                  —
+│   ├── Din første datapipeline                           T
+│   ├── Testdata                                          T
+│   └── Fra test til produksjon                           T
 │
 ├── Guider
 │   ├── Hente inn data
-│   │   ├── Laste opp filer til landing zone              H
-│   │   ├── Laste inn Excel til Unity Catalog             H
-│   │   ├── Hente data fra API med Lambda                 H
-│   │   ├── Hente data fra Fabric                         H
+│   │   ├── Laste opp til landing zone                    H
 │   │   ├── Sette opp Auto Loader                        H
-│   │   └── Håndtere secrets                              H
+│   │   ├── Excel til Unity Catalog                       H
+│   │   ├── Ingest via API / Lambda                       H
+│   │   ├── Hente data fra Fabric                         H
+│   │   └── Secrets                                       H
 │   ├── Bearbeide data
 │   │   ├── Skrive transformasjoner                       H
 │   │   ├── Bronze til silver                             H
 │   │   ├── Silver til gold                               H
-│   │   └── Laste opp Python-biblioteker                  H
+│   │   ├── Laste opp Python-biblioteker                  H
+│   │   └── Deploy med Databricks Asset Bundles           H
 │   ├── Dele og hente ut data
-│   │   ├── Koble Power BI til SQL Warehouse              H
+│   │   ├── Koble til Power BI                            H
 │   │   ├── Dele data via Unity Catalog                   H
-│   │   └── Dele data med Fabric                          H
+│   │   └── Dele med Fabric                               H
 │   └── Overvåke og drifte
-│       ├── Sette opp Slack-alarmer                       H
-│       ├── Feilhåndtering i pipelines                    H
-│       └── Logging                                       H
+│       ├── Slack-alarmer                                  H
+│       ├── Gjenopprette etter feil                       H
+│       └── Feilsøke med logger                           H
 │
 ├── Referanse
 │   ├── Brukervilkår og ditt ansvar                       R
-│   ├── Landing zone-struktur                             R
-│   ├── Navnekonvensjoner                                 R
+│   ├── Landing zone                                      R
 │   ├── Roller og rettigheter                             R
 │   ├── SQL Warehouse                                     R
-│   └── Varsling og notification destinations             R
+│   ├── Navnekonvensjoner                                 R
+│   ├── Varsling                                          R
+│   └── Databricks Asset Bundles                          R
 │
 └── Hjelp
     ├── FAQ                                               —
     ├── Kontakt oss                                       —
-    ├── Fellesskap                                        —
     ├── Kurs                                              —
+    ├── Fellesskap                                        —
+    ├── Læringsressurser                                  R
     └── Nyheter                                           —
 ```
 
-**Hovedforskjeller fra strukturen over:**
+**Hovedforskjeller fra Variant 1 (domeneseksjoner på toppnivå):**
 
 - **Toppnivået følger Diataxis-aksene**, ikke pipeline-faser. Hver seksjon
   inneholder primært én innholdstype.
 - **Pipeline-fasene lever som undergrupper i Guider**, der de gir mest verdi:
   når du leter etter en how-to, finner du den gruppert etter hva du jobber med.
-- **«Om plattformen» er delt i to:** «Overordnet» for beslutningstagere som
-  vil forstå verdiforslaget, og «Konsepter» for de som vil forstå tekniske
-  valg og arkitektur.
 - **All referanse er samlet** i én seksjon for rent oppslag.
-- **Forklaringssider om enkeltdomener** (f.eks. «Om medallion-arkitekturen»)
-  ligger under «Om plattformen / Konsepter» i stedet for under pipeline-fasen
-  de hører til. Avveiningen er at de blir litt frakoblet den daglige
-  arbeidsflyten, men til gjengjeld slipper brukeren å møte forklaringer
-  når de er i gjøre-modus.
+- **Forklaringssider om enkeltdomener** ligger under «Om plattformen» i stedet
+  for under pipeline-fasen de hører til. Avveiningen er at de blir litt
+  frakoblet den daglige arbeidsflyten, men til gjengjeld slipper brukeren
+  å møte forklaringer når de er i gjøre-modus.
+
+**Justeringer gjort under implementering:**
+
+- **Om plattformen er flat i navigasjonen.** Overordnet/Konsepter-inndelingen
+  finnes som mapper på disk, men vises som én flat liste i sidemenyen.
+- **«Er Databricks riktig for deg?» ble til «Velg riktig dataplattform»** —
+  bredere vinkling som sammenligner plattformene i kommunen.
+- **«Bruksområder» ble splittet** — «Målgrupper og forutsetninger» er nå en
+  egen side.
+- **Hele «Kom i gang» er tutorials.** Opprinnelig forslag hadde de fleste som
+  how-to, men de er bedre tjent som læringsopplevelser med «vi»-form.
+- **«Konto og tilgang» ble splittet** — tutorial-delen er «Slik får du tilgang»
+  under Kom i gang, referansedelen er «Roller og rettigheter» under Referanse.
+- **«Læringsressurser» flyttet til Hjelp** — passer bedre som oppslagsmateriale
+  enn som del av onboarding-løpet.
+- **«Databricks Asset Bundles» lagt til** — som referanse og how-to-guide,
+  siden dette er den sentrale deploy-mekanismen.
+- **Overvåke-og-drifte-titler er oppgaveorienterte** — «Gjenopprette etter feil»
+  i stedet for «Feilhåndtering», «Feilsøke med logger» i stedet for «Logging».
 
 ---
 
@@ -358,16 +373,17 @@ Forside
 
 | Type             | Antall | Andel |
 | ---------------- | ------ | ----- |
-| Tutorial (T)     | 2      | 5 %   |
-| How-to (H)       | 19     | 46 %  |
-| Explanation (E)  | 9      | 22 %  |
-| Reference (R)    | 6      | 15 %  |
-| Annet            | 5      | 12 %  |
+| Tutorial (T)     | 6      | 14 %  |
+| How-to (H)       | 17     | 40 %  |
+| Explanation (E)  | 8      | 19 %  |
+| Reference (R)    | 8      | 19 %  |
+| Annet            | 4      | 9 %   |
 
-How-to dominerer, noe som er forventet for en plattform rettet mot praktikere.
-Explanation-hullet er det viktigste å tette — uten det kan brukerne følge
-instruksjoner, men forstår ikke *hvorfor*, og blir avhengige av support så
-fort noe avviker fra den gylne stien.
+How-to dominerer fortsatt, noe som er forventet for en plattform rettet mot
+praktikere. Tutorials er styrket sammenlignet med opprinnelig forslag (hele
+Kom i gang er nå tutorials). Explanation-hullet er det viktigste å tette —
+uten det kan brukerne følge instruksjoner, men forstår ikke *hvorfor*, og
+blir avhengige av support så fort noe avviker fra den gylne stien.
 
 ---
 

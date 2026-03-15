@@ -6,4 +6,3 @@
 .venv
 .coverage
 site*/
-deploy-v2-docs.sh

@@ -1,0 +1,70 @@
+# Databricks notebook source
+# MAGIC %md
+# MAGIC **Notebook name:** install_sat_sdk
+# MAGIC **Functionality:** Installs the necessary sat sdk (isolated VPC — wheels bundled via DAB)
+
+# COMMAND ----------
+
+RECOMMENDED_DBR_FOR_SAT = 14.3
+import os
+
+# Get databricks runtime configured to run SAT
+dbr_version = os.environ.get("DATABRICKS_RUNTIME_VERSION", "0.0")
+is_sat_compatible = False
+is_serverless = False
+# sanity check in case there is major and minor version
+# strip minor version since we need to compare as number
+if dbr_version.startswith("client"):
+    is_sat_compatible = True
+    is_serverless = True
+else:
+    dbrarray = dbr_version.split(".")
+    dbr_version = f"{dbrarray[0]}.{dbrarray[1]}"
+    dbr_version = float(dbr_version)
+    is_sat_compatible = True if dbr_version >= RECOMMENDED_DBR_FOR_SAT else False
+
+# test version
+
+if is_sat_compatible == False:
+    dbutils.notebook.exit(
+        f"Detected DBR version {dbr_version} . Please use the DBR {RECOMMENDED_DBR_FOR_SAT} for SAT and try again , please refer to docs/setup.md"
+    )
+
+# COMMAND ----------
+
+SDK_VERSION = "0.1.38"
+
+# COMMAND ----------
+
+# Wheels are synced to the workspace by the DAB deploy.
+# Install from the bundle's wheels directory — no PyPI needed.
+# Derive the wheels path relative to this notebook's location.
+import subprocess
+import sys
+
+notebook_path = (
+    dbutils.notebook.entry_point.getDbutils()
+    .notebook()
+    .getContext()
+    .notebookPath()
+    .get()
+)
+# notebook_path may or may not include the /Workspace prefix depending on
+# the runtime (serverless vs classic) and deployment target (dev vs prod).
+# Ensure it always starts with /Workspace so pip can resolve the local path.
+bundle_root = notebook_path.rsplit("/notebooks/", 1)[0]
+if not bundle_root.startswith("/Workspace"):
+    bundle_root = f"/Workspace{bundle_root}"
+wheels_path = f"{bundle_root}/wheels"
+
+subprocess.check_call([
+    sys.executable,
+    "-m",
+    "pip",
+    "install",
+    "--no-index",
+    f"--find-links={wheels_path}",
+    f"dbl-sat-sdk=={SDK_VERSION}",
+    "PyYAML",
+    "--quiet",
+])

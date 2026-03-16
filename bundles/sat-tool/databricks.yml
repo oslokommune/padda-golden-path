@@ -1,0 +1,21 @@
+bundle:
+  name: SAT
+
+include:
+  - resources/*.yml
+
+
+sync:
+  include:
+    - wheels/*.whl
+    - configs/**
+    - bin/trufflehog
+    - dashboards/**
+
+targets:
+  dev:
+    mode: development
+    default: true
+    workspace:
+      host: https://dbc-5e9feed1-cbb6.cloud.databricks.com
+      root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/${bundle.target}

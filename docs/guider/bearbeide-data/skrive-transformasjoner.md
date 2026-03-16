@@ -1,0 +1,17 @@
+---
+title: Skrive transformasjoner
+description: Hvordan skrive og kjore datatransformasjoner i en notebook eller pipeline.
+diataxis: how-to
+icon: lucide/construction
+---
+
+# Skrive transformasjoner
+
+Denne guiden er ikke skrevet ennå.
+
+Bør dekke:
+
+- Opprette en notebook som leser fra en bronze-tabell og skriver til silver
+- Legge til expectations for å fange datakvalitetsfeil underveis
+- Pakke transformasjonen som en jobb med Databricks Asset Bundles
+- Verifisere at transformasjonen produserte riktig resultat

@@ -1,0 +1,312 @@
+name: SAT Upstream Sync
+
+on:
+  schedule:
+    - cron: "0 7 * * MON" # every Monday at 07:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  sync-upstream:
+    runs-on: ubuntu-latest
+    env:
+      UPSTREAM_URL: "https://github.com/databricks-industry-solutions/security-analysis-tool.git"
+      LOCAL_SAT: "bundles/sat-tool"
+      # Directories in the upstream repo that map to bundles/sat-tool/
+      SHARED_DIRS: "notebooks/ configs/ dashboards/ README.md"
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL_PR_BOT }}
+
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          fetch-depth: 0
+
+      - name: Clone upstream repo (full history for three-way merge)
+        id: upstream
+        run: |
+          TMP_DIR=$(mktemp -d)
+          git clone "$UPSTREAM_URL" "$TMP_DIR/upstream"
+          UPSTREAM_HASH=$(git -C "$TMP_DIR/upstream" rev-parse --short HEAD)
+          UPSTREAM_HASH_FULL=$(git -C "$TMP_DIR/upstream" rev-parse HEAD)
+          UPSTREAM_DATE=$(git -C "$TMP_DIR/upstream" log -1 --format='%ci')
+          echo "hash=$UPSTREAM_HASH" >> "$GITHUB_OUTPUT"
+          echo "hash_full=$UPSTREAM_HASH_FULL" >> "$GITHUB_OUTPUT"
+          echo "date=$UPSTREAM_DATE" >> "$GITHUB_OUTPUT"
+          echo "tmp_dir=$TMP_DIR" >> "$GITHUB_OUTPUT"
+
+      - name: Read base commit and check for changes
+        id: check
+        run: |
+          TMP_DIR="${{ steps.upstream.outputs.tmp_dir }}"
+          UPSTREAM_DIR="$TMP_DIR/upstream"
+          BASE_COMMIT=$(cat "$LOCAL_SAT/.upstream-commit" | tr -d '[:space:]')
+          LATEST_COMMIT="${{ steps.upstream.outputs.hash_full }}"
+
+          echo "base_commit=$BASE_COMMIT" >> "$GITHUB_OUTPUT"
+
+          # Quick check: if base == latest, nothing to do
+          if git -C "$UPSTREAM_DIR" merge-base --is-ancestor "$LATEST_COMMIT" "$BASE_COMMIT" 2>/dev/null; then
+            echo "Upstream HEAD (${{ steps.upstream.outputs.hash }}) is at or behind base ($BASE_COMMIT). Nothing to do."
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # Check if any of the shared dirs actually changed
+          DIFF_STAT=$(git -C "$UPSTREAM_DIR" diff --name-only "$BASE_COMMIT" "$LATEST_COMMIT" -- $SHARED_DIRS)
+
+          if [ -z "$DIFF_STAT" ]; then
+            echo "Upstream moved ($BASE_COMMIT → ${{ steps.upstream.outputs.hash }}) but no changes in shared dirs."
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+            # Still update the base commit pointer since upstream moved
+            echo "update_pointer=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Changes detected in shared dirs:"
+            echo "$DIFF_STAT"
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Fast-forward base pointer (no shared-dir changes)
+        if: steps.check.outputs.has_changes == 'false' && steps.check.outputs.update_pointer == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          UPSTREAM_HASH="${{ steps.upstream.outputs.hash }}"
+          BRANCH="chore/sat-upstream-pointer-$(date +%Y%m%d)"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$BRANCH"
+          echo "${{ steps.upstream.outputs.hash_full }}" > "$LOCAL_SAT/.upstream-commit"
+          git add "$LOCAL_SAT/.upstream-commit"
+          git commit -m "chore(sat-tool): update upstream pointer to $UPSTREAM_HASH (no code changes)"
+          git push origin "$BRANCH"
+
+          gh pr create \
+            --title "chore(sat-tool): update upstream pointer ($UPSTREAM_HASH)" \
+            --body "$(cat <<EOF
+          ## Upstream pointer update
+
+          Upstream moved from \`$(cat bundles/sat-tool/.upstream-commit)\` to \`$UPSTREAM_HASH\` but
+          no changes were made to notebooks, configs, or dashboards. This PR just
+          updates the base pointer for future three-way merges.
+          EOF
+          )" \
+            --base main
+
+      # ── Three-way merge ────────────────────────────────────────────
+      - name: Set up merge repo
+        if: steps.check.outputs.has_changes == 'true'
+        id: merge
+        run: |
+          TMP_DIR="${{ steps.upstream.outputs.tmp_dir }}"
+          UPSTREAM_DIR="$TMP_DIR/upstream"
+          BASE_COMMIT="${{ steps.check.outputs.base_commit }}"
+          MERGE_DIR="$TMP_DIR/merge-repo"
+
+          mkdir -p "$MERGE_DIR"
+          cd "$MERGE_DIR"
+          git init
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # ── Commit 1: base (upstream @ stored base commit) ──
+          git -C "$UPSTREAM_DIR" archive "$BASE_COMMIT" -- $SHARED_DIRS | tar -x -C "$MERGE_DIR"
+          git add -A
+          git commit -m "base: upstream @ $BASE_COMMIT"
+
+          # ── Branch: local-changes (our current bundles/sat-tool/) ──
+          git checkout -b local-changes
+          find . -maxdepth 1 -not -name '.git' -not -name '.' -exec rm -rf {} +
+          # Copy local files (only shared dirs, excluding binary/generated)
+          cp "$GITHUB_WORKSPACE/$LOCAL_SAT/README.md" . 2>/dev/null || true
+          for dir in notebooks configs dashboards; do
+            if [ -d "$GITHUB_WORKSPACE/$LOCAL_SAT/$dir" ]; then
+              cp -r "$GITHUB_WORKSPACE/$LOCAL_SAT/$dir" .
+            fi
+          done
+          # Remove .bak files
+          find . -name "*.bak" -delete 2>/dev/null || true
+          git add -A
+          git commit -m "local: offline/isolated VPC changes" --allow-empty
+
+          # ── Branch: upstream-new (upstream @ latest HEAD) ──
+          git checkout master
+          git checkout -b upstream-new
+          find . -maxdepth 1 -not -name '.git' -not -name '.' -exec rm -rf {} +
+          git -C "$UPSTREAM_DIR" archive HEAD -- $SHARED_DIRS | tar -x -C "$MERGE_DIR"
+          git add -A
+          git commit -m "upstream: latest HEAD (${{ steps.upstream.outputs.hash }})" --allow-empty
+
+          # ── Merge: upstream-new → local-changes ──
+          git checkout local-changes
+          MERGE_OUTPUT=$(git merge upstream-new -m "merge upstream" 2>&1) || true
+
+          HAS_CONFLICT=false
+          CONFLICT_FILES=""
+          if git diff --name-only --diff-filter=U | grep -q .; then
+            HAS_CONFLICT=true
+            CONFLICT_FILES=$(git diff --name-only --diff-filter=U | tr '\n' ' ')
+            echo "Conflicts in: $CONFLICT_FILES"
+          fi
+
+          echo "has_conflict=$HAS_CONFLICT" >> "$GITHUB_OUTPUT"
+          echo "conflict_files=$CONFLICT_FILES" >> "$GITHUB_OUTPUT"
+          echo "merge_dir=$MERGE_DIR" >> "$GITHUB_OUTPUT"
+
+      # ── Clean merge → create PR ────────────────────────────────────
+      - name: Apply merged result and create PR
+        if: steps.check.outputs.has_changes == 'true' && steps.merge.outputs.has_conflict == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          MERGE_DIR="${{ steps.merge.outputs.merge_dir }}"
+          UPSTREAM_HASH="${{ steps.upstream.outputs.hash }}"
+          BRANCH="chore/sat-upstream-sync-$(date +%Y%m%d)"
+
+          # Copy merged files back to bundles/sat-tool/
+          for item in README.md notebooks configs dashboards; do
+            rm -rf "$LOCAL_SAT/$item"
+            if [ -e "$MERGE_DIR/$item" ]; then
+              cp -r "$MERGE_DIR/$item" "$LOCAL_SAT/$item"
+            fi
+          done
+
+          # Update the base commit pointer
+          echo "${{ steps.upstream.outputs.hash_full }}" > "$LOCAL_SAT/.upstream-commit"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$BRANCH"
+          git add "$LOCAL_SAT/"
+          git commit -m "chore(sat-tool): sync with upstream ($UPSTREAM_HASH)"
+          git push origin "$BRANCH"
+
+          # Build a summary of what changed
+          CHANGED_FILES=$(git -C "${{ steps.upstream.outputs.tmp_dir }}/upstream" \
+            diff --stat "${{ steps.check.outputs.base_commit }}" HEAD -- $SHARED_DIRS)
+
+          gh pr create \
+            --title "chore(sat-tool): sync with upstream SAT ($UPSTREAM_HASH)" \
+            --body "$(cat <<EOF
+          ## Automated upstream sync (three-way merge)
+
+          This PR syncs \`bundles/sat-tool/\` with the latest changes from
+          [databricks-industry-solutions/security-analysis-tool](https://github.com/databricks-industry-solutions/security-analysis-tool).
+
+          **Base:** \`${{ steps.check.outputs.base_commit }}\`
+          **Upstream HEAD:** \`$UPSTREAM_HASH\` (${{ steps.upstream.outputs.date }})
+
+          ### Changed upstream files
+          \`\`\`
+          $CHANGED_FILES
+          \`\`\`
+
+          The merge was performed automatically using a three-way merge (base → local offline changes + upstream new).
+          All conflicts were resolved automatically.
+
+          **Review checklist:**
+          - [ ] Check that offline/isolated VPC modifications are preserved
+          - [ ] Verify no new \`pip install\` or \`curl\` calls were introduced
+          - [ ] Update SDK version in \`install_sat_sdk.py\` if upstream bumped it
+          - [ ] Re-run \`download_wheels.sh\` if SDK version changed
+          EOF
+          )" \
+            --base main
+
+      - name: Notify Slack (PR created)
+        if: steps.check.outputs.has_changes == 'true' && steps.merge.outputs.has_conflict == 'false'
+        run: |
+          if [ -n "$SLACK_WEBHOOK_URL" ]; then
+            curl -X POST -H 'Content-type: application/json' \
+              --data '{"text":"SAT upstream sync: ny PR er klar for review :rocket:"}' \
+              "$SLACK_WEBHOOK_URL"
+          fi
+
+      # ── Conflicts → open issue ─────────────────────────────────────
+      - name: Open issue (merge conflicts)
+        if: steps.check.outputs.has_changes == 'true' && steps.merge.outputs.has_conflict == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          UPSTREAM_HASH="${{ steps.upstream.outputs.hash }}"
+          CONFLICT_FILES="${{ steps.merge.outputs.conflict_files }}"
+
+          # Build upstream log for context
+          UPSTREAM_LOG=$(git -C "${{ steps.upstream.outputs.tmp_dir }}/upstream" \
+            log --oneline "${{ steps.check.outputs.base_commit }}..HEAD" -- $SHARED_DIRS | head -20)
+
+          gh issue create \
+            --title "SAT upstream sync: merge conflicts ($UPSTREAM_HASH)" \
+            --body "$(cat <<EOF
+          ## Upstream sync failed — merge conflicts
+
+          The automated three-way merge of upstream SAT changes into \`bundles/sat-tool/\`
+          produced conflicts that need manual resolution.
+
+          **Base commit:** \`${{ steps.check.outputs.base_commit }}\`
+          **Upstream HEAD:** \`$UPSTREAM_HASH\` (${{ steps.upstream.outputs.date }})
+
+          ### Conflicting files
+          \`\`\`
+          $CONFLICT_FILES
+          \`\`\`
+
+          ### Upstream commits since base
+          \`\`\`
+          $UPSTREAM_LOG
+          \`\`\`
+
+          ### How to resolve manually
+
+          \`\`\`bash
+          # 1. Clone upstream
+          git clone $UPSTREAM_URL /tmp/sat-upstream
+
+          # 2. Set up the three-way merge repo
+          MERGE_DIR=\$(mktemp -d)
+          cd \$MERGE_DIR && git init
+          git config user.name merge && git config user.email merge@local
+
+          # 3. Base commit
+          git -C /tmp/sat-upstream archive ${{ steps.check.outputs.base_commit }} -- $SHARED_DIRS | tar -x
+          git add -A && git commit -m "base"
+
+          # 4. Local branch
+          git checkout -b local-changes
+          rm -rf notebooks configs dashboards README.md
+          cp -r <your-repo>/bundles/sat-tool/{README.md,notebooks,configs,dashboards} .
+          git add -A && git commit -m "local"
+
+          # 5. Upstream branch
+          git checkout master && git checkout -b upstream-new
+          rm -rf notebooks configs dashboards README.md
+          git -C /tmp/sat-upstream archive HEAD -- $SHARED_DIRS | tar -x
+          git add -A && git commit -m "upstream"
+
+          # 6. Merge and resolve
+          git checkout local-changes
+          git merge upstream-new
+          # Fix conflicts, then: git add . && git commit
+
+          # 7. Copy result back
+          cp -r {README.md,notebooks,configs,dashboards} <your-repo>/bundles/sat-tool/
+          echo "<new-upstream-hash>" > <your-repo>/bundles/sat-tool/.upstream-commit
+          \`\`\`
+
+          After resolving, update \`.upstream-commit\` to \`${{ steps.upstream.outputs.hash_full }}\`.
+          EOF
+          )" \
+            --label "sat-upstream"
+
+      - name: Notify Slack (conflict)
+        if: steps.check.outputs.has_changes == 'true' && steps.merge.outputs.has_conflict == 'true'
+        run: |
+          if [ -n "$SLACK_WEBHOOK_URL" ]; then
+            curl -X POST -H 'Content-type: application/json' \
+              --data '{"text":":warning: SAT upstream sync: konflikter funnet, issue opprettet for manuell merge"}' \
+              "$SLACK_WEBHOOK_URL"
+          fi

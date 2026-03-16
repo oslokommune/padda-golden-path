@@ -3,10 +3,11 @@ target-version = "py313"
 preview = true
 exclude = [
   ".venv",
-  "site",
   "build",
-  "dist",
+  "bundles/sat-tool",
   "databricks/bundles/**/notebooks/*.py",
+  "dist",
+  "site",
 ]
 
 [format]
@@ -39,5 +40,3 @@ combine-as-imports = true
 
 [lint.per-file-ignores]
 "**/tests/**" = ["S101"]
-
-

@@ -367,6 +367,12 @@
   color: var(--pkt-color-text-body-default);
 }
 
+/* Section labels (folders) — bold like Punkt sidebar headings */
+.md-nav--primary label.md-nav__link {
+  font-weight: 500;
+  color: var(--pkt-color-text-body-default);
+}
+
 /* Source link in sidebar */
 .md-nav__source {
   border-radius: 0;

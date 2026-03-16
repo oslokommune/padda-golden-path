@@ -4,16 +4,14 @@
 
 [project]
 site_name = "Padda Golden Path"
-# site_url is set during CI/CD build. Leaving it unset locally avoids
-# redirect issues with the dev server.
-#site_url = "https://oslokommune.github.io/padda-golden-path/"
-site_description = "Golden paths, Databricks bundles, and shared libs"
+site_description = "Brolagt sti, Databricks-bundler og delte bibliotek"
 site_author = "Digitaliseringsetaten"
-copyright = "Made with &hearts; by Digitaliseringsetaten"
+copyright = "Laget med &hearts; av Digitaliseringsetaten"
 repo_url = "https://github.com/oslokommune/padda-golden-path"
 repo_name = "oslokommune/padda-golden-path"
 edit_uri = "tree/main/docs"
 docs_dir = "docs"
+site_dir = "site"
 
 extra_css = [
   "zensical-stylesheets/punkt-tokens.css",
@@ -21,42 +19,75 @@ extra_css = [
 ]
 
 # ---------------------------------------------------------------------------
-# Navigation
+# Navigation — Diataxis-oriented top level, pipeline phases under Guider
 # ---------------------------------------------------------------------------
 nav = [
-  { "Home" = "index.md" },
-  { "Kom i gang" = "getting-started.md" },
-  { "Onboarding" = "ONBOARDING.md" },
-  { "Arkitektur" = [
-    { "Oversikt" = "architecture/dataflyt_sye.md" },
+  { "Om plattformen" = [
+    { "index" = "om-plattformen/index.md" },
+    { "Hva tilbyr dataplattformen?" = "om-plattformen/overordnet/hva-tilbyr-dataplattformen.md" },
+    { "Velg riktig dataplattform" = "om-plattformen/overordnet/velg-riktig-plattform.md" },
+    { "Bruksområder" = "om-plattformen/overordnet/bruksomraader.md" },
+    { "Målgrupper og forutsetninger" = "om-plattformen/overordnet/maalgrupper.md" },
+    { "Arkitektur" = "om-plattformen/konsepter/arkitektur.md" },
+    { "Datainnlasting og klassifisering" = "om-plattformen/konsepter/datainnlasting-og-klassifisering.md" },
+    { "Datatilgang og deling" = "om-plattformen/konsepter/datatilgang-og-deling.md" },
+    { "Overvåking" = "om-plattformen/konsepter/overvaaking.md" },
   ]},
-  { "Implementering" = "architecture/progresjon.md" },
-  { "Golden Paths" = [
-    { "Databricks Bundles" = [
-      { "Oversikt" = "golden-paths/databricks-bundles.md" },
-      { "Ingest Excel" = "golden-paths/databricks-bundles/excel_ingest.md" },
+  { "Kom i gang" = [
+    { "index" = "kom-i-gang/index.md" },
+    { "Slik får du tilgang" = "kom-i-gang/slik-faar-du-tilgang.md" },
+    { "Sett opp utviklingsmiljøet" = "kom-i-gang/dev-setup.md" },
+    { "VS Code og Databricks" = "kom-i-gang/vscode-og-databricks.md" },
+    { "Din første datapipeline" = "kom-i-gang/din-forste-datapipeline.md" },
+    { "Testdata" = "kom-i-gang/testdata.md" },
+    { "Fra test til produksjon" = "kom-i-gang/fra-test-til-prod.md" },
+  ]},
+  { "Guider" = [
+    { "index" = "guider/index.md" },
+    { "Hente inn data" = [
+      { "Laste opp til landing zone" = "guider/hente-inn-data/landing-zone.md" },
+      { "Sette opp Auto Loader" = "guider/hente-inn-data/auto-loader.md" },
+      { "Excel til Unity Catalog" = "guider/hente-inn-data/excel-til-uc.md" },
+      { "Ingest via API / Lambda" = "guider/hente-inn-data/lambda-api.md" },
+      { "Hente data fra Fabric" = "guider/hente-inn-data/hente-fra-fabric.md" },
+      { "Secrets" = "guider/hente-inn-data/secrets.md" },
+    ]},
+    { "Bearbeide data" = [
+      { "Skrive transformasjoner" = "guider/bearbeide-data/skrive-transformasjoner.md" },
+      { "Bronze til silver" = "guider/bearbeide-data/bronze-til-silver.md" },
+      { "Silver til gold" = "guider/bearbeide-data/silver-til-gold.md" },
+      { "Laste opp Python-biblioteker" = "guider/bearbeide-data/laste-opp-python-biblioteker.md" },
+      { "Deploy med Databricks Asset Bundles" = "guider/bearbeide-data/deploy-med-bundles.md" },
+    ]},
+    { "Dele og hente ut data" = [
+      { "Koble til Power BI" = "guider/dele-og-hente-ut/power-bi.md" },
+      { "Dele data via Unity Catalog" = "guider/dele-og-hente-ut/unity-catalog.md" },
+      { "Dele med Fabric" = "guider/dele-og-hente-ut/dele-med-fabric.md" },
+    ]},
+    { "Overvåke og drifte" = [
+      { "Slack-alarmer" = "guider/overvaake-og-drifte/slack-alarmer.md" },
+      { "Gjenopprette etter feil" = "guider/overvaake-og-drifte/feilhaandtering.md" },
+      { "Feilsøke med logger" = "guider/overvaake-og-drifte/logging.md" },
     ]},
   ]},
-  { "Guides" = [
-    { "Guider" = "guides/index.md" },
-    { "Data" = [
-      { "Landing Zone" = "guides/data/landing-zone.md" },
-      { "Laste Opp Excel Til Uc" = "guides/data/laste-opp-excel-til-uc.md" },
-    ]},
-    { "Developer" = [
-      { "Dev Setup" = "guides/developer/dev-setup.md" },
-      { "Ingest av API, Lambda" = "guides/developer/lambda-api.md" },
-      { "Laste Opp Lib" = "guides/developer/laste-opp-lib.md" },
-      { "Secrets" = "guides/developer/secrets.md" },
-      { "Slack Alarmer" = "guides/developer/slack-alarmer.md" },
-    ]},
-    { "Roller" = [
-      { "Ansatt Datautforsker" = "guides/roller/ansatt-datautforsker.md" },
-      { "Dataanalytikere" = "guides/roller/dataanalytikere.md" },
-      { "Dataansvarlig" = "guides/roller/dataansvarlig.md" },
-      { "Dataplattform Admin" = "guides/roller/dataplattform-admin.md" },
-      { "Workspace Admin" = "guides/roller/workspace-admin.md" },
-    ]},
+  { "Referanse" = [
+    { "index" = "referanse/index.md" },
+    { "Brukervilkår og ditt ansvar" = "referanse/brukervilkaar.md" },
+    { "Landing zone" = "referanse/landing-zone.md" },
+    { "Roller og rettigheter" = "referanse/roller-og-rettigheter.md" },
+    { "SQL Warehouse" = "referanse/sql-warehouse.md" },
+    { "Navnekonvensjoner" = "referanse/navnekonvensjoner.md" },
+    { "Varsling" = "referanse/varsling.md" },
+    { "Databricks Asset Bundles" = "referanse/databricks-bundles.md" },
+  ]},
+  { "Hjelp" = [
+    { "index" = "hjelp/index.md" },
+    { "FAQ" = "hjelp/faq.md" },
+    { "Kontakt oss" = "hjelp/kontakt.md" },
+    { "Kurs og opplæring" = "hjelp/kurs.md" },
+    { "Fellesskap" = "hjelp/fellesskap.md" },
+    { "Læringsressurser" = "hjelp/laeringsressurser.md" },
+    { "Nyheter" = "hjelp/nyheter.md" },
   ]},
 ]
 
@@ -75,8 +106,8 @@ features = [
   "content.code.copy",
   "content.tabs.link",
   "content.tooltips",
-  "navigation.footer",
   "navigation.indexes",
+  "navigation.footer",
   "navigation.instant",
   "navigation.instant.prefetch",
   "navigation.tabs",
@@ -109,7 +140,7 @@ link = "https://github.com/oslokommune"
 
 [[project.extra.social]]
 icon = "fontawesome/brands/linkedin"
-link = "https://www.linkedin.com/company/osloorigo"
+link = "https://www.linkedin.com/company/digitaliseringsetaten"
 
 # ---------------------------------------------------------------------------
 # Markdown extensions

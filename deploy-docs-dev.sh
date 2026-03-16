@@ -3,10 +3,10 @@ set -euo pipefail
 
 BUCKET="s3://padda-dev-docs"
 DISTRIBUTION_ID="E2YXU00C851J9P"
-SOURCE_DIR="site-v2/"
+SOURCE_DIR="site/"
 
 echo "Building docs..."
-uv run --extra docs zensical build -f zensical-v2.toml
+uv run --extra docs zensical build
 
 echo "Syncing ${SOURCE_DIR} to ${BUCKET}..."
 aws s3 sync "${SOURCE_DIR}" "${BUCKET}" --delete

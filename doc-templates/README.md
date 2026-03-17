@@ -6,12 +6,25 @@ Denne mappen inneholder maler og skriveguider for de fire dokumentasjonstypene i
 
 Startpunkter for nye sider — kopier og fyll ut:
 
-| Fil | Type | Beskrivelse |
-|-----|------|-------------|
-| `tutorial.md` | Tutorial | Læringsløp der leseren bygger noe konkret steg for steg |
-| `howto.md` | How-to | Oppgaveorientert guide for å løse et spesifikt problem |
-| `reference.md` | Referanse | Nøytral teknisk beskrivelse av et system eller en komponent |
-| `explanation.md` | Forklaring | Kontekst og bakgrunn som svarer på «hvorfor?» |
+| Fil | Type | Bruk for |
+|-----|------|----------|
+| `tutorial.md` | Tutorial | Veiledet læringsopplevelse der leseren bygger noe steg for steg. Sider under **Kom i gang**. |
+| `howto.md` | How-to | Oppgaverettede anvisninger for et bestemt mål. Sider under **Guider**. |
+| `reference.md` | Referanse | Nøytral beskrivelse av et system, en ressurs eller et regelverk. Sider under **Referanse**. |
+| `explanation.md` | Forklaring | Kontekst, bakgrunn og svar på «hvorfor?». Sider under **Om plattformen**. |
+
+Hver mal bruker HTML-kommentarer (`<!-- OBLIGATORISK -->`, `<!-- VALGFRI: ... -->`) for å markere hvilke seksjoner som er påkrevde og hvilke som er en meny å velge fra. Kommentarene forklarer også _når_ hver valgfri seksjon er nyttig, med konkrete eksempler fra vår dokumentasjonsstruktur.
+
+### Frontmatter
+
+Malene bruker kun frontmatter-feltene som Zensical faktisk behandler:
+
+| Felt | Påkrevd | Formål |
+|------|---------|--------|
+| `title` | Ja | Sidetittel |
+| `description` | Ja | Norsk beskrivelse for søkemotorer |
+| `diataxis` | Ja | Dokumentasjonstype (`tutorial`, `how-to`, `reference`, `explanation`) |
+| `icon` | Nei | Overstyr sideikon (f.eks. `lucide/construction` for stub-sider) |
 
 ## Skriveguider
 
@@ -40,4 +53,4 @@ npx @smithery/cli@latest skill add wodsmith/documentation --agent claude-code --
 
 Kilden ligger på [smithery.ai/skills/wodsmith/documentation](https://smithery.ai/skills/wodsmith/documentation).
 
-Skillen dekker det samme som skriveguidene i denne mappen, og laster inn riktig referansemateriale basert på hvilken dokumentasjonstype du jobber med. Malene (`tutorial.md`, `howto.md` osv.) kan fortsatt være nyttige som utgangspunkt for nye sider, men skriveguidene er i praksis overflødige om du har skillen installert.
+Skillen dekker det samme som skriveguidene i denne mappen, og laster inn riktig referansemateriale basert på hvilken dokumentasjonstype du jobber med. Malene (`tutorial.md`, `howto.md` osv.) er fortsatt nyttige som praktiske utgangspunkter selv om du har skillen installert — malene gir deg struktur, skillen gir AI-agenten din skjønn.

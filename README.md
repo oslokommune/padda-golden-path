@@ -80,7 +80,7 @@ Each example under `examples/` is a self-contained pipeline with:
 
 ### Documentation
 
-Zensical documentation with Oslo kommune Punkt design system theming. Configuration in `zensical.toml`. Navigation is defined in `zensical.toml` under `nav`. Supports Mermaid diagrams and Notion sync.
+Zensical documentation with Oslo kommune Punkt design system theming. Configuration in `zensical.toml`. Navigation is defined in `zensical.toml` under `nav`. Supports Mermaid diagrams.
 
 Key CSS files:
 - `docs/zensical-stylesheets/punkt-tokens.css` — Punkt design tokens (colors, spacing, fonts from CDN)

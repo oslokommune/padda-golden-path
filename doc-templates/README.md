@@ -10,5 +10,3 @@ Templates for the four documentation types in the [Diataxis framework](https://d
 | `reference.md` | Reference | Neutral fact descriptions. Pages under **Referanse**. |
 
 Each template marks sections as **[OBLIGATORISK]** or **[FRIVILLIG]** and includes example content showing what belongs there. The info box at the top summarises the principles — delete it when you start writing.
-
-For more context on how the four types relate to our documentation structure, see [`diataxis.md`](diataxis.md) in this directory.

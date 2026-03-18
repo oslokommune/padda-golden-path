@@ -88,13 +88,6 @@ nav = [
     { "Fellesskap" = "hjelp/fellesskap.md" },
     { "Læringsressurser" = "hjelp/laeringsressurser.md" },
     { "Nyheter" = "hjelp/nyheter.md" },
-    { "Om dokumentasjonen" = [
-      { "Diataxis" = "hjelp/om-dokumentasjonen/diataxis.md" },
-      { "Mal: Tutorial" = "hjelp/om-dokumentasjonen/mal-tutorial.md" },
-      { "Mal: How-to" = "hjelp/om-dokumentasjonen/mal-howto.md" },
-      { "Mal: Forklaring" = "hjelp/om-dokumentasjonen/mal-forklaring.md" },
-      { "Mal: Referanse" = "hjelp/om-dokumentasjonen/mal-referanse.md" },
-    ]},
   ]},
 ]
 

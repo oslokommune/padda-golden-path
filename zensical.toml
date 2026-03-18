@@ -123,7 +123,7 @@ font = false
 [project.theme.icon]
 repo = "fontawesome/brands/github"
 edit = "lucide/file-pen"
-admonition = { example = "lucide/ship" }
+admonition = { example = "lucide/ship", tip = "lucide/lightbulb" }
 
 # Single light scheme — Oslo kommune does not use dark mode
 [[project.theme.palette]]

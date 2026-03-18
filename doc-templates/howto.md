@@ -1,36 +1,52 @@
 ---
 title: Hvordan [oppnå et bestemt resultat]
-type: how-to
-summary: [Én setning som beskriver resultatet av denne fremgangsmåten.]
-audience: [Utviklere | Drift | Administratorer | Brukere]
-prerequisites:
-  - [Nødvendig verktøy, tilgang, versjon eller oppsett]
-  - [Nødvendig forkunnskap eller lenke til oppsettsdokumentasjon]
-related:
-  tutorial: [Kom i gang med ...]
-  reference: [Referanse for CLI/API/konfigurasjon]
-  explanation: [Konseptuell bakgrunn]
+description: [Beskrivelse for søkemotorer — hva leseren får til.]
+diataxis: how-to
+# icon: lucide/construction  # Fjern kommentar for stub-sider
 ---
+
+!!! info "Mal: How-to — oppgaverettet, målfokusert"
+    Bruk denne malen for sider der leseren allerede vet hva de vil
+    oppnå og trenger praktiske anvisninger (f.eks. sider under "Guider").
+
+    **Prinsipper:**
+
+    - Leseren vet allerede hva de vil — hjelp dem raskt i mål
+    - Anta kompetanse; ikke lær bort grunnleggende
+    - Bare handling — ingen bakgrunn, ingen teori
+    - Tillat variasjon: bruk "hvis/når" for forgreninger
+    - Lenk videre til tutorials, referanse og forklaring
+
+    **Formatering:**
+
+    - Content tabs er perfekt for varianter (CLI vs. UI, Python vs. SQL)
+    - Bruk `!!! warning` for destruktive eller irreversible steg
+    - Kodeannoteringer (`# (1)!`) kan erstatte lange forklaringer
+
+    Slett denne boksen når du begynner å skrive.
+
 
 # Hvordan [oppnå et bestemt resultat]
 
-[Kort innledning: si hva denne veiledningen hjelper leseren med å gjøre, når den bør brukes, og hvordan et vellykket resultat ser ut.]
+[Kort innledning: si hva denne veiledningen hjelper leseren med, og hvordan et vellykket resultat ser ut.]
 
-## Før du begynner
+
+## Før du begynner [OBLIGATORISK]
+
+Kan droppes helt om leseren kan starte uten forberedelser.
 
 Sørg for at du har:
 
-- [nødvendig tilgang, legitimasjon eller rettigheter]
+- [nødvendig tilgang, rettigheter eller legitimasjon]
 - [nødvendig programvare, miljø eller versjon]
 - [nødvendige inndatafiler, verdier eller avhengigheter]
 
-Denne veiledningen forutsetter at du allerede vet hvordan du:
+Denne veiledningen forutsetter at du har gjennomført [Sett opp utviklingsmiljøet](../kom-i-gang/dev-setup.md) eller tilsvarende.
 
-- [grunnleggende ferdighet eller oppsettstrinn]
-- [annet nødvendig forarbeid]
-    - [eksempelvis: gjennomgått beslutningstre]
 
-## Trinn 1: [Første handling]
+## Trinn 1: [Første handling] [OBLIGATORISK]
+
+Minst ett trinn. Trinnene skal være korte og handlingsrettede. Ingen "Forventet resultat" etter hvert trinn — spar det til verifikasjonen på slutten.
 
 [Beskriv handlingen tydelig og direkte.]
 
@@ -38,10 +54,27 @@ Denne veiledningen forutsetter at du allerede vet hvordan du:
 [eksempelkommando]
 ```
 
-Forventet resultat:
+Betinget veiledning skiller en how-to fra en tutorial — ta med når det finnes legitime variasjoner:
 
-- [hva som skal skje]
-- [hva leseren skal se]
+Hvis du bruker [alternativ A] i stedet for [alternativ B]:
+
+```bash
+[alternativ kommando]
+```
+
+Content tabs er ideelle for parallelle fremgangsmåter som oppnår samme mål:
+
+=== "CLI"
+
+    ```bash
+    databricks bundle deploy --target dev
+    ```
+
+=== "UI"
+
+    1. Gå til **Workflows** i Databricks-arbeidsområdet.
+    2. Klikk **Create Job**.
+
 
 ## Trinn 2: [Neste handling]
 
@@ -51,27 +84,26 @@ Forventet resultat:
 [eksempel på konfigurasjon]
 ```
 
-Merknader:
+!!! note
+    [Viktig merknad som hjelper leseren fullføre oppgaven.
+    Lenk ut for dypere forklaringer.]
 
-- [ta bare med merknader som hjelper leseren å fullføre oppgaven]
-- [lenk videre i stedet for å forklare konsepter i dybden]
+!!! warning
+    [Bruk for steg som er destruktive eller irreversible.]
+
 
 ## Trinn 3: [Fullfør fremgangsmåten]
 
-[Beskriv den siste handlingen.]
+[Beskriv den siste handlingen. Legg til så mange trinn som trengs.]
 
 ```bash
-[kommando for siste steg eller kontroll]
+[kommando for siste steg]
 ```
 
-## Bekreft resultatet
+
+## Bekreft resultatet [OBLIGATORISK]
 
 Kontroller at oppgaven ble fullført:
-
-- [kontrollpunkt 1]
-- [kontrollpunkt 2]
-
-Eksempel:
 
 ```bash
 [kontrollkommando]
@@ -83,35 +115,38 @@ Forventet utdata:
 [eksempel på utdata]
 ```
 
-## Feilsøking
 
-### [Problem eller symptom]
+## Feilsøking [FRIVILLIG]
 
-[Sannsynlig årsak.]
+Ta med når det finnes kjente fallgruver for denne spesifikke oppgaven. For generell plattformfeilsøking, lenk heller til relevant side under "Hjelp".
 
-Løsning:
+??? failure "Feilmelding: `[feilmelding]`"
+    [Sannsynlig årsak.]
 
-- [retting]
-- [alternativ retting]
+    Løsning:
 
-### [Et annet problem eller symptom]
+    - [retting]
+    - [alternativ retting]
 
-[Sannsynlig årsak.]
+??? failure "[Et annet problem]"
+    [Sannsynlig årsak.]
 
-Løsning:
+    Løsning:
 
-- [retting]
+    - [retting]
 
-## Tilbakestill eller rydd opp
 
-[Beskriv hvordan du angrer endringen, fjerner testdata eller gjenoppretter forrige tilstand.]
+## Rydd opp [FRIVILLIG]
+
+Ta med når oppgaven oppretter ressurser, testdata eller konfigurasjon som leseren kan ønske å fjerne etterpå.
 
 ```bash
-[kommando for tilbakestilling eller opprydding]
+[kommando for opprydding]
 ```
 
-## Relatert innhold
 
-- **Opplæring:** [Lær det grunnleggende før du gjør denne oppgaven]
-- **Referanse:** [Slå opp flagg, parametere, skjemaer eller begrensninger]
-- **Forklaring:** [Forstå hvorfor dette virker eller når denne løsningen bør velges]
+## Relatert innhold [FRIVILLIG]
+
+- [Lenke til relevant tutorial]
+- [Lenke til relevant referanseside]
+- [Lenke til relevant forklaring]

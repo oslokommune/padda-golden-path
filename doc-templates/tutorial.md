@@ -1,25 +1,46 @@
 ---
 title: [Lag noe konkret med ...]
-type: tutorial
-summary: [Én setning om hva leseren skal ende opp med å ha laget eller fått til.]
-audience: [Nybegynnere | Førstegangsbrukere | Nye teammedlemmer]
-prerequisites:
-  - [Minimalt nødvendig oppsett]
-  - [Konto, tilgang eller installasjon]
-estimated_time: [f.eks. 20 minutter]
-related:
-  how-to: [Hvordan utføre en spesifikk oppgave senere]
-  reference: [Referanse for CLI/API/konfigurasjon]
-  explanation: [Bakgrunn og konsepter]
+description: [Beskrivelse for søkemotorer — hva leseren ender opp med.]
+diataxis: tutorial
+# icon: lucide/construction  # Fjern kommentar for stub-sider
 ---
+
+!!! info "Mal: Tutorial — læringsrettet, guidet opplevelse"
+    Bruk denne malen for sider der leseren lærer noe nytt gjennom en
+    veiledet øvelse (f.eks. sider under "Kom i gang").
+
+    **Prinsipper:**
+
+    - Læreren (du) bærer ansvaret for leserens suksess
+    - Én sti, ingen valg — leseren følger, ikke beslutter
+    - Hvert trinn gir et synlig resultat
+    - Minimer forklaring — lenk til den i stedet
+    - Bruk "vi"-form gjennomgående
+
+    **Formatering:**
+
+    - IKKE bruk content tabs — tutorials skal ha én sti, ingen valg
+    - Bruk admonitions sparsomt; de bryter flyten i en tutorial
+    - Kodeannoteringer (`# (1)!`) kan forklare komplekse kommandoer
+      uten å bryte steg-for-steg-flyten
+
+    **Admonition-typer i Zensical:**
+    `note` · `abstract` · `info` · `tip` · `success` ·
+    `question` · `warning` · `failure` · `danger` · `bug` ·
+    `example` · `quote` —
+    alle støtter `!!!` (fast), `???` (sammenleggbar) og `???+` (åpen).
+
+    Slett denne boksen når du begynner å skrive.
+
 
 # [Lag noe konkret med ...]
 
-[I denne opplæringen skal vi lage, sette opp eller kjøre noe konkret. Beskriv sluttresultatet, ikke hva leseren "vil lære".]
+[I denne opplæringen skal vi sette opp / lage / kjøre ... Beskriv sluttresultatet, ikke hva leseren "vil lære".]
 
-## Dette skal vi lage
 
-[Nok informasjon til at leseren forstår hva sluttresultatet er.]
+## Dette skal vi lage [OBLIGATORISK]
+
+[Gi nok kontekst til at leseren kan se for seg sluttresultatet.]
 
 Når du er ferdig, har du:
 
@@ -27,7 +48,8 @@ Når du er ferdig, har du:
 - [konkret resultat 2]
 - [konkret resultat 3]
 
-## Før du begynner
+
+## Før du begynner [OBLIGATORISK]
 
 Du trenger:
 
@@ -35,28 +57,36 @@ Du trenger:
 - [tilgang eller legitimasjon]
 - [eventuelle filer eller verdier]
 
-Starttilstand:
+Starttilstand (ta med om leseren trenger et bestemt miljø før start):
 
 - [hvordan miljøet bør se ut før start]
-- [eventuelle antakelser]
 
-## Trinn 1: [Første konkrete handling]
+
+## Trinn 1: [Første konkrete handling] [OBLIGATORISK]
+
+Minst to trinn. Hvert trinn må gi et synlig resultat.
 
 [Beskriv nøyaktig hva leseren skal gjøre.]
 
 ```bash
-[kommando]
+databricks bundle init --template default-python \  # (1)!
+  --project-dir mitt-prosjekt  # (2)!
 ```
+
+1. Bruker den innebygde Python-malen.
+2. Oppretter prosjektet i mappen `mitt-prosjekt`.
 
 Forventet resultat:
 
 - [hva som skal skje]
 - [hva leseren skal se]
 
-Legg merke til:
+!!! tip "Legg merke til"
+    [Ting leseren bør observere — tegn på at alt er riktig. Bruk denne
+    admonition-typen for å skille observasjoner visuelt fra handlingstrinn.
+    Ta med når det er noe leseren bør se, men kanskje ikke legger merke
+    til selv.]
 
-- [ting leseren bør observere]
-- [tegn på at alt er riktig]
 
 ## Trinn 2: [Neste handling]
 
@@ -72,14 +102,12 @@ Forventet resultat:
 [eksempel på utdata]
 ```
 
-Legg merke til:
+Om leseren kan gjenta dette trinnet med andre verdier for å forsterke mønsteret, si det eksplisitt. Repetisjon bygger trygghet.
 
-- [viktig observasjon]
-- [hva som har endret seg]
 
 ## Trinn 3: [Bygg videre]
 
-[Fortsett langs én tydelig sti uten alternativer.]
+[Legg til så mange trinn som trengs. Fortsett langs én tydelig sti uten alternativer.]
 
 ```yaml
 [eksempel på konfigurasjon]
@@ -89,18 +117,8 @@ Forventet resultat:
 
 - [hva som skal være på plass nå]
 
-## Trinn 4: [Kjør eller bruk det du har laget]
 
-```bash
-[kommando]
-```
-
-Forventet resultat:
-
-- [synlig resultat]
-- [bekreftelse på at målet er nådd]
-
-## Kontroller resultatet
+## Kontroller resultatet [OBLIGATORISK]
 
 Sjekk at alt virker:
 
@@ -113,26 +131,28 @@ Du skal se:
 - [kontrollpunkt 1]
 - [kontrollpunkt 2]
 
-## Hvis noe ikke stemmer
 
-### [Vanlig feil eller symptom]
+## Hvis noe ikke stemmer [FRIVILLIG]
 
-[Den mest sannsynlige årsaken.]
+Ta med når det finnes kjente fallgruver. Læreren bærer ansvaret — om vanlige feil finnes, bør du adressere dem her. Sammenleggbare admonitions holder den glade stien ren.
 
-Prøv dette:
+??? failure "Feilmelding: `[feilmelding]`"
+    [Den mest sannsynlige årsaken.]
 
-- [en enkel retting]
-- [en enkel kontroll]
+    Prøv dette:
 
-### [En annen vanlig feil]
+    - [en enkel retting]
+    - [en enkel kontroll]
 
-[Kort forklaring.]
+??? failure "[En annen vanlig feil]"
+    [Kort forklaring.]
 
-Prøv dette:
+    Prøv dette:
 
-- [retting]
+    - [retting]
 
-## Du har nå
+
+## Du har nå [OBLIGATORISK]
 
 [Beskriv kort hva leseren faktisk har oppnådd.]
 
@@ -141,8 +161,11 @@ Du har nå:
 - [resultat 1]
 - [resultat 2]
 
-## Neste steg
 
-- **How-to:** [Hvordan gjøre en konkret oppgave med dette]
-- **Reference:** [Slå opp kommandoer, felt eller parametere]
-- **Explanation:** [Forstå hvorfor dette virker som det gjør]
+## Neste steg [FRIVILLIG]
+
+Ta med når det finnes naturlige neste sider i dokumentasjonen. Bruk interne lenker.
+
+- [Lenke til relevant how-to guide]
+- [Lenke til relevant referanseside]
+- [Lenke til relevant forklaring]

@@ -1,11 +1,11 @@
 ---
-title: Testdata
+title: Sett opp testdata
 description: Lag testdata du kan bruke trygt i utviklingsmiljøet uten produksjonsdata.
 diataxis: tutorial
 icon: lucide/construction
 ---
 
-# Testdata
+# Sett opp testdata
 
 Denne tutorialen er ikke skrevet ennå.
 

@@ -1,11 +1,11 @@
 ---
-title: Overvåking — ditt ansvar
+title: Overvåking
 description: Hva plattformen tilbyr for overvåking og hva som er ditt ansvar.
 diataxis: explanation
 icon: lucide/construction
 ---
 
-# Overvåking — ditt ansvar
+# Overvåking
 
 Denne forklaringen er ikke skrevet ennå.
 

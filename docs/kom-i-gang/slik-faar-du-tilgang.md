@@ -7,7 +7,7 @@ diataxis: tutorial
 # Slik får du tilgang
 
 !!! info "Opprinnelse"
-    Denne siden inneholder tutorial-delen fra `docs/ONBOARDING.md` og `docs/notion/tilgangsstyring-og-roller.md`. Brukervilkårene (referanse) ligger under [Brukervilkår og ditt ansvar](../referanse/brukervilkaar.md). Roller og rettigheter (referanse) ligger under [Roller og rettigheter](../referanse/roller-og-rettigheter.md).
+    Denne siden inneholder tutorial-delen fra `docs/ONBOARDING.md` og `docs/notion/tilgangsstyring-og-roller.md`. Brukervilkårene (referanse) ligger under [Brukervilkår og ansvar](../referanse/brukervilkaar.md). Roller og rettigheter (referanse) ligger under [Roller og rettigheter](../referanse/roller-og-rettigheter.md).
 
 Bør dekke:
 
@@ -21,7 +21,7 @@ For å få tilgang til Padda dataplattform må du bekrefte at du har lest og for
 
 ### Steg for steg - GUI
 
-1. **Les retningslinjene** i [Brukervilkår og ditt ansvar](../referanse/brukervilkaar.md).
+1. **Les retningslinjene** i [Brukervilkår og ansvar](../referanse/brukervilkaar.md).
 
 2. **Gå til mappen [`onboarding/brukere/`](https://github.com/oslokommune/padda-golden-path/tree/main/onboarding/brukere)** på GitHub.
 
@@ -42,7 +42,7 @@ For å få tilgang til Padda dataplattform må du bekrefte at du har lest og for
 
 ### Steg for steg - IDE
 
-1. **Les retningslinjene** i [Brukervilkår og ditt ansvar](../referanse/brukervilkaar.md).
+1. **Les retningslinjene** i [Brukervilkår og ansvar](../referanse/brukervilkaar.md).
 
 2. **Hent repoet til din maskin**
     ```bash

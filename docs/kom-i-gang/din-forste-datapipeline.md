@@ -1,5 +1,5 @@
 ---
-title: Din første datapipeline
+title: Bygg din første datapipeline
 description: Tutorial som dekker hele dataflyten fra applikasjon til Power BI.
 diataxis: tutorial
 ---
@@ -31,7 +31,7 @@ flowchart LR
 
 Før du kan bruke plattformen må du gjennomføre onboarding. Dette innebærer å lese retningslinjene og bekrefte at du forstår dem via en pull request.
 
-Se [Brukervilkår og ditt ansvar](../referanse/brukervilkaar.md) for detaljer.
+Se [Brukervilkår og ansvar](../referanse/brukervilkaar.md) for detaljer.
 
 ## Steg 2 — Få en landing zone-sender
 
@@ -111,7 +111,7 @@ AWS_PROFILE=min-sender aws s3 cp data.parquet \
   s3://69d82-workspace-landing-zone/min-app/green/2026/02/17/data.parquet
 ```
 
-Se [Laste opp filer til landing zone](../guider/hente-inn-data/landing-zone.md) for mer om sikkerhetsnøkler.
+Se [Laste opp filer til landing zone](../guider/hente-inn-data/laste-opp-til-landing-zone.md) for mer om sikkerhetsnøkler.
 
 ## Steg 4 — Les data inn i Databricks
 
@@ -153,7 +153,7 @@ df.write.mode("append").saveAsTable("min_katalog.bronze_default.min_tabell")
 
 Vi har ferdiglagde eksempler du kan kopiere og tilpasse:
 
-- [Excel Ingestion Bundle](../guider/hente-inn-data/excel-til-uc.md) — leser Excel-filer fra Unity Catalog Volume til Delta-tabell
+- [Excel Ingestion Bundle](../guider/hente-inn-data/importere-excel-til-uc.md) — leser Excel-filer fra Unity Catalog Volume til Delta-tabell
 
 Se [Databricks Asset Bundles](../referanse/databricks-bundles.md) for oversikt over alle tilgjengelige eksempler.
 
@@ -202,12 +202,12 @@ Når data ligger i gold-laget (eller silver, avhengig av behov) kan du koble til
 
 | Steg | Handling                       | Ressurs                                                                        |
 |------|--------------------------------|--------------------------------------------------------------------------------|
-| 1    | Onboarding                     | [Brukervilkår og ditt ansvar](../referanse/brukervilkaar.md)                   |
+| 1    | Onboarding                     | [Brukervilkår og ansvar](../referanse/brukervilkaar.md)                   |
 | 2    | Få landing zone-sender         | Kontakt [#dig-dataspeilet](https://oslokommune.slack.com/archives/C01SFNFEXK7) |
-| 3    | Last opp data til S3           | [Laste opp filer til landing zone](../guider/hente-inn-data/landing-zone.md)   |
+| 3    | Last opp data til S3           | [Laste opp filer til landing zone](../guider/hente-inn-data/laste-opp-til-landing-zone.md)   |
 | 4    | Les inn i Databricks           | [Sette opp Auto Loader](../guider/hente-inn-data/auto-loader.md)              |
 | 5    | Bygg pipelines (bronze → gold) | [Skrive transformasjoner](../guider/bearbeide-data/skrive-transformasjoner.md) |
-| 6    | Koble til Power BI             | [Koble Power BI til SQL Warehouse](../guider/dele-og-hente-ut/power-bi.md)    |
+| 6    | Koble til Power BI             | [Koble Power BI til SQL Warehouse](../guider/dele-og-hente-ut/koble-til-power-bi.md)    |
 
 ## Trenger du hjelp?
 

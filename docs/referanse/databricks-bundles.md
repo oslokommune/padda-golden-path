@@ -20,4 +20,4 @@ Bør dekke:
 - Targets (dev/stage/prod) og hvordan de er satt opp
 - Navnekonvensjoner for funksjoner, roller og ressurser
 
-Se [Deploy med Databricks Asset Bundles](../guider/bearbeide-data/deploy-med-bundles.md) for steg-for-steg-instruksjoner.
+Se [Rulle ut med Databricks Asset Bundles](../guider/bearbeide-data/rulle-ut-med-bundles.md) for steg-for-steg-instruksjoner.

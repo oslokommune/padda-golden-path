@@ -1,11 +1,11 @@
 ---
-title: Varsling og notification destinations
+title: Varsling og alarmer
 description: Tilgjengelige varslingskanaler og deres konfigurasjon.
 diataxis: reference
 icon: lucide/construction
 ---
 
-# Varsling og notification destinations
+# Varsling og alarmer
 
 Denne referansesiden er ikke skrevet ennå.
 

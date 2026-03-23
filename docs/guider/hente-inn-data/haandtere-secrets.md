@@ -1,11 +1,11 @@
 ---
-title: Secrets
+title: Håndtere secrets
 description: Hvordan opprette og bruke Databricks secrets for hemmeligheter som API-nøkler og passord.
 diataxis: how-to
 icon: lucide/construction
 ---
 
-# Secrets
+# Håndtere secrets
 
 !!! info "Opprinnelse"
     Denne siden er omskrevet fra `docs/guides/developer/secrets.md`.

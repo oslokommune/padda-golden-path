@@ -1,11 +1,11 @@
 ---
-title: Datatilgang og deling
-description: Hvordan datadeling og tilgangskontroll fungerer på plattformen.
+title: Deling og bruk
+description: Hvordan data deles og brukes på tvers av team og etater på plattformen.
 diataxis: explanation
 icon: lucide/construction
 ---
 
-# Datatilgang og deling
+# Deling og bruk
 
 Denne forklaringen er ikke skrevet ennå.
 

@@ -335,15 +335,21 @@
   border-radius: 0;
 }
 
-.md-nav--primary .md-nav__link:hover,
-.md-nav--primary .md-nav__link:focus,
-.md-nav--primary .md-nav__link[for]:hover:not(.md-nav__link--active),
-.md-nav--primary .md-nav__link[for]:focus:not(.md-nav__link--active),
 .md-nav--primary .md-nav__link[href]:hover:not(.md-nav__link--active),
 .md-nav--primary .md-nav__link[href]:focus:not(.md-nav__link--active) {
   background-color: transparent;
   text-decoration: underline;
   text-underline-offset: 0.15em;
+}
+
+/* Section toggles (labels) — no underline or background on any state */
+.md-nav--primary .md-nav__link[for]:hover:not(.md-nav__link--active),
+.md-nav--primary .md-nav__link[for]:focus:not(.md-nav__link--active),
+.md-nav--primary .md-nav__link[for]:focus-visible:not(.md-nav__link--active),
+.md-nav--primary .md-nav__link[for]:active:not(.md-nav__link--active) {
+  background-color: transparent;
+  text-decoration: none;
+  color: var(--pkt-color-text-body-default);
 }
 
 /* Active nav link — Punkt light blue background */

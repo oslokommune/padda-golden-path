@@ -1,10 +1,10 @@
 ---
-title: Laste inn Excel til Unity Catalog
+title: Importere Excel til Unity Catalog
 description: Hvordan laste opp en Excel-fil til en Unity Catalog Volume og skrive den som en Delta-tabell.
 diataxis: how-to
 ---
 
-# Laste opp Excel til Unity Catalog og skrive Delta-tabell
+# Importere Excel til Unity Catalog
 
 Denne guiden viser hvordan du laster opp en Excel-fil til en Unity Catalog Volume og deretter skriver den som en Delta-tabell (som i `examples/excel_ingest`, bundle-navn "Ingest Excel").
 

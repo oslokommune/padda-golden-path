@@ -9,7 +9,7 @@ icon: lucide/construction
 
 Denne guiden er ikke skrevet ennå.
 
-Bør dekke:
+Claude foreslår at denne siden bør dekke:
 
 - Konfigurere Auto Loader for inkrementell innlasting fra landing zone
 - Schema-lokasjon og checkpoint

@@ -1,5 +1,5 @@
 ---
-title: VS Code og Databricks
+title: Koble VS Code til Databricks
 description: Tutorial for lokal Databricks-utvikling med VS Code-utvidelsen.
 diataxis: tutorial
 icon: lucide/merge

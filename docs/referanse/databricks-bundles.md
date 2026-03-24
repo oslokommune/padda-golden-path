@@ -12,7 +12,7 @@ icon: lucide/construction
 
 Denne referansen er ikke skrevet ennå.
 
-Bør dekke:
+Claude foreslår at denne siden bør dekke:
 
 - Tilgjengelige eksempelbundler i `examples/` med beskrivelse og formål
 - Mappestruktur og filer i en typisk bundle
@@ -20,4 +20,4 @@ Bør dekke:
 - Targets (dev/stage/prod) og hvordan de er satt opp
 - Navnekonvensjoner for funksjoner, roller og ressurser
 
-Se [Deploy med Databricks Asset Bundles](../guider/bearbeide-data/deploy-med-bundles.md) for steg-for-steg-instruksjoner.
+Se [Ta i bruk Bundles](../guider/bearbeide-data/ta-i-bruk-bundles.md) for steg-for-steg-instruksjoner.

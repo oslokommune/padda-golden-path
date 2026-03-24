@@ -9,7 +9,7 @@ icon: lucide/construction
 
 Denne referansesiden er ikke skrevet ennå.
 
-Bør dekke:
+Claude foreslår at denne siden bør dekke:
 
 - Databricks Academy og andre offisielle kurs
 - Videoer og litteraturtips

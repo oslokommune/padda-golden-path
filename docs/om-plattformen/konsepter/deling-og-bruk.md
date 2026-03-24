@@ -1,15 +1,15 @@
 ---
-title: Datatilgang og deling
-description: Hvordan datadeling og tilgangskontroll fungerer på plattformen.
+title: Deling og bruk
+description: Hvordan data deles og brukes på tvers av team og etater på plattformen.
 diataxis: explanation
 icon: lucide/construction
 ---
 
-# Datatilgang og deling
+# Deling og bruk
 
 Denne forklaringen er ikke skrevet ennå.
 
-Bør dekke:
+Claude foreslår at denne siden bør dekke:
 
 - Hvordan tilgangsstyring fungerer (Unity Catalog, Entra ID)
 - Kjenner du dataene godt nok til å tilgangsstyre og dokumentere dem?

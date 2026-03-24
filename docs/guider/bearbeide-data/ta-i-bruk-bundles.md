@@ -1,15 +1,15 @@
 ---
-title: Deploy med Databricks Asset Bundles
-description: Hvordan pakke og deploye jobber og pipelines til Databricks med Asset Bundles.
+title: Ta i bruk Bundles
+description: Hvordan pakke og kjøre jobber og pipelines i Databricks med Asset Bundles.
 diataxis: how-to
 icon: lucide/construction
 ---
 
-# Deploy med Databricks Asset Bundles
+# Ta i bruk Bundles
 
 Denne guiden er ikke skrevet ennå.
 
-Bør dekke:
+Claude foreslår at denne siden bør dekke:
 
 - Forutsetninger (Databricks CLI, tilgang til workspace)
 - Opprette en ny bundle fra eksemplene i `examples/`

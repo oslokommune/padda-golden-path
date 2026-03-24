@@ -9,7 +9,7 @@ icon: lucide/construction
 
 Denne guiden er ikke skrevet ennå.
 
-Bør dekke:
+Claude foreslår at denne siden bør dekke:
 
 - Finne logger for en feilet jobb (Spark UI, driver logs, job run output)
 - Tolke vanlige feilmeldinger og stacktraces

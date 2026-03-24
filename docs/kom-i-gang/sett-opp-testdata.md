@@ -1,15 +1,15 @@
 ---
-title: Testdata
+title: Sett opp testdata
 description: Lag testdata du kan bruke trygt i utviklingsmiljøet uten produksjonsdata.
 diataxis: tutorial
 icon: lucide/construction
 ---
 
-# Testdata
+# Sett opp testdata
 
 Denne tutorialen er ikke skrevet ennå.
 
-Bør dekke:
+Claude foreslår at denne siden bør dekke:
 
 - Hva vi skal ende opp med: et testdatasett du kan bruke gjennom resten av læringsløpet
 - Hvordan generere syntetiske data som ligner produksjonsdata

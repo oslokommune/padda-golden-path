@@ -7,12 +7,12 @@ icon: lucide/construction
 
 # Eierskap og forvaltning
 
-This explanation has not been written yet.
+Denne forklaringen er ikke skrevet ennå.
 
-Should cover:
+Bør dekke:
 
-- Who owns the data and what that responsibility entails
-- The distinction between data owner and data consumer
-- Rules and expectations for data quality, documentation, and lifecycle
-- How governance decisions are made and enforced on the platform
-- How this relates to sensitivity classification and access control
+- Hvem som eier dataene og hva det ansvaret innebærer
+- Skillet mellom dataeier og datakonsument
+- Regler og forventninger til datakvalitet, dokumentasjon og livsløp
+- Hvordan forvaltningsbeslutninger tas og håndheves på plattformen
+- Hvordan dette henger sammen med sensitivitetsklassifisering og tilgangsstyring

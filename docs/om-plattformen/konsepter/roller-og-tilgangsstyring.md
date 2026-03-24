@@ -7,13 +7,13 @@ icon: lucide/construction
 
 # Roller og tilgangsstyring
 
-This explanation has not been written yet.
+Denne forklaringen er ikke skrevet ennå.
 
-Should cover:
+Bør dekke:
 
-- Why the platform uses a role-based access model — what problems does it solve?
-- How roles relate to the sensitivity classification (green, yellow, red)
-- The relationship between access control and Unity Catalog
-- Trade-offs in the current model — what is prioritised, and what is sacrificed?
-- How the access model supports data sharing across agencies
-- Common misconceptions about who can access what
+- Hvorfor plattformen bruker rollebasert tilgangsstyring — hvilke problemer løser det?
+- Hvordan roller henger sammen med sensitivitetsklassifiseringen (grønn, gul, rød)
+- Sammenhengen mellom tilgangsstyring og Unity Catalog
+- Avveininger i den nåværende modellen — hva er prioritert, og hva er ofret?
+- Hvordan tilgangsmodellen støtter datadeling på tvers av etater
+- Vanlige misforståelser om hvem som har tilgang til hva

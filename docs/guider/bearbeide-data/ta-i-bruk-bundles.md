@@ -1,11 +1,11 @@
 ---
-title: Rulle ut med Databricks Asset Bundles
-description: Hvordan pakke og rulle ut jobber og pipelines til Databricks med Asset Bundles.
+title: Ta i bruk Bundles
+description: Hvordan pakke og kjøre jobber og pipelines i Databricks med Asset Bundles.
 diataxis: how-to
 icon: lucide/construction
 ---
 
-# Rulle ut med Databricks Asset Bundles
+# Ta i bruk Bundles
 
 Denne guiden er ikke skrevet ennå.
 

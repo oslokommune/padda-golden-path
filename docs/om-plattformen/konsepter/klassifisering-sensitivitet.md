@@ -7,12 +7,12 @@ icon: lucide/construction
 
 # Klassifisering av sensitivitet
 
-This explanation has not been written yet.
+Denne forklaringen er ikke skrevet ennå.
 
-Should cover:
+Bør dekke:
 
-- Why data is classified by sensitivity (green, yellow, red) — what requirements and regulations drive it?
-- What each level means in practice for access, storage, and sharing
-- The requirement to know your data well enough to classify it
-- How sensitivity classification interacts with the platform's access model
-- Common misconceptions about sensitivity classification
+- Hvorfor data klassifiseres etter sensitivitet (grønn, gul, rød) — hvilke krav og regelverk ligger bak?
+- Hva hvert nivå betyr i praksis for tilgang, lagring og deling
+- Kravet om å kjenne dataene godt nok til å klassifisere dem
+- Hvordan sensitivitetsklassifisering henger sammen med tilgangsmodellen
+- Vanlige misforståelser om sensitivitetsklassifisering

@@ -7,11 +7,11 @@ icon: lucide/construction
 
 # Datainnlasting
 
-This explanation has not been written yet.
+Denne forklaringen er ikke skrevet ennå.
 
-Should cover:
+Bør dekke:
 
-- Push (file-based) vs. pull (system-based) ingestion — when does each apply?
-- The role of the landing zone as an entry point
-- What happens between landing zone and bronze
-- Common misconceptions about ingestion patterns
+- Filbasert (push) vs. systembasert (pull) innlasting — når passer hva?
+- Landing zone sin rolle som inngangspunkt
+- Hva som skjer mellom landing zone og bronze
+- Vanlige misforståelser om innlastingsmønstre

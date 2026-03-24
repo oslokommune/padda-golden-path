@@ -9,7 +9,7 @@ icon: lucide/construction
 
 Denne guiden er ikke skrevet ennå.
 
-Bør dekke:
+Claude foreslår at denne siden bør dekke:
 
 - Sette opp en shortcut fra Fabric til Databricks-data i ADLS
 - Konfigurere tilgang slik at Fabric-brukere kan lese dataene

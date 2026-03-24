@@ -9,7 +9,7 @@ icon: lucide/construction
 
 Denne guiden er ikke skrevet ennå.
 
-Bør dekke:
+Claude foreslår at denne siden bør dekke:
 
 - Forutsetninger (Databricks CLI, tilgang til workspace)
 - Opprette en ny bundle fra eksemplene i `examples/`

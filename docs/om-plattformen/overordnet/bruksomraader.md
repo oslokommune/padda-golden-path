@@ -9,7 +9,7 @@ icon: lucide/construction
 
 Denne forklaringen er ikke skrevet ennå.
 
-Bør dekke:
+Claude foreslår at denne siden bør dekke:
 
 - Konkrete eksempler fra virksomheter som bruker plattformen
 - Typiske bruksscenarier: analyse, rapportering, integrasjoner, datadeling

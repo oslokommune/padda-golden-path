@@ -9,7 +9,7 @@ icon: lucide/construction
 
 Denne guiden er ikke skrevet ennå.
 
-Bør dekke:
+Claude foreslår at denne siden bør dekke:
 
 - Sette opp en shortcut eller kobling mellom Fabric Lakehouse og Databricks
 - Lese data fra ADLS Gen2 (Fabric-lagring) i en Databricks-notebook

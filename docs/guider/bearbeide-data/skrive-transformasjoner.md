@@ -9,7 +9,7 @@ icon: lucide/construction
 
 Denne guiden er ikke skrevet ennå.
 
-Bør dekke:
+Claude foreslår at denne siden bør dekke:
 
 - Opprette en notebook som leser fra en bronze-tabell og skriver til silver
 - Legge til expectations for å fange datakvalitetsfeil underveis

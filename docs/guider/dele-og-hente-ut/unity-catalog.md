@@ -9,7 +9,7 @@ icon: lucide/construction
 
 Denne guiden er ikke skrevet ennå.
 
-Bør dekke:
+Claude foreslår at denne siden bør dekke:
 
 - Gi lesetilgang til en tabell eller et schema for en annen gruppe
 - Sette opp Delta Sharing for å dele data med et annet workspace

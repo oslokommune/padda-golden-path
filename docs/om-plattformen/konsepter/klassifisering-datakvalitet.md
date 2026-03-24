@@ -9,7 +9,7 @@ icon: lucide/construction
 
 Denne forklaringen er ikke skrevet ennå.
 
-Bør dekke:
+Claude foreslår at denne siden bør dekke:
 
 - Hvorfor datakvalitet modelleres som lag (medallion-arkitekturen: bronze, silver, gold)
 - Hva hvert lag representerer og hvilke transformasjoner som skjer mellom dem

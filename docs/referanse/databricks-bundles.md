@@ -12,7 +12,7 @@ icon: lucide/construction
 
 Denne referansen er ikke skrevet ennå.
 
-Bør dekke:
+Claude foreslår at denne siden bør dekke:
 
 - Tilgjengelige eksempelbundler i `examples/` med beskrivelse og formål
 - Mappestruktur og filer i en typisk bundle

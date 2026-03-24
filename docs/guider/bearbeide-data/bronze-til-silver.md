@@ -9,7 +9,7 @@ icon: lucide/construction
 
 Denne guiden er ikke skrevet ennå.
 
-Bør dekke:
+Claude foreslår at denne siden bør dekke:
 
 - Rensing, deduplisering, standardisering av kolonnenavn og typer
 - Håndtering av schema-evolusjon

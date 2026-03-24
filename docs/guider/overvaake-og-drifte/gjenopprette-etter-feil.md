@@ -9,7 +9,7 @@ icon: lucide/construction
 
 Denne guiden er ikke skrevet ennå.
 
-Bør dekke:
+Claude foreslår at denne siden bør dekke:
 
 - Diagnostisere hvorfor en pipeline-kjøring feilet
 - Kjøre en pipeline på nytt (rerun) etter en forbigående feil

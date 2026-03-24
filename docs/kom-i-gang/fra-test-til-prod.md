@@ -9,7 +9,7 @@ icon: lucide/construction
 
 Denne tutorialen er ikke skrevet ennå.
 
-Bør dekke:
+Claude foreslår at denne siden bør dekke:
 
 - Hva vi skal oppnå: en pipeline som kjører i produksjonsmiljøet
 - Sjekke at brukervilkårene er akseptert og forutsetningene på plass

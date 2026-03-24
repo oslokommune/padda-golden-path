@@ -9,7 +9,7 @@ icon: lucide/construction
 
 Denne forklaringen er ikke skrevet ennå.
 
-Bør dekke:
+Claude foreslår at denne siden bør dekke:
 
 - Hvorfor plattformen bruker rollebasert tilgangsstyring — hvilke problemer løser det?
 - Hvordan roller henger sammen med sensitivitetsklassifiseringen (grønn, gul, rød)

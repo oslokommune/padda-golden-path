@@ -9,7 +9,7 @@ icon: lucide/construction
 
 Denne referansesiden er ikke skrevet ennå.
 
-Bør dekke:
+Claude foreslår at denne siden bør dekke:
 
 - Navnestandarder for kataloger, skjemaer og tabeller
 - Konvensjoner for kolonnenavn

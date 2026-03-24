@@ -9,7 +9,7 @@ icon: lucide/construction
 
 Denne forklaringen er ikke skrevet ennå.
 
-Bør dekke:
+Claude foreslår at denne siden bør dekke:
 
 - Filbasert (push) vs. systembasert (pull) innlasting — når passer hva?
 - Landing zone sin rolle som inngangspunkt

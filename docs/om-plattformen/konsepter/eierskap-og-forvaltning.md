@@ -9,7 +9,7 @@ icon: lucide/construction
 
 Denne forklaringen er ikke skrevet ennå.
 
-Bør dekke:
+Claude foreslår at denne siden bør dekke:
 
 - Hvem som eier dataene og hva det ansvaret innebærer
 - Skillet mellom dataeier og datakonsument

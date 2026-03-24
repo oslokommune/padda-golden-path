@@ -1,15 +1,15 @@
 ---
-title: Varsling og notification destinations
+title: Varsling og alarmer
 description: Tilgjengelige varslingskanaler og deres konfigurasjon.
 diataxis: reference
 icon: lucide/construction
 ---
 
-# Varsling og notification destinations
+# Varsling og alarmer
 
 Denne referansesiden er ikke skrevet ennå.
 
-Bør dekke:
+Claude foreslår at denne siden bør dekke:
 
 - Tilgjengelige varslingskanaler (Slack, e-post)
 - Hvordan notification destinations er konfigurert

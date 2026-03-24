@@ -9,7 +9,7 @@ icon: lucide/construction
 
 Denne forklaringen er ikke skrevet ennå.
 
-Bør dekke:
+Claude foreslår at denne siden bør dekke:
 
 - Hva tilbyr DIG for analyse- og dataprodukter?
 - Forutsetninger for bruk av DIGs dataplattformer

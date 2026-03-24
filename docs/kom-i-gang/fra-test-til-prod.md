@@ -1,15 +1,15 @@
 ---
-title: Fra test til produksjon
+title: Gå fra test til produksjon
 description: Vi tar pipelinen fra testmiljøet til produksjon, steg for steg.
 diataxis: tutorial
 icon: lucide/construction
 ---
 
-# Fra test til produksjon
+# Gå fra test til produksjon
 
 Denne tutorialen er ikke skrevet ennå.
 
-Bør dekke:
+Claude foreslår at denne siden bør dekke:
 
 - Hva vi skal oppnå: en pipeline som kjører i produksjonsmiljøet
 - Sjekke at brukervilkårene er akseptert og forutsetningene på plass

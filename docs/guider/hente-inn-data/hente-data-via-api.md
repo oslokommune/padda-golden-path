@@ -1,12 +1,12 @@
 ---
-title: Hente data fra API med Lambda
+title: Hente data via API
 description: Hvordan bruke en AWS Lambda-funksjon til å hente data fra et eksternt API og skrive det til landing zone.
 diataxis: how-to
 ---
 
-# Hente data fra API med Lambda
+# Hente data via API
 
-Denne guiden viser hvordan du bruker en kortlevd AWS Lambda-funksjon til å hente data fra et eksternt API og skrive det til [landing zone](landing-zone.md).
+Denne guiden viser hvordan du bruker en kortlevd AWS Lambda-funksjon til å hente data fra et eksternt API og skrive det til [landing zone](laste-opp-til-landing-zone.md).
 
 ## Oversikt
 
@@ -21,7 +21,7 @@ flowchart LR
 
 ## Forutsetninger
 
-- Du har et workspace med en landing zone-sender konfigurert (se [Landing zone](../data/landing-zone.md))
+- Du har et workspace med en landing zone-sender konfigurert (se [Landing zone](../../referanse/landing-zone.md))
 - Du har et workspace med oidc for repo.
 
 ## Steg 1 — Skriv SAM-template
@@ -190,4 +190,4 @@ df = (
 )
 ```
 !!! info "Tips"
-    Se [Landing zone](../data/landing-zone.md) for mer om filformater og Auto Loader.
+    Se [Landing zone](../../referanse/landing-zone.md) for mer om filformater og Auto Loader.

@@ -9,7 +9,7 @@ icon: lucide/construction
 
 Denne guiden er ikke skrevet ennå.
 
-Bør dekke:
+Claude foreslår at denne siden bør dekke:
 
 - Aggregering og forretningslogikk
 - Tilgjengeliggjøring av datasett for analyse og rapportering

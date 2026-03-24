@@ -9,7 +9,7 @@ icon: lucide/construction
 
 Denne forklaringen er ikke skrevet ennå.
 
-Bør dekke:
+Claude foreslår at denne siden bør dekke:
 
 - Hvilke dataplattformer finnes i kommunen? (Databricks/Padda, Fabric, andre)
 - Når passer hvilken plattform? Typiske bruksscenarier

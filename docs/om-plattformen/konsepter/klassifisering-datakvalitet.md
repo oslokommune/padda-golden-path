@@ -7,12 +7,12 @@ icon: lucide/construction
 
 # Klassifisering av datakvalitet
 
-This explanation has not been written yet.
+Denne forklaringen er ikke skrevet ennå.
 
-Should cover:
+Bør dekke:
 
-- Why data quality is modelled as layers (medallion architecture: bronze, silver, gold)
-- What each layer represents and what transformations happen between them
-- Why data moves through layers rather than being cleaned in place
-- How the medallion model supports reproducibility and traceability
-- Common misconceptions about the medallion layers
+- Hvorfor datakvalitet modelleres som lag (medallion-arkitekturen: bronze, silver, gold)
+- Hva hvert lag representerer og hvilke transformasjoner som skjer mellom dem
+- Hvorfor data beveger seg gjennom lag i stedet for å bli vasket på stedet
+- Hvordan medallion-modellen støtter reproduserbarhet og sporbarhet
+- Vanlige misforståelser om medallion-lagene

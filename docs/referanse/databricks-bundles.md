@@ -20,4 +20,4 @@ Claude foreslår at denne siden bør dekke:
 - Targets (dev/stage/prod) og hvordan de er satt opp
 - Navnekonvensjoner for funksjoner, roller og ressurser
 
-Se [Rulle ut med Databricks Asset Bundles](../guider/bearbeide-data/rulle-ut-med-bundles.md) for steg-for-steg-instruksjoner.
+Se [Ta i bruk Bundles](../guider/bearbeide-data/ta-i-bruk-bundles.md) for steg-for-steg-instruksjoner.

@@ -63,7 +63,7 @@ nav = [
       { "Bronze til silver" = "guider/bearbeide-data/bronze-til-silver.md" },
       { "Silver til gold" = "guider/bearbeide-data/silver-til-gold.md" },
       { "Laste opp Python-biblioteker" = "guider/bearbeide-data/laste-opp-python-biblioteker.md" },
-      { "Rulle ut med Databricks Asset Bundles" = "guider/bearbeide-data/rulle-ut-med-bundles.md" },
+      { "Ta i bruk Bundles" = "guider/bearbeide-data/ta-i-bruk-bundles.md" },
     ]},
     { "Dele og hente ut data" = [
       { "Koble til Power BI" = "guider/dele-og-hente-ut/koble-til-power-bi.md" },

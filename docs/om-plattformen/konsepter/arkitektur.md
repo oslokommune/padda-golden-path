@@ -9,7 +9,7 @@ icon: lucide/construction
 
 Denne forklaringen er ikke skrevet ennå.
 
-Bør dekke:
+Claude foreslår at denne siden bør dekke:
 
 - Hvorfor medallion-arkitekturen (landing → bronze → silver → gold) — hva oppnår vi med lagdelingen?
 - Hvordan hovedkomponentene henger sammen: S3 som landing zone, Databricks for prosessering, Unity Catalog for styring

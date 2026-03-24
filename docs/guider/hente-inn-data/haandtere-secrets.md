@@ -12,7 +12,7 @@ icon: lucide/construction
 
 Denne guiden er ikke ferdig skrevet ennå.
 
-Bør dekke:
+Claude foreslår at denne siden bør dekke:
 
 - Opprette et secret scope og lagre en hemmelighet
 - Lese en secret i en notebook

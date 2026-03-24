@@ -9,7 +9,7 @@ icon: lucide/construction
 
 Denne guiden er ikke skrevet ennå.
 
-Bør dekke:
+Claude foreslår at denne siden bør dekke:
 
 - Finne tilkoblingsdetaljer (server hostname, HTTP path)
 - Koble til fra Power BI Desktop

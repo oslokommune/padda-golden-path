@@ -9,7 +9,7 @@ icon: lucide/construction
 
 Denne siden er ikke skrevet ennå.
 
-Bør dekke:
+Claude foreslår at denne siden bør dekke:
 
 - Hva du vil ha oppnådd når du er ferdig med læringsløpet
 - Oversikt over stegene — i hvilken rekkefølge du bør gå gjennom dem

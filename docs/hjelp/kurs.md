@@ -8,7 +8,7 @@ icon: lucide/construction
 
 Denne siden er ikke skrevet ennå.
 
-Bør dekke:
+Claude foreslår at denne siden bør dekke:
 
 - Tilgjengelige kurs (tilgangsstyring, personvern, plattformbruk)
 - Hvordan melde seg på

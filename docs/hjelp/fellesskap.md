@@ -8,7 +8,7 @@ icon: lucide/construction
 
 Denne siden er ikke skrevet ennå.
 
-Bør dekke:
+Claude foreslår at denne siden bør dekke:
 
 - Møteplasser for utveksling av kunnskap (møterom, Slack-kanaler)
 - Faste samlinger og arrangementer

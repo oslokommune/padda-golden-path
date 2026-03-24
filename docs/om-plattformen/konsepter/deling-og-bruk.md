@@ -9,7 +9,7 @@ icon: lucide/construction
 
 Denne forklaringen er ikke skrevet ennå.
 
-Bør dekke:
+Claude foreslår at denne siden bør dekke:
 
 - Hvordan tilgangsstyring fungerer (Unity Catalog, Entra ID)
 - Kjenner du dataene godt nok til å tilgangsstyre og dokumentere dem?

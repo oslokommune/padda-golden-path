@@ -9,7 +9,7 @@ icon: lucide/construction
 
 Denne tutorialen er ikke skrevet ennå.
 
-Bør dekke:
+Claude foreslår at denne siden bør dekke:
 
 - Hva vi skal ende opp med: et testdatasett du kan bruke gjennom resten av læringsløpet
 - Hvordan generere syntetiske data som ligner produksjonsdata

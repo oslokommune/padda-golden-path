@@ -9,7 +9,7 @@ icon: lucide/construction
 
 Denne forklaringen er ikke skrevet ennå.
 
-Bør dekke:
+Claude foreslår at denne siden bør dekke:
 
 - Hvem er plattformen for? (data engineers, analytikere, beslutningstakere)
 - Kompetansekrav: Python, SQL, R — hva trenger teamet ditt?

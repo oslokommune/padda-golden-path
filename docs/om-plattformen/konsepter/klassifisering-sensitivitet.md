@@ -9,7 +9,7 @@ icon: lucide/construction
 
 Denne forklaringen er ikke skrevet ennå.
 
-Bør dekke:
+Claude foreslår at denne siden bør dekke:
 
 - Hvorfor data klassifiseres etter sensitivitet (grønn, gul, rød) — hvilke krav og regelverk ligger bak?
 - Hva hvert nivå betyr i praksis for tilgang, lagring og deling

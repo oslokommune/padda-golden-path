@@ -37,6 +37,7 @@ nav = [
       { "Klassifisering av datakvalitet" = "om-plattformen/konsepter/klassifisering-datakvalitet.md" },
       { "Deling og bruk" = "om-plattformen/konsepter/deling-og-bruk.md" },
       { "Overvåking" = "om-plattformen/konsepter/overvaaking.md" },
+      { "Serverless compute" = "om-plattformen/konsepter/serverless-compute.md" },
     ]},
   ]},
   { "Kom i gang" = [
@@ -85,6 +86,7 @@ nav = [
     { "Navnekonvensjoner" = "referanse/navnekonvensjoner.md" },
     { "Varsling og alarmer" = "referanse/varsling-og-alarmer.md" },
     { "Databricks Asset Bundles" = "referanse/databricks-bundles.md" },
+    { "SAM-deploy" = "referanse/sam-deploy.md" },
   ]},
   { "Hjelp" = [
     { "index" = "hjelp/index.md" },

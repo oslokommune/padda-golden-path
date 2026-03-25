@@ -7,9 +7,6 @@ icon: lucide/split
 
 # Laste opp filer til landing zone
 
-!!! info "Opprinnelse"
-    Denne siden inneholder how-to-delen fra `docs/guides/data/landing-zone.md`. Referansedelen (struktur, IAM, filformat) ligger under [Landing zone-struktur](../../referanse/landing-zone.md).
-
 Landing zone er en S3-bucket som opprettes for hvert Databricks-workspace for innkommende data. Hver landing zone har en liste med "sendere" som skal laste opp data til bucketen. For hver sender blir det opprettet tre prefikser (green, yellow, red) med tilhørende brukere som kan laste opp til disse, etter skjemaet:
 
 `s3://bucket_name/sender_name/confidentiality_color/`

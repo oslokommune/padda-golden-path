@@ -12,7 +12,7 @@ members = [
 
 [tool.ruff]
 # Disable formatting in Markdown files
-extend-exclude = ["*.md"]
+exclude = ["*.md"]
 
 [project]
 name = "golden-path"

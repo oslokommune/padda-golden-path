@@ -10,10 +10,6 @@ members = [
   "libs/padda.common"
 ]
 
-[tool.ruff]
-# Disable formatting in Markdown files
-exclude = ["*.md"]
-
 [project]
 name = "golden-path"
 version = "0.0.1"

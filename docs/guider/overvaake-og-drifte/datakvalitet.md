@@ -5,3 +5,7 @@ diataxis: how-to
 ---
 
 # Datakvalitet
+
+Databricks har selv en oversikt [her](https://www.databricks.com/discover/pages/data-quality-management)
+
+## Expectations og Constraints

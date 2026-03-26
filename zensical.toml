@@ -76,6 +76,7 @@ nav = [
       { "Slack-alarmer" = "guider/overvaake-og-drifte/slack-alarmer.md" },
       { "Gjenopprette etter feil" = "guider/overvaake-og-drifte/gjenopprette-etter-feil.md" },
       { "Feilsøke med logger" = "guider/overvaake-og-drifte/logging.md" },
+      { "Datakvalitet" = "guider/overvaake-og-drifte/datakvalitet.md" },
     ]},
   ]},
   { "Referanse" = [

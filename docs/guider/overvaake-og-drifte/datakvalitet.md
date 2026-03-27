@@ -8,13 +8,47 @@ diataxis: how-to
 
 ## Innebygde mekanismer i Databricks
 
-Databricks har selv en oversikt [her](https://www.databricks.com/discover/pages/data-quality-management)
+Databricks har selv en oversikt [her](https://www.databricks.com/discover/pages/data-quality-management) over de verktøyene de tilbyr for å trygge kvaliteten på data.
 
 ### Expectations og Constraints
 
-Databricks har
+Databricks har to relaterte mekanismer for å sjekke at rader er gyldige. Expectations er for Declarative Pipelines, og Constraints er for normale delta-tabeller.
+
+[Constraints](https://docs.databricks.com/aws/en/tables/constraints) ser sånn ut:
+
+```sql
+CREATE TABLE people10m (
+  id INT NOT NULL PRIMARY KEY,
+  firstName STRING NOT NULL,
+  middleName STRING,
+  lastName STRING,
+  gender STRING,
+  birthDate TIMESTAMP,
+  ssn STRING,
+  salary INT,
+  CONSTRAINT dateWithinRange CHECK (birthDate > '1900-01-01')
+);
+```
+
+Her er `NOT NULL` og `dateWithinRange` constraints. Disse håndheves strengt, og et forsøk på å sette inn rader som ikke oppfyller kravene vil feile. `PRIMARY KEY` er strengt tatt også en constraint, men denne håndheves ikke i det hele tatt, og er nesten kun dokumentasjon.
+
+Declarative Pipelines har ikke constraints men [expectations](https://docs.databricks.com/aws/en/ldp/expectations):
+
+```sql
+CREATE OR REFRESH STREAMING TABLE customers(
+  CONSTRAINT valid_customer_age EXPECT (age BETWEEN 0 AND 120)
+) AS SELECT * FROM STREAM(datasets.samples.raw_customers);
+```
+
+En viktig ting å huske på er at at expectations kan håndheves på tre måter: WARN, DROP ROW, og FAIL. _WARN er default_.
+
+### Alerts
+
+[Alerts](https://docs.databricks.com/aws/en/sql/user/alerts/) lar deg definere SQL-spørringer som kjører ved gitte mellomrom, definere hvordan resultatet skal se ut, og hvem som skal få epost når dette ikke stemmer.
 
 ## DQX
+
+DQX er et batteries-included rammeverk for datakvalitet. Det er ikke så mye man kan gjøre med DQX som man ikke kan gjøre med ren Databricks, men her slipper man å lage alt selv.
 
 ### Installering
 
@@ -28,6 +62,8 @@ pip install --no-index --find-links /Volumes/min_katalog/mitt_skjema/mitt_volum 
 Deretter kan DQX brukes i de følgende cellene i notebooken.
 
 ### Eksempel
+
+Denne notebooken sjekker at verdiene i `actions.comand_id` er et subset av `command.id`, slik at foreign key-relasjonen mellom de to kolonnene holder.
 
 ```python
 # Databricks notebook source

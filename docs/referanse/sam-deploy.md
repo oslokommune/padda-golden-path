@@ -2,7 +2,6 @@
 title: SAM-deploy
 description: Referanse for SAM-templatestruktur, navnekonvensjoner, tilganger og CI/CD-pipeline.
 diataxis: reference
-icon: lucide/rocket
 ---
 
 # SAM-deploy

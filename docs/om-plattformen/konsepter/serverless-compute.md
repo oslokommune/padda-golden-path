@@ -2,7 +2,6 @@
 title: Serverless compute
 description: Hvordan Lambda og Fargate passer inn i dataplattformen, og når du bør velge hva.
 diataxis: explanation
-icon: lucide/cloud-cog
 ---
 
 # Serverless compute

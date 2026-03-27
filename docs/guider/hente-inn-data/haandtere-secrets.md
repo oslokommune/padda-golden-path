@@ -8,8 +8,16 @@ diataxis: how-to
 
 Denne guiden dekker to separate system for hemmeligheter på plattformen:
 
-- **Databricks secrets** — for notebooks og jobber som kjører i Databricks
-- **SSM Parameter Store** — for Lambda-funksjoner og Fargate-tasks som kjører i AWS
+- [**Databricks secrets**](#databricks-secrets) — for notebooks og jobber som kjører i Databricks
+- [**SSM Parameter Store**](#ssm-parameter-store-lambda-fargate) — for Lambda-funksjoner og Fargate-tasks som kjører i AWS
+
+## Hvilket system skal du bruke?
+
+| Kontekst | Secret-system | Hvorfor |
+|----------|--------------|---------|
+| Databricks notebook eller jobb | [**Databricks secrets**](#databricks-secrets) | Integrert med `dbutils`, redigert bort i output |
+| Lambda-funksjon | [**SSM Parameter Store**](#ssm-parameter-store-lambda-fargate) | Synkronisert via CI/CD, hentet ved kjøretid med boto3 |
+| Fargate-task | [**SSM Parameter Store**](#ssm-parameter-store-lambda-fargate) | Samme mønster som Lambda |
 
 ## Databricks secrets
 
@@ -145,11 +153,3 @@ Policies:
           Resource:
             - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/<workspace-name>/*"
 ```
-
-## Hvilket system skal du bruke?
-
-| Kontekst | Secret-system | Hvorfor |
-|----------|--------------|---------|
-| Databricks notebook eller jobb | **Databricks secrets** | Integrert med `dbutils`, redigert bort i output |
-| Lambda-funksjon | **SSM Parameter Store** | Synkronisert via CI/CD, hentet ved kjøretid med boto3 |
-| Fargate-task | **SSM Parameter Store** | Samme mønster som Lambda |

@@ -31,10 +31,10 @@ Plattformen lar deg fokusere på dataproduktene. Vi håndterer infrastrukturen.
 
 ## Finn det du trenger
 
-| Du vil...                              | Start her                                                                 |
-|----------------------------------------|---------------------------------------------------------------------------|
-| Sette opp og komme i gang             | [Kom i gang](kom-i-gang/index.md)                                        |
+| Du vil...                              | Start her                                                                |
+|----------------------------------------|--------------------------------------------------------------------------|
+| Sette opp og komme i gang              | [Kom i gang](kom-i-gang/index.md)                                        |
 | Forstå hva plattformen tilbyr          | [Om plattformen](om-plattformen/index.md)                                |
-| Løse en konkret oppgave               | [Guider](guider/index.md)                                                |
-| Slå opp tekniske detaljer             | [Referanse](referanse/index.md)                                          |
-| Finne hjelp eller kontakte oss        | [Hjelp](hjelp/index.md)                                                  |
+| Løse en konkret oppgave                | [Guider](guider/index.md)                                                |
+| Slå opp tekniske detaljer              | [Referanse](referanse/index.md)                                          |
+| Finne hjelp eller kontakte oss         | [Hjelp](hjelp/index.md)                                                  |

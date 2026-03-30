@@ -26,7 +26,7 @@ Bygg ferdigbehandlede dataprodukter som kan konsumeres av andre — i Power BI, 
 
 ## Eksperimentering og analyse
 
-Bruk notebooks til å utforske data, bygge modeller og teste hypoteser. Arbeidet skjer i et sikkert miljø med tilgang til kommunens data.
+Bruk notebooks til å utforske data, bygge modeller og teste hypoteser. Arbeidet skjer i et sikkert miljø.
 
 ---
 

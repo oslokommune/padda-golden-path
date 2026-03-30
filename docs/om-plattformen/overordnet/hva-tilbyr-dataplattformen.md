@@ -8,7 +8,7 @@ diataxis: explanation
 
 Mange virksomheter i Oslo kommune har behov for avansert databehandling som går utover det standardverktøy tilbyr. Transformasjoner som krever kode, sammenstillinger på tvers av kilder, kvalitetssikring med forretningslogikk, og automatiserte pipelines som kjører uten manuell innsats.
 
-Dataengineering-plattformen gir utviklere og kodende analytikere et arbeidsmiljø for å gjøre nettopp dette — programmatisk, med full kontroll, og med innebygd støtte for sikkerhet, deploy og overvåking.
+Data engineering-plattformen gir utviklere og kodende analytikere et arbeidsmiljø for å gjøre nettopp dette — programmatisk, med full kontroll, og med innebygd støtte for sikkerhet, deploy og overvåking.
 
 Mye av det som bygges på plattformen vil være [dataprodukter](../konsepter/dataprodukter.md) — behandlede, dokumenterte datasett med en definert eier, klare til å brukes av andre.
 

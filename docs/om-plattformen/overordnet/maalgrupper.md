@@ -47,4 +47,4 @@ Du bruker SQL og/eller Python til å utforske data, bygge modeller og lage analy
 ---
 
 !!! warning "Ikke en selvbetjent analyseplattform"
-    Hvis du primært bruker Power BI, Excel eller Tableau uten å kode, er felles analyseplattform (Fabric) riktig sted å starte. Data som er bygget på denne plattformen kan likevel konsumeres derfra.
+    Hvis du primært bruker Power BI, Excel eller Tableau uten å kode, er Data Oslo-plattformen (Fabric) riktig sted å starte. Data som er bygget på data engineering-plattformen kan likevel konsumeres derfra.

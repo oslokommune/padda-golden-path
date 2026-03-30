@@ -31,6 +31,7 @@ nav = [
     { "Arkitektur og konsepter" = [
       { "Arkitektur" = "om-plattformen/konsepter/arkitektur.md" },
       { "Roller og tilgangsstyring" = "om-plattformen/konsepter/roller-og-tilgangsstyring.md" },
+      { "Dataprodukter" = "om-plattformen/konsepter/dataprodukter.md" },
       { "Eierskap og forvaltning" = "om-plattformen/konsepter/eierskap-og-forvaltning.md" },
       { "Datainnlasting" = "om-plattformen/konsepter/datainnlasting.md" },
       { "Klassifisering av sensitivitet" = "om-plattformen/konsepter/klassifisering-sensitivitet.md" },

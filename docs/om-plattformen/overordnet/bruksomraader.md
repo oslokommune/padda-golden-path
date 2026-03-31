@@ -14,7 +14,7 @@ Transformasjoner som krever forretningslogikk, sammenstillinger på tvers av kil
 
 ## Automatiserte pipelines
 
-Erstatt manuelle rutiner med pipelines som henter, transformerer og leverer data på faste intervaller. Dataprodukter oppdateres automatisk. Feil fanges og teamet varsles via Slack.
+Erstatt manuelle rutiner med pipelines som henter, transformerer og leverer data på faste intervaller og gjennom ulike triggere. Dataprodukter oppdateres automatisk. Feil fanges og teamet varsles via Slack.
 
 ## Kvalitetssikring og validering
 

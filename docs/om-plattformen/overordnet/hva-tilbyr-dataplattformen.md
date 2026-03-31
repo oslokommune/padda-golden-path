@@ -18,7 +18,7 @@ Mye av det som bygges på plattformen vil være [dataprodukter](../konsepter/dat
 
     - Notebooks og pipelines med SQL og Python
     - Brolagte stier fra rådata til ferdig dataprodukt
-    - Automatisert deploy via CI/CD og Databricks Asset Bundles
+    - Automatisert deploy via CI/CD og Declarative Automation Bundles
     - Serverless compute — ingen cluster-administrasjon
     - Sikker lagring og tilgangsstyring via Unity Catalog
     - Overvåking, logging og Slack-varsling ut av boksen

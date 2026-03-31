@@ -28,9 +28,9 @@ Du bruker SQL og/eller Python til å utforske data, bygge modeller og lage analy
 
 ### Teknisk kompetanse
 
-- **SQL** — for transformasjoner og spørringer (et minimum)
 - **Python** — for mer avansert databehandling og pipelines
 - **Git** — all kode versjoneres i GitHub
+- Kan være fordelaktig med **SQL**-kompetanse for transformasjoner og spørringer (selv om assistenten [Genie](https://docs.databricks.com/aws/en/genie/) lar deg spørre i naturlig språk)
 
 ### Organisatorisk forankring
 

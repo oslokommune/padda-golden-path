@@ -1,13 +1,14 @@
 ---
-title: Padda Golden Path
+title: Databricks-plattformen Padda
 description: Dokumentasjon for Oslo kommunes Databricks-baserte dataplattform.
 ---
 
-# Dataplattformen
+# Databricks-plattformen Padda
+##Lar kodere bygge dataprodukter##
 
-##– Lar kodere bygge dataprodukter##
+*Padda* lar deg bygge dataprodukter med kode — med full kontroll, versjonering og automatisering fra rådata til produksjon. Den er bygget på [Databricks](https://databricks.com) og driftes av Digitaliseringsetaten.
 
-En plattform for å hente inn, bearbeide og dele data — bygget på Databricks, driftet av Digitaliseringsetaten.
+Målgruppen for plattformen er typisk analytikere, data engineers, maskinlæringsutviklere og utviklere i team som lager dataprodukter. Felles for dem er at de foretrekker et kodegrensesnitt for å gjøre databearbeiding og transformasjoner.
 
 Plattformen lar deg fokusere på dataproduktene. Vi håndterer infrastrukturen.
 
@@ -17,13 +18,13 @@ Plattformen lar deg fokusere på dataproduktene. Vi håndterer infrastrukturen.
 
 -   **For deg som koder**
 
-    Du skriver SQL og Python. Vi gir deg verktøy, maler og brolagte stier som tar deg fra rådata til ferdig dataprodukt — med innebygd sikkerhet, automatisert deploy og overvåking. Slik at du kan bruke tiden din på det som faktisk skaper verdi.
+    Du skriver SQL og Python. Vi gir deg verktøy, maler og brolagte stier som tar deg fra rådata til ferdig dataprodukt. Sikkerhet, automatisert deploy og overvåking er innebygget. Dette lar deg bruke tiden din på det som faktisk skaper verdi. Det tydelige kode-først-prinsippet legger til rette for ende-til-ende kontroll helt fra pipeline til ferdig produkt.
 
     [:octicons-arrow-right-24: Kom i gang](kom-i-gang/index.md)
 
 -   **For deg som leder**
 
-    Dine team bruker for mye tid på å lete etter data, fikse pipelines og vente på tilganger. Plattformen gir dem selvbetjente verktøy og felles standarder — slik at veien fra behov til styringsdata blir kortere og mer forutsigbar.
+    Plattformen gir virksomheten full kontroll og sporbarhet over dataene – hver endring er kvalitetssikret før den når produksjon. Teamet bygger kompetanse på åpne bransjestandarder, noe som gir fleksibilitet i rekruttering og teknologivalg. Og fordi arbeidet skjer i et format moderne AI-verktøy forstår, kan teamene levere raskere – en fordel som bare vil øke over tid.
 
     [:octicons-arrow-right-24: Hva tilbyr plattformen?](om-plattformen/overordnet/hva-tilbyr-dataplattformen.md)
 

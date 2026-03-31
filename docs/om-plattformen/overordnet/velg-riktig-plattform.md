@@ -6,33 +6,36 @@ diataxis: explanation
 
 # Velg riktig dataplattform
 
-Oslo kommune har flere dataplattformer som er tilgjengelig for alle. Hvilken du bør bruke avhenger av hva du skal gjøre og hvordan du jobber.
+Digitaliseringsetaten tilbyr flere dataplattformer som er tilgjengelig på tvers. Hvilken du bør bruke avhenger av hva du skal gjøre og hvordan du jobber.
 
 ## To plattformer — ulike formål
 
-### Data engineering-plattformen (Databricks)
+### Fabric-plattformen
+
+Her finner du mange felles datakilder i kommunen, samlet på Microsoft Fabric. Godt egnet for deg som vil bygge integrasjoner med 365-plattformen, gjøre lavkode eller no code-behandlinger, og bruke Power BI på eksisterende datakilder. Har også kodemuligheter, men er mer sentrert rundt et grafisk grensesnitt for transformasjoner.
+
+Fabric er kommunens motorvei for datadeling og vil løse de fleste utfordringene.
+
+### Databricks-plattformen *Padda*
 
 For deg som skriver kode (SQL, Python) for å hente inn, transformere og tilgjengeliggjøre data. Bygget for utviklere og kodende analytikere. Data kan utveksles med Fabric-plattformen.
 
-### Data Oslo-plattformen (Fabric)
+Padda er bygget for en kode-først-arbeidsflyt — der alt fra pipelines til deploy styres gjennom Git.
 
-Her finner du mange felles datakilder i kommunen, samlet på Microsoft Fabric. Godt egnet for deg som vil bygge integrasjoner med 365-plattformen, gjøre lavkode eller no code-behandlinger, og bruke Power BI på eksisterende datakilder.
+## Padda passer for deg hvis du:
 
-## Hvilken passer for deg?
+- Bygger datapipelines med SQL og/eller Python
+- Trenger versjonering, testing og automatisert deploy av dataflyter
+- Foretrekker å styre alt av transformasjoner og kvalitetssikring gjennom kode
 
-| Du vil...                                   | Bruk       |
-|---------------------------------------------|------------|
-| Bygge datapipelines med kode                | Databricks |
-| Transformere data med SQL/Python            | Databricks |
-| Bygge datapipelines med grafisk grensesnitt | Fabric     |
-| Lage rapporter og dashboards i Power BI     | Begge      |
-| Dele data med andre virksomheter            | Begge      |
-| Koble Fabric til Databricks-data            | Begge      |
+## Du trenger sannsynligvis ikke Padda hvis du:
 
-<!-- Bilde/diagram: enkel visuell som viser de tre plattformene og hvordan data flyter mellom dem -->
+- Primært jobber i Power BI eller Excel
+- Har nok med datakildene som allerede er tilgjengelige i Fabric
+- Ikke har utviklere eller kodende analytikere i teamet
+
+<!-- Bilde/diagram: enkel visuell som viser de to plattformene og hvordan data flyter mellom dem -->
 
 ## Plattformene utfyller hverandre
 
-Plattformene er ikke konkurrenter, selv om de har delvis overlappende funksjonalitet. For mange behov fungerer Fabric godt, og er tett integrert med Microsoft-universet.
-
-For virksomheter som har egne ressurser (utviklere og analytikere) som kan kode selv kan Padda gi andre muligheter.
+Plattformene er ikke konkurrenter, selv om de har delvis overlappende funksjonalitet. Dataprodukter som bygges på Padda kan konsumeres fra Fabric og Power BI — plattformene er designet for å fungere sammen.

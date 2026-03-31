@@ -6,7 +6,7 @@ diataxis: explanation
 
 # Målgrupper og forutsetninger
 
-Plattformen er bygget for dem som jobber med data ved hjelp av kode. Den erstatter ikke verktøy for no-code/low-code analyse.
+Plattformen er bygget for dem som jobber med data ved hjelp av kode.
 
 ## Hvem er plattformen for?
 
@@ -47,4 +47,4 @@ Du bruker SQL og/eller Python til å utforske data, bygge modeller og lage analy
 ---
 
 !!! warning "Ikke en selvbetjent analyseplattform"
-    Hvis du primært bruker Power BI, Excel eller Tableau uten å kode, er Data Oslo-plattformen (Fabric) riktig sted å starte. Data som er bygget på data engineering-plattformen kan likevel konsumeres derfra.
+    Hvis du primært bruker Power BI, Excel eller Tableau uten å kode, er Fabric-plattformen riktig sted å starte. Data som er bygget på Databricks-plattformen kan likevel konsumeres derfra.

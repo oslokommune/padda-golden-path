@@ -498,6 +498,26 @@ html .md-footer-meta.md-typeset a:focus {
 }
 
 /* ============================================================================
+ * Grid cards — Punkt style (sharp corners, border instead of shadow)
+ * ========================================================================= */
+
+/* Card container — light beige filled rectangle, no border */
+.md-typeset .grid.cards > ol > li,
+.md-typeset .grid.cards > ul > li,
+.md-typeset .grid > .card {
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  background-color: var(--pkt-color-surface-default-light-beige);
+}
+
+.md-typeset .grid.cards > ol > li:hover,
+.md-typeset .grid.cards > ul > li:hover,
+.md-typeset .grid > .card:hover {
+  box-shadow: none;
+}
+
+/* ============================================================================
  * Search dialog
  *
  * Zensical renders the search dialog inside a closed shadow DOM.

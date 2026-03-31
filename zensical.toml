@@ -3,7 +3,7 @@
 # =============================================================================
 
 [project]
-site_name = "Padda Golden Path"
+site_name = "Databricks-plattformen <i>Padda</i>"
 site_description = "Brolagt sti, Databricks-bundler og delte bibliotek"
 site_author = "Digitaliseringsetaten"
 copyright = "Laget med &hearts; av Digitaliseringsetaten"
@@ -24,13 +24,14 @@ extra_css = [
 nav = [
   { "Om plattformen" = [
     { "index" = "om-plattformen/index.md" },
-    { "Hva tilbyr dataplattformen?" = "om-plattformen/overordnet/hva-tilbyr-dataplattformen.md" },
-    { "Velg riktig dataplattform" = "om-plattformen/overordnet/velg-riktig-plattform.md" },
+    { "Hva tilbyr plattformen?" = "om-plattformen/overordnet/hva-tilbyr-dataplattformen.md" },
+    { "Velg riktig plattform" = "om-plattformen/overordnet/velg-riktig-plattform.md" },
     { "Bruksområder" = "om-plattformen/overordnet/bruksomraader.md" },
     { "Målgrupper og forutsetninger" = "om-plattformen/overordnet/maalgrupper.md" },
     { "Arkitektur og konsepter" = [
       { "Arkitektur" = "om-plattformen/konsepter/arkitektur.md" },
       { "Roller og tilgangsstyring" = "om-plattformen/konsepter/roller-og-tilgangsstyring.md" },
+      { "Dataprodukter" = "om-plattformen/konsepter/dataprodukter.md" },
       { "Eierskap og forvaltning" = "om-plattformen/konsepter/eierskap-og-forvaltning.md" },
       { "Datainnlasting" = "om-plattformen/konsepter/datainnlasting.md" },
       { "Klassifisering av sensitivitet" = "om-plattformen/konsepter/klassifisering-sensitivitet.md" },

@@ -10,7 +10,7 @@ Digitaliseringsetaten tilbyr flere dataplattformer som er tilgjengelig på tvers
 
 ## To plattformer — ulike formål
 
-### Fabric-plattformen
+### [Fabric-plattformen](https://oslokommune.sharepoint.com/sites/KOM-6aace/SitePages/Data-Oslo.aspx)
 
 Her finner du mange felles datakilder i kommunen, samlet på Microsoft Fabric. Godt egnet for deg som vil bygge integrasjoner med 365-plattformen, gjøre lavkode eller no code-behandlinger, og bruke Power BI på eksisterende datakilder. Har også kodemuligheter, men er mer sentrert rundt et grafisk grensesnitt for transformasjoner.
 

@@ -6,11 +6,11 @@ diataxis: explanation
 
 # Bruksområder
 
-Plattformen er for deg som trenger å gjøre mer med data enn det standardverktøy tilbyr. Her er typiske bruksområder.
+Plattformen er for deg som bygger og automatiserer databehandling med kode. Her er typiske bruksområder.
 
 ## Programmatisk databehandling
 
-Transformasjoner som krever forretningslogikk, sammenstillinger på tvers av kilder, eller bearbeiding som ikke lar seg løse i et grafisk grensesnitt. Du skriver SQL og Python med full kontroll over hvert steg.
+Transformasjoner som krever forretningslogikk, sammenstillinger på tvers av kilder, eller bearbeiding der du ønsker full kontroll gjennom kode. Du skriver SQL og Python med full kontroll over hvert steg.
 
 ## Automatiserte pipelines
 

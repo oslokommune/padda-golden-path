@@ -4,9 +4,9 @@ description: Hva plattformen gir deg som utvikler eller analytiker, og hva som e
 diataxis: explanation
 ---
 
-# Hva tilbyr dataplattformen?
+# Hva tilbyr Padda?
 
-Mange virksomheter i Oslo kommune har behov for avansert databehandling som går utover det standardverktøy tilbyr. Transformasjoner som krever kode, sammenstillinger på tvers av kilder, kvalitetssikring med forretningslogikk, og automatiserte pipelines som kjører uten manuell innsats.
+Mange virksomheter i Oslo kommune har behov for databehandling med kode — transformasjoner, sammenstillinger på tvers av kilder, kvalitetssikring med forretningslogikk, og automatiserte pipelines.
 
 Data engineering-plattformen gir utviklere og kodende analytikere et arbeidsmiljø for å gjøre nettopp dette — programmatisk, med full kontroll, og med innebygd støtte for sikkerhet, deploy og overvåking.
 

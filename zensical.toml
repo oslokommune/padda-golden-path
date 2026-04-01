@@ -91,12 +91,7 @@ nav = [
   ]},
   { "Hjelp" = [
     { "index" = "hjelp/index.md" },
-    { "FAQ" = "hjelp/faq.md" },
-    { "Kontakt oss" = "hjelp/kontakt.md" },
-    { "Kurs og opplæring" = "hjelp/kurs.md" },
-    { "Fellesskap" = "hjelp/fellesskap.md" },
-    { "Læringsressurser" = "hjelp/laeringsressurser.md" },
-    { "Nyheter" = "hjelp/nyheter.md" },
+    { "Databricks-opplæring" = "hjelp/databricks-opplaering.md" },
   ]},
 ]
 

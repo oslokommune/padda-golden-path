@@ -149,13 +149,13 @@ df = spark.read.format("parquet").load(
 df.write.mode("append").saveAsTable("min_katalog.bronze_default.min_tabell")
 ```
 
-### Med Databricks Asset Bundle (golden path)
+### Med Databricks Bundle (golden path)
 
 Vi har ferdiglagde eksempler du kan kopiere og tilpasse:
 
 - [Excel Ingestion Bundle](../guider/hente-inn-data/importere-excel-til-uc.md) — leser Excel-filer fra Unity Catalog Volume til Delta-tabell
 
-Se [Databricks Asset Bundles](../referanse/databricks-bundles.md) for oversikt over alle tilgjengelige eksempler.
+Se [Databricks Bundles](../referanse/databricks-bundles.md) for oversikt over alle tilgjengelige eksempler.
 
 ## Steg 5 — Transformer data (bronze → silver → gold)
 
@@ -174,7 +174,7 @@ flowchart LR
 | **Silver** | `silver_default` | Vasket, deduplisert, standardiserte kolonnenavn og typer |
 | **Gold** | `gold_default` | Aggregert, forretningsklart, klart for analyse og BI |
 
-Du bygger pipelines som notebooks eller Databricks-jobber, og deployer dem med [Databricks Asset Bundles](../referanse/databricks-bundles.md).
+Du bygger pipelines som notebooks eller Databricks-jobber, og deployer dem med [Databricks Bundles](../referanse/databricks-bundles.md).
 
 ## Steg 6 — Koble til Power BI
 
@@ -213,3 +213,5 @@ Når data ligger i gold-laget (eller silver, avhengig av behov) kan du koble til
 
 - **Slack**: [#dig-dataspeilet](https://oslokommune.slack.com/archives/C01SFNFEXK7)
 - **GitHub**: [oslokommune/padda-golden-path](https://github.com/oslokommune/padda-golden-path) — opprett et issue
+
+Se [Hjelp](../hjelp/index.md) for flere kontaktkanaler og fellesskap.

@@ -86,17 +86,12 @@ nav = [
     { "SQL Warehouse" = "referanse/sql-warehouse.md" },
     { "Navnekonvensjoner" = "referanse/navnekonvensjoner.md" },
     { "Varsling og alarmer" = "referanse/varsling-og-alarmer.md" },
-    { "Databricks Asset Bundles" = "referanse/databricks-bundles.md" },
+    { "Databricks Bundles" = "referanse/databricks-bundles.md" },
     { "SAM-deploy" = "referanse/sam-deploy.md" },
   ]},
   { "Hjelp" = [
     { "index" = "hjelp/index.md" },
-    { "FAQ" = "hjelp/faq.md" },
-    { "Kontakt oss" = "hjelp/kontakt.md" },
-    { "Kurs og opplæring" = "hjelp/kurs.md" },
-    { "Fellesskap" = "hjelp/fellesskap.md" },
-    { "Læringsressurser" = "hjelp/laeringsressurser.md" },
-    { "Nyheter" = "hjelp/nyheter.md" },
+    { "Databricks-opplæring" = "hjelp/databricks-opplaering.md" },
   ]},
 ]
 

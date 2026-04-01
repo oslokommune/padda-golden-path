@@ -34,7 +34,4 @@ Dataplattformen tar ikke backup av datasettene i løsningen.
 
 ## Kontakt
 
-Har du spørsmål eller trenger hjelp? Ta kontakt via:
-
-- **Slack**: [#dig-dataspeilet](https://oslokommune.slack.com/archives/C01SFNFEXK7)
-- **GitHub**: [oslokommune/padda-golden-path](https://github.com/oslokommune/padda-golden-path) — opprett et issue eller ta kontakt via PR
+Har du spørsmål eller trenger hjelp? Se [Hjelp](../hjelp/index.md) for kontaktinfo og støttekanaler.

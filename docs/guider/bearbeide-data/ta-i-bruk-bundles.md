@@ -1,6 +1,6 @@
 ---
 title: Ta i bruk Bundles
-description: Hvordan pakke og kjøre jobber og pipelines i Databricks med Asset Bundles.
+description: Hvordan pakke og kjøre jobber og pipelines i Databricks med Bundles.
 diataxis: how-to
 icon: lucide/construction
 ---
@@ -18,4 +18,4 @@ Claude foreslår at denne siden bør dekke:
 - Verifisere at jobben kjører i Databricks
 - Feilsøking ved deploy-problemer
 
-Se [Databricks Asset Bundles (referanse)](../../referanse/databricks-bundles.md) for oversikt over tilgjengelige bundler.
+Se [Databricks Bundles (referanse)](../../referanse/databricks-bundles.md) for oversikt over tilgjengelige bundler.

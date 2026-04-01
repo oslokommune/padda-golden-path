@@ -13,7 +13,7 @@ icon: lucide/merge
 - Utvikle Databricks-kode i **VS Code**
 - Bruk **uv** til dependency management
 - Pakk koden som **wheels**
-- Deploy med **Databricks Asset Bundles**
+- Deploy med **Databricks Bundles**
 - Stol på Databricks-runtime for Spark-dependencies via `pip install --no-deps`
 
 ---
@@ -61,7 +61,7 @@ Vis hele flyten fra å redigere `examples/vscode-demo` i VS Code
 
 1. Åpne **Extensions**-panelet i VS Code
 2. Søk etter **"Databricks"**
-3. Installer den **offisielle Databricks**-utvidelsen
+3. Installer den **offisielle Databricks**-utvidelsen (se også [Databricks-opplæring](../hjelp/databricks-opplaering.md#vs-code-utvidelsen))
 
 **Koble til workspace**
 

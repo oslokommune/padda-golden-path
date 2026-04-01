@@ -24,7 +24,7 @@ packages = ["src/golden_path"]
 
 [project.optional-dependencies]
 docs = [
-  "zensical>=0.0.26",
+  "zensical>=0.0.30",
 ]
 dev = [
   "pytest",

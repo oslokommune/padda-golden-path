@@ -25,3 +25,7 @@ Det finnes flere arenaer for datasamarbeid og erfaringsdeling på tvers av kommu
 ## Åpne ressurser
 
 - **[Offentlig PaaS Slack](https://offentlig-paas-no.slack.com)** — tverretatlig Slack for offentlig sektor. Kanalen **[#dataplattform](https://offentlig-paas-no.slack.com/archives/C05Q6M6LP08)** er den mest aktive for dataplattform-temaer.
+
+## Se også
+
+- **[Databricks-opplæring](databricks-opplaering.md)** — kurs, videoer, dokumentasjon og utviklerverktøy fra Databricks

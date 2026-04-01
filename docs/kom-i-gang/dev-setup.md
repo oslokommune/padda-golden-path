@@ -57,7 +57,7 @@ Kjør igjennom guiden for konfigurasjon:
 ```bash
 databricks configure
 ```
-Verdier ligger i 1Password, ta kontakt med Dataspeilet dersom du ikke har tilgang.
+Verdier ligger i 1Password, [ta kontakt med Dataspeilet](../hjelp/index.md#kontakt-plattformteamet) dersom du ikke har tilgang.
 
 # vscode spesifikke ting
 Det er satt opp en `settings.json` og anbefalte extensions i `.vscode`.

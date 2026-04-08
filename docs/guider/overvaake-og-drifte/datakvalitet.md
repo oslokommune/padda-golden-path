@@ -68,7 +68,7 @@ Denne notebooken sjekker at verdiene i `actions.comand_id` er et subset av `comm
 ```python
 # Databricks notebook source
 # MAGIC %sh
-# MAGIC pip install --no-index --find-links /Volumes/padda_catalog_2727440053493594/tormod_test/tormod_test databricks_labs_dqx
+# MAGIC pip install --no-index --find-links /Volumes/min_katalog/mitt_skjema/mitt_volum databricks_labs_dqx
 
 # COMMAND ----------
 

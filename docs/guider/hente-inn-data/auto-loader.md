@@ -2,19 +2,13 @@
 title: Sette opp Auto Loader
 description: Hvordan konfigurere Auto Loader for inkrementell filinnlasting fra landing zone.
 diataxis: how-to
-icon: lucide/construction
 ---
 
 # Sette opp Auto Loader
 
-Denne guiden er ikke ferdig ennå.
+For hvordan man kan sette opp autoloader, se [autoloader-eksemplene her](https://github.com/oslokommune/padda-databrikker/tree/main/bundles). Disse tar for seg litt forskjellige måter å inkrementelt lese inn rader fra linjeskift-separerte JSON-filer på S3.
 
-Claude foreslår at denne siden bør dekke:
-
-- Konfigurere Auto Loader for inkrementell innlasting fra landing zone
-- Schema-lokasjon og checkpoint
-- Streaming vs. trigger-once
-- Vanlige filformater og opsjoner
+Dette er et stort tema, og eksemplene dekker bare en liten del av funksjonaliteten som er tilgjengelig. Se [Databricks sin dokumentasjon](https://docs.databricks.com/aws/en/ingestion/cloud-object-storage/auto-loader/) for mer informasjon.
 
 ## Ytelse
 

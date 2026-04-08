@@ -15,3 +15,7 @@ Claude foreslår at denne siden bør dekke:
 - Schema-lokasjon og checkpoint
 - Streaming vs. trigger-once
 - Vanlige filformater og opsjoner
+
+## Ytelse
+
+Hvis antallet inndatafiler blir tilstrekkelig stort, kan det være verdt å vurdere å bruke [filvarslinger](https://docs.databricks.com/aws/en/ingestion/cloud-object-storage/auto-loader/file-notification-mode). I skrivende stund tillater dessverre ikke infrastrukturkonfigurasjonen vår dette, men det kan endres ved behov.

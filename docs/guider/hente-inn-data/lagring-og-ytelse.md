@@ -13,5 +13,3 @@ Skrives de resulterende tabellene oftere enn de leses? Er de små (<1TB)? Da er 
 - [Z-ordering](https://docs.databricks.com/aws/en/delta/data-skipping): Lar beregningsressursene hoppe over visse parquet-filer under spørringer basert på statistikk, og kan gi bedre komprimering.
 
 Et annet spørsmål er prediktiv optimalisering kontra eksplisitt kjøring av VACUUM og OPTIMIZE. Erfaring i felt med prediktiv optimalisering har vært litt blandet. Det kan være bedre å kjøre disse eksplisitt daglig.
-
-Til slutt, på inntakssiden – hvis antallet inndatafiler blir tilstrekkelig stort, kan det være verdt å vurdere å bruke filvarslinger. I skrivende stund tillater dessverre ikke infrastrukturkonfigurasjonen vår dette, men det kan endres ved behov.

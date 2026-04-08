@@ -20,12 +20,12 @@ Claude foreslår at denne siden bør dekke:
 
 ### Regnekraft
 
-Declarative Pipelines runs on serverless by default, but does allow you to use dedicated compute instead. If you were to use dedicated compute, You can often save some money by using a cluster with a smaller driver instance type than worker instance type. Piping data from one table to another tends to be worker-heavy and driver-light. When it comes to instance type selection, it depends on your queries:
+Declarative Pipelines kjører på serverless som standard, men det er også mulig å bruke dedikerte beregningsressurser. Hvis du bruker dedikerte beregningsressurser, kan du ofte spare penger ved å bruke et cluster med en mindre driver-instanstype enn worker-instanstype. Dataflyt fra én tabell til en annen er gjerne worker-tung og driver-lett. Når det gjelder valg av instanstype, avhenger det av spørringene dine:
 
-- Simple (No aggregates or joins, or joins where only one table is big): Use compute-optimized instances
-- Complex: Use few (ideally 1) big worker instance with lots of memory and storage
+- Enkle (ingen aggregeringer eller joins, eller joins der kun én tabell er stor): Bruk compute-optimaliserte instanser
+- Komplekse: Bruk få (ideelt sett én) stor worker-instans med mye minne og lagring
 
-You will generally find yourself on the simple end of this spectrum.
+Du vil som regel befinne deg i nærmere den enkle enden av dette spekteret.
 
 ### Lesing av data
 

@@ -6,12 +6,12 @@ diataxis: how-to
 
 # Lagring og ytelse
 
-Are the resulting tables written more often than they are read? Are they small (<1TB)? Then just using the defaults is probably good enough (unless storage cost becomes a concern). If both of those are false then there are some interesting options available to us in terms of how you group data on disk:
+Skrives de resulterende tabellene oftere enn de leses? Er de små (<1TB)? Da er det sannsynligvis godt nok å bruke standardinnstillingene (med mindre lagringskostnadene blir et problem). Hvis begge disse er usanne, finnes det noen interessante alternativer for hvordan du grupperer data på disk:
 
-- Liquid Clustering: Databricks manages it. This is recommended by Databricks and probably not a bad choice in the general case.
-- Partitioning: If you have a column with few (hundreds) distinct values that you know is going to be in a WHERE clause in most queries, this is the one for you. Caution: Not easy to reverse.
-- Z-ordering: Lets your compute skip certain parquet files during query based on statistics and can result in better compression.
+- Liquid Clustering: Databricks håndterer dette selv. Dette anbefales av Databricks og er sannsynligvis et godt valg i de fleste tilfeller.
+- Partisjonering: Hvis du har en kolonne med få (hundrevis av) distinkte verdier som du vet vil dukke opp i en WHERE-klausul i de fleste spørringer, er dette alternativet for deg. Advarsel: Ikke lett å reversere.
+- Z-ordering: Lar beregningsressursene hoppe over visse parquet-filer under spørringer basert på statistikk, og kan gi bedre komprimering.
 
-Another question is predictive optimization vs explicitly running VACUUM and OPTIMIZE. Field experience with predictive optimization has been a bit mixed. Explicitly running these daily might be better.
+Et annet spørsmål er prediktiv optimalisering kontra eksplisitt kjøring av VACUUM og OPTIMIZE. Erfaring i felt med prediktiv optimalisering har vært litt blandet. Det kan være bedre å kjøre disse eksplisitt daglig.
 
-Lastly, on the input side if the number of input files becomes sufficiently great, then we might want to think about using file notifications, but as of the time we write this, the infrastructure config does not allow this.
+Til slutt, på inntakssiden – hvis antallet inndatafiler blir tilstrekkelig stort, kan det være verdt å vurdere å bruke filvarslinger. I skrivende stund tillater dessverre ikke infrastrukturkonfigurasjonen vår dette, men det kan endres ved behov.

@@ -7,7 +7,7 @@ icon: lucide/construction
 
 # Sette opp Auto Loader
 
-Denne guiden er ikke skrevet ennå.
+Denne guiden er ikke ferdig ennå.
 
 Claude foreslår at denne siden bør dekke:
 
@@ -25,7 +25,7 @@ Declarative Pipelines kjører på serverless som standard, men det er også muli
 - Enkle (ingen aggregeringer eller joins, eller joins der kun én tabell er stor): Bruk compute-optimaliserte instanser
 - Komplekse: Bruk få (ideelt sett én) stor worker-instans med mye minne og lagring
 
-Du vil som regel befinne deg i nærmere den enkle enden av dette spekteret.
+Du vil som regel befinne deg nærmere den enkle enden av dette spekteret.
 
 ### Lesing av data
 

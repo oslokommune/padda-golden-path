@@ -4,9 +4,9 @@ description: Hvordan lese inn filer inkrementelt fra landing zone til Unity Cata
 diataxis: how-to
 ---
 
-# Sette opp Auto Loader
+# Hvordan sette opp Auto Loader
 
-Denne guiden hjelper deg å sette opp en Declarative Pipeline som leser inn nye filer fra landing zone og lagrer dem i bronze- og silver-tabeller i Unity Catalog. Resultatet er en pipeline som kjører daglig og automatisk plukker opp nye filer uten å lese alt på nytt.
+Denne guiden hjelper deg å sette opp en Declarative Pipeline som leser inn nye filer fra landing zone og lagrer dem i bronze- og silver-tabeller i Unity Catalog. Resultatet er en pipeline som kjører daglig og automatisk plukker opp nye filer uten å lese alt på nytt. Vi bruker en av to eksempler. Guiden bruker disse litt slavisk, men dere må selvsagt tilpasse alt til deres bruksområde.
 
 ## Før du begynner
 
@@ -20,13 +20,13 @@ Sørg for at du har:
 
 To bundle-varianter er tilgjengelige i [`padda-databrikker`-repoet](https://github.com/oslokommune/padda-databrikker/tree/main/bundles). Velg ut fra krav til datakvalitet:
 
-|                           | Permissive                     | Strict                                      |
-| ------------------------- | ------------------------------ | ------------------------------------------- |
-| Ny kolonne i kilden       | Legges automatisk til i bronze | Pipeline feiler — krever manuell håndtering |
-| Ugyldig eller korrupt rad | Slipper gjennom til bronze     | Pipeline feiler                             |
-| Passer for                | Utforsking, lav kritikalitet   | Produksjonsdata, høy datakvalitet           |
+|                           | Permissive                                          | Strict                                          |
+| ------------------------- | --------------------------------------------------- | ----------------------------------------------- |
+| Ny kolonne i kilden       | Legges automatisk til i bronze                      | Pipeline feiler — krever manuell håndtering     |
+| Ugyldig eller korrupt rad | Slipper gjennom til bronze                          | Pipeline feiler                                 |
+| Passer for                | Produkter der en feil rad her og der er akseptabelt | Produkter der ingen data er bedre enn feil data |
 
-Hvis du er usikker, start med **permissive**. Det er enklere å stramme inn enn å rulle tilbake en strict-pipeline som har stanset.
+Dette er ikke egentlig et binært valg. I praksis vil man gjerne mikse og matche litt. Disse eksemplene er ment litt som illustrative ytterpunkter.
 
 ## Trinn 2: Kopier bundle-malen
 
@@ -159,30 +159,42 @@ Fremover vil pipelinen kjøre automatisk én gang daglig via den medfølgende jo
 
 ## Feilsøking
 
-??? failure "`SCHEMA_EVOLUTION_EXCEPTION` eller `UnknownFieldException`"
-Gjelder kun strict-varianten. Kildedata har fått en ny kolonne som ikke er definert i skjemaet.
+??? failure "`UnknownFieldException`"
+Kildedata har fått en ny kolonne som ikke er definert i skjemaet.
+
+=== "Permissive"
 
     Løsning:
 
-    - Legg til den nye kolonnen i `schema`-parameteren i `read_files()` og i `CREATE TABLE`-headeren.
-    - Kjør en full refresh: klikk **Start** → **Full refresh** i pipeline-visningen.
+      - Dette løser seg selv. Når denne feilen trigges vil kolonnen legges til bronse-tabellen, og ved neste refresh vil det lese inn på riktig måte.
+      - Merk at de videre tabellene ikke blir oppdatert. Pipelinen vil fortsette som før og rett og slett ignorere de nye kolonnene. For å få med disse i etterkant kreves en full refresh.
 
-??? failure "Pipeline feiler med `FAILFAST` og korrupte rader"
-Gjelder kun strict-varianten. En eller flere rader samsvarer ikke med det angitte skjemaet.
-
-    Løsning:
-
-    - Undersøk hvilke filer som inneholder ugyldige rader via pipeline-loggen.
-    - Vurder om kildedata har endret format, eller om permissive-tilnærmingen passer bedre for dette datasettet.
-
-??? failure "`databricks bundle deploy` feiler med autentiseringsfeil"
-CLI er ikke autentisert mot riktig workspace.
+=== "Strict"
 
     Løsning:
 
-    - Kjør `databricks configure` og kontroller at `host` samsvarer med verdien i `databricks.yml`.
+      - Legg til den nye kolonnen i `schema`-parameteren i `read_files()` og i de relevante `CREATE TABLE`-kommandoene.
+      - Start en refresh. Full refresh er ikke nødvendig, siden radene aldri ble lest inn og det derfor ikke er noe å korrigere.
 
-## Ytelse
+??? failure "Expectations feiler eller du får advarsler i loggene"
+Data samsvarer ikke med kvaliteten den skal ha.
+
+=== "Permissive"
+
+    Løsning:
+
+    - Dataen har gått gjennom hele pipelinen. Alle relevante tabeller må korrigeres for hånd.
+
+=== "Strict"
+
+    Løsning:
+
+    - Dataen har ikke blitt lest inn i tabellen med expectation. I de forestående tabellene og kildene før den der det feilet, derimot, ligger den problematiske dataen. Dette må korrigeres for hånd.
+    - Ved neste refresh leses alt som normalt.
+
+Til slutt: Vurder om enten expectationen må endres, om den inkommende dataen må renses på noe vis, eller om kilden på dataen må kontakteres.
+
+## Ytelsestips
 
 ### Regnekraft
 
@@ -206,5 +218,3 @@ Se [Lagring og ytelse](../../referanse/lagring-og-ytelse.md).
 - [Laste opp filer til landing zone](./laste-opp-til-landing-zone.md)
 - [Databricks-dokumentasjon om Auto Loader](https://docs.databricks.com/aws/en/ingestion/cloud-object-storage/auto-loader/)
 - [Databricks-dokumentasjon om Declarative Pipelines (SQL)](https://docs.databricks.com/aws/en/ldp/dbsql/streaming)
-
-```

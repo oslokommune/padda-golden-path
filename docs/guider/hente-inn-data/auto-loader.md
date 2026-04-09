@@ -27,4 +27,4 @@ Hvis antallet inndatafiler blir tilstrekkelig stort, kan det være verdt å vurd
 
 ### Lagring
 
-Se [Lagring og ytelse](./lagring-og-ytelse.md)
+Se [Lagring og ytelse](../../referanse/lagring-og-ytelse.md)

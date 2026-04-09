@@ -1,7 +1,7 @@
 ---
 title: Lagring og ytelse
 description: Hvordan optimalisere den lagrede dataen for kostnad og ytelse.
-diataxis: how-to
+diataxis: reference
 ---
 
 # Lagring og ytelse

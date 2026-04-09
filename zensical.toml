@@ -59,7 +59,6 @@ nav = [
       { "Hente data via API" = "guider/hente-inn-data/hente-data-via-api.md" },
       { "Hente data fra Fabric" = "guider/hente-inn-data/hente-fra-fabric.md" },
       { "Håndtere secrets" = "guider/hente-inn-data/haandtere-secrets.md" },
-      { "Lagring og ytelse" = "guider/hente-inn-data/lagring-og-ytelse.md" },
     ]},
     { "Bearbeide data" = [
       { "Skrive transformasjoner" = "guider/bearbeide-data/skrive-transformasjoner.md" },
@@ -89,6 +88,7 @@ nav = [
     { "Varsling og alarmer" = "referanse/varsling-og-alarmer.md" },
     { "Databricks Bundles" = "referanse/databricks-bundles.md" },
     { "SAM-deploy" = "referanse/sam-deploy.md" },
+    { "Lagring og ytelse" = "referanse/lagring-og-ytelse.md" },
   ]},
   { "Hjelp" = [
     { "index" = "hjelp/index.md" },

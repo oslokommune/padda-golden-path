@@ -53,3 +53,7 @@ full omskriving av tabellen. Valget bør gjøres med omhu før tabellen tas i pr
 ## Relatert innhold
 
 - [Databricks om underliggende data layout](https://www.databricks.com/discover/pages/optimize-data-workloads-guide#data-layout)
+- [Syntaks for oppretting av tabeller, inkludert alle valgmuligheter](https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-ddl-create-table-using)
+- [Syntaks for oppretting av strømmetabeller, inkludert alle valgmuligheter](https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-ddl-create-streaming-table)
+- [Bruk av VACUUM](https://docs.databricks.com/aws/en/delta/vacuum)
+- [Bruk av OPTIMIZE](https://docs.databricks.com/aws/en/sql/language-manual/delta-optimize)

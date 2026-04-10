@@ -4,7 +4,7 @@ description: Hvordan lese inn filer inkrementelt fra landing zone til Unity Cata
 diataxis: how-to
 ---
 
-# Hvordan sette opp Auto Loader
+# Sette opp Auto Loader
 
 Denne guiden hjelper deg å sette opp en Declarative Pipeline som leser inn nye filer fra landing zone og lagrer dem i bronze- og silver-tabeller i Unity Catalog. Resultatet er en pipeline som kjører daglig og automatisk plukker opp nye filer uten å lese alt på nytt. Vi bruker en av to eksempler. Guiden bruker disse litt slavisk, men dere må selvsagt tilpasse alt til deres bruksområde.
 

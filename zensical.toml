@@ -88,6 +88,7 @@ nav = [
     { "Varsling og alarmer" = "referanse/varsling-og-alarmer.md" },
     { "Databricks Bundles" = "referanse/databricks-bundles.md" },
     { "SAM-deploy" = "referanse/sam-deploy.md" },
+    { "Lagring og ytelse" = "referanse/lagring-og-ytelse.md" },
   ]},
   { "Hjelp" = [
     { "index" = "hjelp/index.md" },

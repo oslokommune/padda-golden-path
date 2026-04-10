@@ -50,6 +50,18 @@ Manuelt planlagte vedlikeholdsoperasjoner:
 En partisjonert tabell kan ikke enkelt ompartisjoneres eller avpartisjoneres — det krever
 full omskriving av tabellen. Valget bør gjøres med omhu før tabellen tas i produksjon.
 
+## Eksempel
+
+```SQL
+CREATE TABLE my_table (
+  user_id BIGINT,
+  user_name STRING
+) CLUSTER BY AUTO;
+
+VACUUM my_table;
+OPTIMIZE my_table;
+```
+
 ## Relatert innhold
 
 - [Databricks om underliggende data layout](https://www.databricks.com/discover/pages/optimize-data-workloads-guide#data-layout)

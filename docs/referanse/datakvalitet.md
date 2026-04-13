@@ -41,7 +41,7 @@ CREATE TABLE people10m (
 
 Her er `NOT NULL` og `dateWithinRange` constraints. Disse håndheves strengt, og et forsøk på å sette inn rader som ikke oppfyller kravene vil feile. `PRIMARY KEY` er strengt tatt også en constraint, men denne håndheves ikke i det hele tatt, og er nesten kun dokumentasjon.
 
-Declarative Pipelines har ikke constraints men [expectations](https://docs.databricks.com/aws/en/ldp/expectations):
+Declarative Pipelines har `NOT NULL` på lik linje med normale delta-tabeller, men `CONSTRAINT`-ordet fungerer litt annerledes. `CHECK` støttes ikke, men i stedet brukes `EXPECT`. Her er `valid_customer_age` ikke en constraint men en [expectation](https://docs.databricks.com/aws/en/ldp/expectations):
 
 ```sql
 CREATE OR REFRESH STREAMING TABLE customers(
@@ -49,7 +49,7 @@ CREATE OR REFRESH STREAMING TABLE customers(
 ) AS SELECT * FROM STREAM(datasets.samples.raw_customers);
 ```
 
-En viktig ting å huske på er at at expectations kan håndheves på tre måter: WARN, DROP ROW, og FAIL. _WARN er default_.
+Den største forskjellen mellom constraints og expectations er at expectations kan håndheves på tre måter: WARN, DROP ROW, og FAIL. _WARN er default_ og gjør ingenting annet enn å logge, så vær obs!
 
 ### Alerts
 

@@ -110,6 +110,8 @@ valid, invalid, observation = dq_engine.apply_checks_and_split(input_df, all_che
 display(invalid)
 ```
 
-### Lenker
+## Relatert innhold
 
-DQX [brukermanual](https://databrickslabs.github.io/dqx/docs/guide/)
+- DQX [brukermanual](https://databrickslabs.github.io/dqx/docs/guide/)
+- DQX [funksjoner](https://github.com/databrickslabs/dqx/blob/main/src/databricks/labs/dqx/check_funcs.py)
+- [Avanserte expectations](https://docs.databricks.com/aws/en/ldp/expectation-patterns)

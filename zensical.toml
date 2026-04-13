@@ -76,7 +76,6 @@ nav = [
       { "Slack-alarmer" = "guider/overvaake-og-drifte/slack-alarmer.md" },
       { "Gjenopprette etter feil" = "guider/overvaake-og-drifte/gjenopprette-etter-feil.md" },
       { "Feilsøke med logger" = "guider/overvaake-og-drifte/logging.md" },
-      { "Datakvalitet" = "guider/overvaake-og-drifte/datakvalitet.md" },
     ]},
   ]},
   { "Referanse" = [
@@ -90,6 +89,7 @@ nav = [
     { "Databricks Bundles" = "referanse/databricks-bundles.md" },
     { "SAM-deploy" = "referanse/sam-deploy.md" },
     { "Lagring og ytelse" = "referanse/lagring-og-ytelse.md" },
+    { "Datakvalitet" = "referanse/datakvalitet.md" },
   ]},
   { "Hjelp" = [
     { "index" = "hjelp/index.md" },

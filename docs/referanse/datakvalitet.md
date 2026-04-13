@@ -1,12 +1,12 @@
 ---
 title: Datakvalitet
-description: Hvordan automatisere deler av arbeidet med å sikre datakvalitet.
+description: Hva er datakvalitet og hvordan sikre det.
 diataxis: reference
 ---
 
 # Datakvalitet
 
-[Kvaliteten på data](https://www.databricks.com/blog/what-is-data-quality) er en måte å snakke om hvor formålstjenlig dataen er. Dette inkluderer ikke bare hvor godt dataen speiler virkeligheten, men også hvor ryddig den er. Bruk av forskjellige synonymer i tekstfelt og dupliserte rader er eksempler på data som ikke strengt tatt er uriktig, men som gjerne resulterer i feil resultat når dataen blir analysert. For at data skal ha høy kvalitet må det altså gi en analytiker et riktig bilde av virkeligheten, og da må dataen ikke bare ikke være uriktig men heller ikke være misvisende. [Det finnes forskjellige definisjoner](https://en.wikipedia.org/wiki/Data_quality#Dimensions_of_data_quality) av hva datakvalitet er, men [Databricks definerer det slik](https://www.databricks.com/blog/what-is-data-quality):
+Kvaliteten på data er en måte å snakke om hvor formålstjenlig dataen er. Dette inkluderer ikke bare hvor godt dataen speiler virkeligheten, men også hvor ryddig den er. Bruk av forskjellige synonymer i tekstfelt og dupliserte rader er eksempler på data som ikke strengt tatt er uriktig, men som gjerne resulterer i feil resultat når dataen blir analysert. For at data skal ha høy kvalitet må det altså gi en analytiker et riktig bilde av virkeligheten, og da må dataen ikke bare ikke være uriktig men heller ikke være misvisende. [Det finnes forskjellige definisjoner](https://en.wikipedia.org/wiki/Data_quality#Dimensions_of_data_quality) av hva datakvalitet er, men [Databricks definerer det slik](https://www.databricks.com/blog/what-is-data-quality):
 
 - Dataen skal være konsekvent med andre datasett
 - Hver rad skal være nøyaktig og feilfri

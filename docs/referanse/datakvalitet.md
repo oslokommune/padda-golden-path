@@ -81,9 +81,7 @@ Sjekkfunksjonene brukes som argumenter til regelobjekter i `databricks.labs.dqx.
 
 ```python
 DQDatasetRule(  # check uniqueness of composite key
-  criticality="error",
-  check_func=check_funcs.is_unique,
-  columns=["col1", "col2"]
+    criticality="error", check_func=check_funcs.is_unique, columns=["col1", "col2"]
 )
 ```
 

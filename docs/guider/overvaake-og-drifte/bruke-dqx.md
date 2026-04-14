@@ -61,6 +61,5 @@ display(invalid)
 
 ## Relatert innhold
 
-- DQX [brukermanual](https://databrickslabs.github.io/dqx/docs/guide/)
-- DQX [funksjoner](https://github.com/databrickslabs/dqx/blob/main/src/databricks/labs/dqx/check_funcs.py)
+- [DQX brukermanual](https://databrickslabs.github.io/dqx/docs/guide/)
 - [Datakvalitet](../../referanse/datakvalitet.md)

@@ -1,38 +1,62 @@
 ---
 title: Installere og bruke DQX
-description: Hvordan bruke DQX til å sikre datakvalitet.
+description: Hvordan installere DQX i et Databricks-miljø uten internettilgang og kjøre datakvalitetskontroller mot Unity Catalog-tabeller.
 diataxis: how-to
 ---
 
 # Installere og bruke DQX
 
-DQX er et batteries-included rammeverk for datakvalitet. Det er ikke så mye man kan gjøre med DQX som man ikke kan gjøre med ren Databricks, men her slipper man å lage alt selv.
+Denne veiledningen viser deg hvordan du installerer DQX i et Databricks-miljø uten direkte internettilgang og kjører datakvalitetskontroller mot tabeller i Unity Catalog.
 
-## Installering
+## Før du begynner
 
-Først må du lokalt kjøre noe slikt som `pip download --python-version=3.12 --only-binary=:all: databricks-labs-dqx`. Dette laster ned alle avhengigheter lokalt. Deretter kan du finne et passende volum å last disse opp til. Når det er gjort, kan du lage en notebook med dette som første celle:
+Sørg for at du har:
+
+- Pip installert lokalt
+- Tilgang til et Databricks-arbeidsområde
+- Et Unity Catalog-volum du kan laste opp filer til
+- Tilgang til tabellene du vil kjøre kontroller mot
+
+## Trinn 1: Last ned DQX og avhengigheter lokalt
+
+Kjør følgende kommando lokalt for å laste ned DQX og alle avhengigheter som `.whl`-filer:
+
+```sh
+pip download --python-version=3.12 --only-binary=:all: databricks-labs-dqx
+```
+
+Python-versjonen må matche den som brukes i omgivelsen notebooken kjøres i.
+
+Filene lagres i gjeldende mappe.
+
+## Trinn 2: Last opp pakkene til et Databricks-volum
+
+Last opp alle nedlastede `.whl`-filer til et Unity Catalog-volum. Du kan gjøre dette via Databricks UI under **Catalog → Volumes**, eller med Databricks CLI:
+
+```sh
+databricks fs cp *.whl dbfs:/Volumes/min_katalog/mitt_skjema/mitt_volum/
+```
+
+## Trinn 3: Installer DQX i notebooken
+
+Legg til følgende som første celle i notebooken din:
 
 ```sh
 %sh
 pip install --no-index --find-links /Volumes/min_katalog/mitt_skjema/mitt_volum databricks_labs_dqx
 ```
 
-Deretter kan DQX brukes i de følgende cellene i notebooken.
+## Trinn 4: Kjør datakvalitetskontroller
 
-## Eksempel
-
-Denne notebooken sjekker at verdiene i `actions.comand_id` er et subset av `command.id`, slik at foreign key-relasjonen mellom de to kolonnene holder.
+Definer kontrollene og kjør dem mot tabellen din. Eksempelet nedenfor sjekker at foreign key-relasjonen mellom `actions.command_id` og `command.id` holder:
 
 ```python
-# Databricks notebook source
-# MAGIC %sh
-# MAGIC pip install --no-index --find-links /Volumes/min_katalog/mitt_skjema/mitt_volum databricks_labs_dqx
-
-# COMMAND ----------
-
 from databricks.labs.dqx.engine import DQEngine
 from databricks.labs.dqx import check_funcs
-from databricks.labs.dqx.rule import DQRowRule, DQDatasetRule, DQForEachColRule
+from databricks.labs.dqx.rule import DQDatasetRule
+from databricks.labs.dqx.contexts.workspace_context import WorkspaceContext
+from databricks.labs.dqx.metrics_observer import DQMetricsObserver
+from databricks.sdk import WorkspaceClient
 
 all_checks = [
     DQDatasetRule(
@@ -45,18 +69,28 @@ all_checks = [
     )
 ]
 
-from databricks.labs.dqx.contexts.workspace_context import WorkspaceContext
-from databricks.labs.dqx.metrics_observer import DQMetricsObserver
-
-# Create an observer for general metrics collection
 observer = DQMetricsObserver(name="dq_metrics")
-# Create DQEngine instance to run checks
 dq_engine = DQEngine(WorkspaceClient(), observer=observer)
+
 input_df = spark.read.table("padda_dev_green.silver_default.actions")
-# input_df - is a dataframe to validate; all_checks - is a list of checks to apply
 valid, invalid, observation = dq_engine.apply_checks_and_split(input_df, all_checks)
 
 display(invalid)
+```
+
+## Bekreft resultatet
+
+Sjekk `invalid`-dataframen etter at cellen er ferdig kjørt:
+
+- **Tom DataFrame** — alle rader bestod kontrollene.
+- **Rader i DataFrame** — disse radene brøt minst én kontroll. Kolonnene `_errors` og `_warnings` beskriver hvilken sjekk som feilet og hvorfor.
+
+For å se en oppsummering av observerte metrikker:
+
+```python
+invalid.count()
+valid.count()
+display(observation.get)
 ```
 
 ## Relatert innhold

@@ -51,7 +51,7 @@ uv run --extra docs zensical serve
 # Build docs (writes to site/)
 uv run --extra docs zensical build
 
-# Validate Databricks bundles
+# Validate Declarative Automation Bundles
 databricks bundle validate
 ```
 

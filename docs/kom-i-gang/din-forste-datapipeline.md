@@ -155,7 +155,7 @@ Vi har ferdiglagde eksempler du kan kopiere og tilpasse:
 
 - [Excel Ingestion Bundle](../guider/hente-inn-data/importere-excel-til-uc.md) — leser Excel-filer fra Unity Catalog Volume til Delta-tabell
 
-Se [Databricks Bundles](../referanse/databricks-bundles.md) for oversikt over alle tilgjengelige eksempler.
+Se [Declarative Automation Bundles](../referanse/databricks-bundles.md) for oversikt over alle tilgjengelige eksempler.
 
 ## Steg 5 — Transformer data (bronze → silver → gold)
 
@@ -174,7 +174,7 @@ flowchart LR
 | **Silver** | `silver_default` | Vasket, deduplisert, standardiserte kolonnenavn og typer |
 | **Gold** | `gold_default` | Aggregert, forretningsklart, klart for analyse og BI |
 
-Du bygger pipelines som notebooks eller Databricks-jobber, og deployer dem med [Databricks Bundles](../referanse/databricks-bundles.md).
+Du bygger pipelines som notebooks eller Databricks-jobber, og deployer dem med [Declarative Automation Bundles](../referanse/databricks-bundles.md).
 
 ## Steg 6 — Koble til Power BI
 

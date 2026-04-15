@@ -13,7 +13,7 @@ icon: lucide/merge
 - Utvikle Databricks-kode i **VS Code**
 - Bruk **uv** til dependency management
 - Pakk koden som **wheels**
-- Deploy med **Databricks Bundles**
+- Deploy med **Declarative Automation Bundles**
 - Stol på Databricks-runtime for Spark-dependencies via `pip install --no-deps`
 
 ---
@@ -23,7 +23,7 @@ icon: lucide/merge
 Denne demoen er en del av Padda Golden Path:
 
 - Repository: `padda-golden-path`
-- Fokus: `examples/vscode-demo` + Databricks bundles
+- Fokus: `examples/vscode-demo` + Declarative Automation Bundles
 
 ## Oppsett og arkitektur
 

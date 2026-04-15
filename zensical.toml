@@ -39,6 +39,7 @@ nav = [
       { "Deling og bruk" = "om-plattformen/konsepter/deling-og-bruk.md" },
       { "Overvåking" = "om-plattformen/konsepter/overvaaking.md" },
       { "Serverless compute" = "om-plattformen/konsepter/serverless-compute.md" },
+      { "Declarative Automation Bundles" = "om-plattformen/konsepter/databricks-bundles.md" },
     ]},
   ]},
   { "Kom i gang" = [
@@ -86,7 +87,7 @@ nav = [
     { "SQL Warehouse" = "referanse/sql-warehouse.md" },
     { "Navnekonvensjoner" = "referanse/navnekonvensjoner.md" },
     { "Varsling og alarmer" = "referanse/varsling-og-alarmer.md" },
-    { "Databricks Bundles" = "referanse/databricks-bundles.md" },
+    { "Declarative Automation Bundles" = "referanse/databricks-bundles.md" },
     { "SAM-deploy" = "referanse/sam-deploy.md" },
     { "Lagring og ytelse" = "referanse/lagring-og-ytelse.md" },
   ]},

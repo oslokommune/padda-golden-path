@@ -37,14 +37,19 @@ name: Docs Impact Check
 # i repoet som kan påvirke dokumentasjonen.
 #
 on:
-  pull_request:
-    types: [opened, synchronize]
-    paths:
-      - "bundles/**"
-      - "**/*.py"
-      - "**/*.sql"
-      - "pyproject.toml"
-      - "Makefile"
+  # Automatisk PR-trigger er midlertidig slått av mens vi får docs-review
+  # til å oppføre seg. workflow_dispatch lar oss kjøre den manuelt fra
+  # Actions-fanen hvis vi vil teste.
+  #
+  # pull_request:
+  #   types: [opened, synchronize]
+  #   paths:
+  #     - "bundles/**"
+  #     - "**/*.py"
+  #     - "**/*.sql"
+  #     - "pyproject.toml"
+  #     - "Makefile"
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -62,9 +67,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Default fetch-depth er 1 (kun HEAD) — vi trenger ikke historikk
+      # siden `gh pr diff` går mot GitHub API-en.
+      # Sparse checkout: bare mapper som kan inneholde relevant kode og docs.
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          sparse-checkout: |
+            .github
+            bundles
+            docs
 
       # ── Steg 2: AWS Bedrock via OIDC ──
       # Samme oppsett som docs-review.yml — se der for detaljert forklaring.
@@ -85,7 +96,7 @@ jobs:
           # - Ingen inline-kommentarer (vi poster bare én oppsummering)
           # - Grep og Glob for å søke i docs etter relatert innhold
           claude_args: |
-            --model eu.anthropic.claude-opus-4-6-v1
+            --model eu.anthropic.claude-sonnet-4-6
             --allowedTools "Read,Glob,Grep,Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*)"
 
           prompt: |

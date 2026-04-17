@@ -37,14 +37,19 @@ name: Docs Impact Check
 # i repoet som kan påvirke dokumentasjonen.
 #
 on:
-  pull_request:
-    types: [opened, synchronize]
-    paths:
-      - "bundles/**"
-      - "**/*.py"
-      - "**/*.sql"
-      - "pyproject.toml"
-      - "Makefile"
+  # Automatisk PR-trigger er midlertidig slått av mens vi får docs-review
+  # til å oppføre seg. workflow_dispatch lar oss kjøre den manuelt fra
+  # Actions-fanen hvis vi vil teste.
+  #
+  # pull_request:
+  #   types: [opened, synchronize]
+  #   paths:
+  #     - "bundles/**"
+  #     - "**/*.py"
+  #     - "**/*.sql"
+  #     - "pyproject.toml"
+  #     - "Makefile"
+  workflow_dispatch:
 
 permissions:
   contents: read

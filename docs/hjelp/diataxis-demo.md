@@ -1,5 +1,6 @@
 ---
 title: Diataxis-demo
+description: Denne fila er laget bare for å teste en workflow med agenter
 diataxis: how-to
 ---
 
@@ -47,7 +48,3 @@ Du kan også bruke `padda widget apply -f` med en eksisterende fil. Eller du kan
 ## Oppsummering
 
 I denne guiden lærte vi om widget-tjenesten, hvordan den fungerer, og hvorfor den er nyttig. Vi opprettet en konfigurasjonsfil, validerte den, og diskuterte forskjellige alternativer.
-
-## En kommentar som er lagt til i ettertid
-
-Litt usikker på om sånt hører hjemme i en diataxis-verden.

@@ -64,7 +64,7 @@ all_checks = [
         check_func_kwargs={
             "columns": ["command_id"],
             "ref_columns": ["id"],
-            "ref_table": "padda_dev_green.silver_default.command",
+            "ref_table": "my_catalog.my_schema.command",
         },
     )
 ]
@@ -72,7 +72,7 @@ all_checks = [
 observer = DQMetricsObserver(name="dq_metrics")
 dq_engine = DQEngine(WorkspaceClient(), observer=observer)
 
-input_df = spark.read.table("padda_dev_green.silver_default.actions")
+input_df = spark.read.table("my_catalog.my_schema.actions")
 valid, invalid, observation = dq_engine.apply_checks_and_split(input_df, all_checks)
 
 display(invalid)

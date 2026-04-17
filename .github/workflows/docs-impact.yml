@@ -62,9 +62,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Default fetch-depth er 1 (kun HEAD) — vi trenger ikke historikk
+      # siden `gh pr diff` går mot GitHub API-en.
+      # Sparse checkout: bare mapper som kan inneholde relevant kode og docs.
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          sparse-checkout: |
+            .github
+            bundles
+            docs
 
       # ── Steg 2: AWS Bedrock via OIDC ──
       # Samme oppsett som docs-review.yml — se der for detaljert forklaring.

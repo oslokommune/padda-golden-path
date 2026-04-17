@@ -108,12 +108,18 @@ jobs:
       # "uses" kjører en ferdig action fra GitHub Marketplace.
       # actions/checkout kloner repoet inn på runner-maskinen.
       #
-      # fetch-depth: 0 henter FULL git-historikk. Standard er 1 (bare
-      # siste commit), men Claude trenger mer for å se diffen mot base.
+      # fetch-depth er default 1 (bare HEAD-commiten). Vi trenger ikke
+      # historikk — `gh pr diff` går mot GitHub API-en, ikke lokal git.
+      #
+      # sparse-checkout begrenser hvilke mapper som lastes ned. Vi
+      # trenger bare docs/ (filene som skal reviewes) og .github/
+      # (Diataxis-referansene som prompten leser).
       #
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          sparse-checkout: |
+            .github
+            docs
 
       # ── Steg 2: Hent AWS-credentials via OIDC ──────────────────────────
       #

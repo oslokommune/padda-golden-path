@@ -85,7 +85,7 @@ jobs:
           # - Ingen inline-kommentarer (vi poster bare én oppsummering)
           # - Grep og Glob for å søke i docs etter relatert innhold
           claude_args: |
-            --model anthropic.claude-sonnet-4-6-20250514-v1:0
+            --model eu.anthropic.claude-opus-4-6-v1
             --allowedTools "Read,Glob,Grep,Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*)"
 
           prompt: |

@@ -195,23 +195,23 @@ jobs:
           #   Bash(gh pr diff:*)     — Hente PR-diffen
           #   Bash(gh pr view:*)     — Se PR-metadata
           #   Bash(gh pr comment:*)  — Opprette ny summary-kommentar
-          #   Bash(gh api:*)         — Finne og oppdatere eksisterende summary-kommentar
-          #
-          # Ingen MCP-verktøy for inline-kommentarer — reviewen lager én
-          # sticky summary-kommentar i stedet (se prompt).
+          #   Bash(gh api:*)         — Finne/oppdatere eksisterende summary-kommentar
+          #   mcp__github_inline_comment__create_inline_comment
+          #                          — Poste inline-kommentar på bestemte linjer
           #
           claude_args: |
             --model eu.anthropic.claude-sonnet-4-6
-            --allowedTools "Read,Glob,Grep,Bash(gh pr diff:*),Bash(gh pr view:*),Bash(gh pr comment:*),Bash(gh api:*)"
+            --allowedTools "Read,Glob,Grep,Bash(gh pr diff:*),Bash(gh pr view:*),Bash(gh pr comment:*),Bash(gh api:*),mcp__github_inline_comment__create_inline_comment"
 
           # ── Prompt ──
           #
           # Review-strategi:
-          # - Delta-review: på "synchronize" kommenteres kun det som endret
-          #   seg siden forrige push (bruker github.event.before/after)
-          # - Sticky summary: én kommentar merket <!-- diataxis-review --> som
-          #   oppdateres in-place hver run → ingen duplikater
-          # - Ingen inline-kommentarer — alle funn samles per fil i summary
+          # - Delta-review: på "synchronize" reviewes kun det som endret seg
+          #   siden forrige push (bruker github.event.before/after). Dette
+          #   forhindrer duplikate inline-kommentarer på uendrede linjer.
+          # - Inline-kommentarer: festes til konkrete linjer der problemet er
+          # - Sticky top-level summary: én kommentar merket
+          #   <!-- diataxis-review --> som oppdateres in-place hver run
           #
           prompt: |
             REPO: ${{ github.repository }}
@@ -221,33 +221,37 @@ jobs:
             AFTER SHA:  ${{ github.event.after }}
 
             Du skal gjennomgå dokumentasjonsendringene i denne PR-en i henhold til
-            Diataxis-rammeverket. Output er ÉN sticky summary-kommentar — ingen
-            inline-kommentarer.
+            Diataxis-rammeverket.
 
-            ## Steg 1 — Finn eventuell tidligere review-kommentar
+            Output:
+            - Inline-kommentarer på spesifikke linjer for konkrete funn
+            - ÉN sticky top-level summary-kommentar for overblikk
+
+            ## Steg 1 — Finn eventuell tidligere summary-kommentar
 
             Kjør:
 
                 gh api /repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments \
                   --jq '.[] | select(.body | contains("<!-- diataxis-review -->")) | .id'
 
-            - Returnerer en ID → OPPDATER den kommentaren i steg 4
-            - Returnerer tomt → OPPRETT ny kommentar i steg 4
+            - Returnerer en ID → OPPDATER den kommentaren i steg 5
+            - Returnerer tomt → OPPRETT ny kommentar i steg 5
 
             ## Steg 2 — Bestem review-omfang
 
             Basert på EVENT:
 
-            - **opened**: Første review. Hent full PR-diff:
+            - **opened**: Første review. Hent full PR-diff og review alle endrede filer:
 
                   gh pr diff ${{ github.event.pull_request.number }}
 
-            - **synchronize**: Delta-review. Hent kun det som endret seg i siste push:
+            - **synchronize**: Delta-review. Hent KUN det som endret seg i siste push:
 
                   gh api /repos/${{ github.repository }}/compare/${{ github.event.before }}...${{ github.event.after }}
 
-              Fokus KUN på filer og linjer som er nye i dette deltaet. Ikke list opp
-              problemer fra tidligere commits — de er allerede dekket av forrige review.
+              VIKTIG: Kommenter KUN på filer og linjer som er nye i dette deltaet.
+              Eksisterende inline-kommentarer fra forrige run blir stående — poster
+              du på samme linjer igjen, får brukeren duplikater.
 
             ## Steg 3 — Last Diataxis-referanser og analyser
 
@@ -269,7 +273,21 @@ jobs:
                   forklaringer i reference, instruksjoner i explanation.)
                d. Er frontmatter komplett (title, description, diataxis)?
 
-            ## Steg 4 — Bygg og post summary
+            ## Steg 4 — Post inline-kommentarer
+
+            For hvert konkret problem knyttet til en bestemt linje, bruk
+            `mcp__github_inline_comment__create_inline_comment` med `confirmed: true`.
+
+            Hver kommentar bør:
+            - Peke på ETT problem
+            - Være kort og konstruktiv
+            - Henvise til Diataxis-prinsippet som brytes (kort)
+            - Ved behov foreslå retning ("vurder å flytte til explanation-side")
+
+            Hopp over inline hvis problemet gjelder HELE filen (f.eks. helt feil
+            diataxis-type) — ta det i summary-kommentaren i stedet.
+
+            ## Steg 5 — Bygg og post summary-kommentar
 
             Skriv kommentar-body til en midlertidig fil (f.eks. /tmp/review.md)
             for å unngå shell-escaping-trøbbel med markdown-tegn. Bruk dette formatet:
@@ -277,22 +295,20 @@ jobs:
                 <!-- diataxis-review -->
                 ## Diataxis-review
 
+                **Oppsummering:** [En-to setninger om overall inntrykk.]
+
                 ### docs/hjelp/lorem.md — how-to
-                - **Frontmatter mangler `description`** (linje 3)
-                - **Tutorial-form i how-to** — "Vi skal nå..." (linje 7). Bruk imperativer.
-                - **Forklaring innbakt** — seksjonen "Hvorfor..." (linje 11-13) hører
-                  hjemme i en explanation-side.
+                [En-to setninger om filen. Nevn de viktigste funnene, med
+                inline-kommentarene som "se kommentarene under"-henvisning.]
 
                 ### docs/referanse/noe.md — reference
-                - ...
+                [...]
 
                 ---
                 <sub>Sist oppdatert etter commit ${{ github.event.after }}</sub>
 
-            Hvis INGEN problemer funnet: skriv kort "Ingen Diataxis-problemer funnet
-            i endringene." (behold markøren og footer).
-
-            ### Post kommentaren
+            Hvis INGEN problemer funnet: skriv "Ingen Diataxis-problemer funnet
+            i endringene." (behold markør og footer).
 
             Hvis du fant en eksisterende kommentar-ID i steg 1:
 
@@ -307,9 +323,12 @@ jobs:
 
             ## Retningslinjer
 
-            - Per-fil-seksjon med filnavn + deklarert type i overskriften
-            - Hvert funn som ett bullet-punkt: kort beskrivelse + linjenummer
-            - Ved delta-review: fokuser KUN på endringene i deltaet
-            - Vær konstruktiv og konkret — henvis til prinsipper fra Diataxis-referansene
-            - Ikke nit-pick stil — fokus på strukturelle type-problemer
-            - Skriv på norsk
+            - Inline-kommentarer: ett konkret problem per kommentar, knyttet til
+              riktig linje. Kort og konstruktiv.
+            - Summary-kommentar: per-fil-seksjon med kort prosa. Inline-kommentarene
+              bærer detaljene — summary gir overblikket.
+            - Ved delta-review: kommenter KUN på endringene i deltaet — unngå
+              duplikater på linjer som ikke er endret siden forrige push.
+            - Henvis til prinsipper fra Diataxis-referansene der det er relevant.
+            - Ikke nit-pick stil — fokus på strukturelle type-problemer.
+            - Skriv på norsk.

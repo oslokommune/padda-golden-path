@@ -108,3 +108,4 @@ Se offisiell dokumentasjon for [flere eksempler](https://databrickslabs.github.i
 - [Avanserte expectations](https://docs.databricks.com/aws/en/ldp/expectation-patterns)
 - [DQX brukermanual](https://databrickslabs.github.io/dqx/docs/guide/)
 - [DQX funksjoner](https://github.com/databrickslabs/dqx/blob/main/src/databricks/labs/dqx/check_funcs.py)
+- [Bundle med bruk av DQX og alert](https://github.com/oslokommune/padda-databrikker/tree/main/bundles/datakvalitet_dqx)

@@ -97,3 +97,4 @@ display(observation.get)
 
 - [DQX brukermanual](https://databrickslabs.github.io/dqx/docs/guide/)
 - [Datakvalitet](../../referanse/datakvalitet.md)
+- [Bundle med bruk av DQX](https://github.com/oslokommune/padda-databrikker/tree/main/bundles/datakvalitet_dqx)

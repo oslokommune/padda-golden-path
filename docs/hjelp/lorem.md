@@ -44,4 +44,4 @@ Hvis du foretrekker en annen tilnærming, kan du bruke `fake-lorem` i stedet. El
 
 ## Oppsummering
 
-I denne guiden lærte vi om lorem ipsum, hvordan det fungerer, og hvorfor det er nyttig. Vi installerte en pakke, skrev litt kode, og diskuterte forskjellige alternativer.
+I denne guiden lærte vi om lorem ipsum, hvordan det fungerer, og hvorfor det er nyttig. Vi installerte en pakke, skrev litt kode, og diskuterte forskjellige alternativer. Dette blir bra.

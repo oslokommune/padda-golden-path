@@ -1,0 +1,175 @@
+# ============================================================================
+# Docs Impact Check — Sjekk om kodeendringer påvirker dokumentasjonen
+# ============================================================================
+#
+# HVA GJØR DENNE WORKFLOWEN?
+#   Når noen åpner eller oppdaterer en PR med endringer i kode, bundles,
+#   eller konfigurasjon, analyserer Claude om eksisterende dokumentasjon
+#   bør oppdateres. Poster en kommentar med konkrete funn og lenker.
+#
+# EKSEMPEL PÅ OUTPUT:
+#   "Denne PR-en endrer autoloader-konfig i bundles/. Sjekk om
+#    docs/guider/hente-inn-data/autoloader.md trenger oppdatering.
+#    Spesifikt: parameteren X er endret fra Y til Z."
+#
+# AUTENTISERING:
+#   AWS Bedrock via OIDC. Se docs-review.yml for detaljert forklaring.
+# ============================================================================
+
+name: Docs Impact Check
+
+# ── Trigger ──────────────────────────────────────────────────────────────────
+#
+# Samme mekanisme som docs-review.yml, men med ANDRE filfiltre.
+# Her trigger vi på kode/config-filer som IKKE er docs:
+#
+# paths:
+#   - 'bundles/**'     — DAB-konfigurasjoner og notebooks
+#   - '**/*.py'        — Python-kode
+#   - '**/*.sql'       — SQL-filer
+#   - 'pyproject.toml' — Prosjektkonfig og avhengigheter
+#   - 'Makefile'       — Byggekommandoer
+#
+# Merk: docs/**-endringer trigger IKKE denne workflowen — det håndteres
+# av docs-review.yml. En PR som endrer BÅDE kode og docs trigger begge.
+#
+# Tips: Utvid paths-listen etter hvert som dere legger til nye filtyper
+# i repoet som kan påvirke dokumentasjonen.
+#
+on:
+  pull_request:
+    types: [opened, synchronize]
+    paths:
+      - "bundles/**"
+      - "**/*.py"
+      - "**/*.sql"
+      - "pyproject.toml"
+      - "Makefile"
+
+permissions:
+  contents: read
+  pull-requests: write
+  id-token: write
+
+concurrency:
+  group: docs-impact-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  check-impact:
+    if: github.event.pull_request.draft == false
+    environment: claude-test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # ── Steg 2: AWS Bedrock via OIDC ──
+      # Samme oppsett som docs-review.yml — se der for detaljert forklaring.
+      - name: Configure AWS Credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: eu-west-1
+
+      - name: Docs impact analysis
+        uses: anthropics/claude-code-action@v1
+        with:
+          use_bedrock: "true"
+
+          track_progress: true
+
+          # Verktøyene her er litt annerledes enn docs-review:
+          # - Ingen inline-kommentarer (vi poster bare én oppsummering)
+          # - Grep og Glob for å søke i docs etter relatert innhold
+          claude_args: |
+            --model anthropic.claude-sonnet-4-6-20250514-v1:0
+            --allowedTools "Read,Glob,Grep,Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*)"
+
+          prompt: |
+            REPO: ${{ github.repository }}
+            PR NUMBER: ${{ github.event.pull_request.number }}
+
+            Du skal analysere om kode/config-endringene i denne PR-en
+            påvirker eksisterende dokumentasjon.
+
+            ## Dokumentasjonsstruktur
+
+            Docs-siten dekker Padda dataplattform (Databricks):
+
+            | Mappe                            | Innhold                                    |
+            |----------------------------------|--------------------------------------------|
+            | docs/om-plattformen/             | Plattformkonsepter og arkitektur            |
+            | docs/om-plattformen/konsepter/   | Konseptuelle dybdeartikler                  |
+            | docs/kom-i-gang/                 | Onboarding-tutorials                       |
+            | docs/guider/hente-inn-data/      | Datainnlasting (autoloader, secrets, etc.)  |
+            | docs/guider/bearbeide-data/      | Databehandling (notebooks, pipelines, DAB)  |
+            | docs/guider/dele-og-hente-ut/    | Datadeling                                  |
+            | docs/guider/overvaake-og-drifte/ | Drift og overvåking                         |
+            | docs/referanse/                  | Teknisk referanse (roller, bundles, varsling)|
+
+            ## Kjente kode-til-docs-koblinger
+
+            - bundles/** (DAB-konfig, notebooks) relaterer til:
+              - docs/referanse/ (bundle-referanse)
+              - docs/guider/bearbeide-data/ (hvordan bruke bundles)
+            - Innlastingsmønstre (autoloader, storage) relaterer til:
+              - docs/guider/hente-inn-data/
+            - Tilgang/sikkerhet relaterer til:
+              - docs/referanse/roller-og-rettigheter.md
+              - docs/om-plattformen/konsepter/roller-og-tilgangsstyring.md
+            - Overvåking/varsling relaterer til:
+              - docs/guider/overvaake-og-drifte/
+              - docs/referanse/varsling-og-alarmer.md
+            - Deploy-endringer relaterer til:
+              - docs/referanse/sam-deploy.md
+              - docs/kom-i-gang/
+
+            ## Din oppgave
+
+            1. Kjør `gh pr diff ${{ github.event.pull_request.number }}` for å se kodeendringene
+            2. Kjør `gh pr view ${{ github.event.pull_request.number }}` for commit-meldinger og kontekst
+            3. Forstå HVA som ble endret og HVORFOR
+            4. Bruk Grep og Glob til å søke i docs/ etter relatert innhold:
+               - Søk etter nøkkelord fra endrede filer (funksjonsnavn, config-nøkler, etc.)
+               - Sjekk relevante docs-mapper basert på koblingstabellen over
+            5. Vurder om docs bør oppdateres, utvides, eller om ny docs bør opprettes
+
+            ## Output
+
+            Post EN kommentar med `gh pr comment ${{ github.event.pull_request.number }}`.
+
+            ### Format — docs-påvirkning funnet:
+
+            ```
+            ## Docs impact
+
+            **Oppsummering:** [Kort beskrivelse av kodeendringene]
+
+            ### Filer som bør sjekkes
+
+            - **docs/guider/.../fil.md** — [Hva spesifikt bør oppdateres og hvorfor]
+            - **docs/referanse/.../fil.md** — [Hva spesifikt bør oppdateres og hvorfor]
+
+            ### Ny dokumentasjon?
+
+            [Eventuelle forslag til ny docs som mangler, eller "Ingen ny docs nødvendig."]
+            ```
+
+            ### Format — ingen docs-påvirkning:
+
+            ```
+            ## Docs impact
+
+            Ingen dokumentasjonspåvirkning funnet. [Kort forklaring av hvorfor.]
+            ```
+
+            ## Retningslinjer
+
+            - Vær konkret og handlingsrettet — "sjekk linje X i fil Y" er bedre enn "sjekk docs"
+            - Ikke overdriv — trivielle endringer (f.eks. ruff-format, typo-fix) trenger ikke docs-oppdatering
+            - Hvis du er usikker, si det — "dette KAN påvirke X" er bedre enn å la være å nevne det
+            - Bruk relative filstier fra repo-roten
+            - Skriv kommentaren på norsk

@@ -30,3 +30,4 @@ Databricks selv tilbyr forskjellige verktøy for å hjelpe med datakvalitet. I t
 
 - [Verktøy for å sikre datakvalitet i Databricks](../../referanse/datakvalitet.md)
 - [Hvordan installere og bruke DQX](../../guider/overvaake-og-drifte/bruke-dqx.md)
+- [Klassifisering av datakvalitet](./klassifisering-datakvalitet.md)

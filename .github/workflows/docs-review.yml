@@ -1,12 +1,16 @@
 # ============================================================================
-# Docs Review — Automatisk Diataxis-gjennomgang av dokumentasjonsendringer
+# Docs Review — Automatisk gjennomgang av dokumentasjonsendringer
 # ============================================================================
 #
 # HVA GJØR DENNE WORKFLOWEN?
 #   Når noen åpner eller oppdaterer en PR som endrer markdown-filer i docs/,
-#   kjører Claude Code en Diataxis-review. Claude sjekker at dokumentasjonen
-#   følger riktig type (tutorial, how-to, explanation, reference) og gir
-#   konkret tilbakemelding som PR-kommentarer — både inline og som oppsummering.
+#   kjører Claude Code en review som dekker fire klasser av sjekker:
+#     1. Diataxis-compliance (tutorial / how-to / reference / explanation)
+#     2. Duplikat- og konflikt-sjekk mot eksisterende docs
+#     3. Navigasjons-sjekk (er filen lagt til i zensical.toml?)
+#     4. Stil-konsistens mot nabofiler
+#   Claude poster konkrete funn som inline-kommentarer og en sticky
+#   summary-kommentar som oppdateres in-place hver run.
 #
 # AUTENTISERING:
 #   AWS Bedrock via OIDC (OpenID Connect).
@@ -19,7 +23,7 @@
 #   for grundigere (men dyrere) analyse.
 # ============================================================================
 
-name: Docs Review (Diataxis)
+name: Docs Review
 
 # ── Trigger ──────────────────────────────────────────────────────────────────
 #
@@ -195,23 +199,23 @@ jobs:
           #   Bash(gh pr diff:*)     — Hente PR-diffen
           #   Bash(gh pr view:*)     — Se PR-metadata
           #   Bash(gh pr comment:*)  — Opprette ny summary-kommentar
-          #   Bash(gh api:*)         — Finne og oppdatere eksisterende summary-kommentar
-          #
-          # Ingen MCP-verktøy for inline-kommentarer — reviewen lager én
-          # sticky summary-kommentar i stedet (se prompt).
+          #   Bash(gh api:*)         — Finne/oppdatere eksisterende summary-kommentar
+          #   mcp__github_inline_comment__create_inline_comment
+          #                          — Poste inline-kommentar på bestemte linjer
           #
           claude_args: |
             --model eu.anthropic.claude-sonnet-4-6
-            --allowedTools "Read,Glob,Grep,Bash(gh pr diff:*),Bash(gh pr view:*),Bash(gh pr comment:*),Bash(gh api:*)"
+            --allowedTools "Read,Glob,Grep,Bash(gh pr diff:*),Bash(gh pr view:*),Bash(gh pr comment:*),Bash(gh api:*),mcp__github_inline_comment__create_inline_comment"
 
           # ── Prompt ──
           #
           # Review-strategi:
-          # - Delta-review: på "synchronize" kommenteres kun det som endret
-          #   seg siden forrige push (bruker github.event.before/after)
-          # - Sticky summary: én kommentar merket <!-- diataxis-review --> som
-          #   oppdateres in-place hver run → ingen duplikater
-          # - Ingen inline-kommentarer — alle funn samles per fil i summary
+          # - Delta-review: på "synchronize" reviewes kun det som endret seg
+          #   siden forrige push (bruker github.event.before/after). Dette
+          #   forhindrer duplikate inline-kommentarer på uendrede linjer.
+          # - Inline-kommentarer: festes til konkrete linjer der problemet er
+          # - Sticky top-level summary: én kommentar merket
+          #   <!-- diataxis-review --> som oppdateres in-place hver run
           #
           prompt: |
             REPO: ${{ github.repository }}
@@ -220,41 +224,53 @@ jobs:
             BEFORE SHA: ${{ github.event.before }}
             AFTER SHA:  ${{ github.event.after }}
 
-            Du skal gjennomgå dokumentasjonsendringene i denne PR-en i henhold til
-            Diataxis-rammeverket. Output er ÉN sticky summary-kommentar — ingen
-            inline-kommentarer.
+            Du skal gjennomgå dokumentasjonsendringene i denne PR-en. Reviewen
+            dekker fire klasser av sjekker:
 
-            ## Steg 1 — Finn eventuell tidligere review-kommentar
+            1. Diataxis-compliance (tutorial / how-to / reference / explanation)
+            2. Duplikat/konflikt med eksisterende docs
+            3. Navigasjon (er filen lagt til i zensical.toml?)
+            4. Stil-konsistens mot nabofiler
+
+            Output:
+            - Inline-kommentarer på spesifikke linjer for konkrete funn
+            - ÉN sticky top-level summary-kommentar for overblikk
+
+            ## Steg 1 — Finn eventuell tidligere summary-kommentar
 
             Kjør:
 
                 gh api /repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments \
                   --jq '.[] | select(.body | contains("<!-- diataxis-review -->")) | .id'
 
-            - Returnerer en ID → OPPDATER den kommentaren i steg 4
-            - Returnerer tomt → OPPRETT ny kommentar i steg 4
+            - Returnerer en ID → OPPDATER den kommentaren i steg 5
+            - Returnerer tomt → OPPRETT ny kommentar i steg 5
 
             ## Steg 2 — Bestem review-omfang
 
             Basert på EVENT:
 
-            - **opened**: Første review. Hent full PR-diff:
+            - **opened**: Første review. Hent full PR-diff og review alle endrede filer:
 
                   gh pr diff ${{ github.event.pull_request.number }}
 
-            - **synchronize**: Delta-review. Hent kun det som endret seg i siste push:
+            - **synchronize**: Delta-review. Hent KUN det som endret seg i siste push:
 
                   gh api /repos/${{ github.repository }}/compare/${{ github.event.before }}...${{ github.event.after }}
 
-              Fokus KUN på filer og linjer som er nye i dette deltaet. Ikke list opp
-              problemer fra tidligere commits — de er allerede dekket av forrige review.
+              VIKTIG: Kommenter KUN på filer og linjer som er nye i dette deltaet.
+              Eksisterende inline-kommentarer fra forrige run blir stående — poster
+              du på samme linjer igjen, får brukeren duplikater.
 
-            ## Steg 3 — Last Diataxis-referanser og analyser
+            ## Steg 3 — Analyser endringene
+
+            Reviewen dekker fire klasser av sjekker. Gjør alle for hver endret fil.
+
+            ### 3a. Diataxis-compliance
 
             1. Les `.github/diataxis-references/diataxis-summary.md` for
                kompasset og oversikten
-            2. For hver endret markdown-fil i docs/, sjekk `diataxis`-feltet
-               i frontmatter og les tilhørende referanse:
+            2. Sjekk `diataxis`-feltet i frontmatter og les tilhørende referanse:
                - tutorial    → `.github/diataxis-references/tutorials.md`
                - how-to      → `.github/diataxis-references/how-to-guides.md`
                - reference   → `.github/diataxis-references/reference.md`
@@ -262,37 +278,92 @@ jobs:
 
                Les kun referansefiler for typene som faktisk forekommer i PR-en.
 
-            3. For hver fil, vurder:
-               a. Er `diataxis`-frontmatter satt? Er typen korrekt for innholdet?
-               b. Følger innholdet prinsippene for sin deklarerte type?
-               c. Blandes typer uheldig? (F.eks. tutorial-steg i how-to,
-                  forklaringer i reference, instruksjoner i explanation.)
-               d. Er frontmatter komplett (title, description, diataxis)?
+            3. Vurder:
+               - Er `diataxis`-frontmatter satt? Er typen korrekt for innholdet?
+               - Følger innholdet prinsippene for sin deklarerte type?
+               - Blandes typer uheldig? (F.eks. tutorial-steg i how-to,
+                 forklaringer i reference, instruksjoner i explanation.)
+               - Er frontmatter komplett (title, description, diataxis)?
 
-            ## Steg 4 — Bygg og post summary
+            ### 3b. Duplikat- og konflikt-sjekk
+
+            Bruk Grep/Glob i docs/ for å finne eksisterende innhold som
+            kan overlappe med den nye/endrede filen:
+
+            - Søk etter nøkkelord fra filens tittel og intro
+            - Søk etter tekniske termer/konsepter filen dekker
+            - Les eventuelle treff for å vurdere relevans
+
+            Flagg hvis:
+            - En annen fil allerede dekker samme tema (mulig duplikat —
+              vurder om den eksisterende skulle utvides i stedet)
+            - Innhold sier noe motstridende (konflikt — må løses)
+            - Eksisterende fil burde vært oppdatert i stedet for at en ny ble lagt til
+
+            ### 3c. Navigasjons-sjekk
+
+            Les `zensical.toml` og sjekk at filens sti er inkludert under
+            nav-seksjonen. Hvis ikke: flagg som "orphan-fil" — den vil ikke
+            vises i menyen på docs-siten selv om Zensical bygger den.
+
+            Unntak: index.md-filer i mapper med `navigation.indexes` kan være
+            implisitt inkludert via section headers.
+
+            ### 3d. Stil-konsistens
+
+            Les 1-2 nabofiler i samme mappe for å forstå etablert stil.
+            Sjekk om den nye filen avviker på:
+
+            - Frontmatter-felter (title, description, diataxis — alle med?)
+            - Header-hierarki (typisk H1 øverst, deretter H2 for seksjoner)
+            - Admonitions (`!!!`), content tabs (`=== "..."`), kode-blokker
+              med språkmarkering
+            - Norsk tegnsetting — faktiske æøå, ikke ASCII-erstatninger
+            - Tone og personform (passiv/aktiv, du/vi, imperativ/deklarativ)
+
+            Mindre stilavvik er ok — flagg kun tydelige brudd på mønsteret
+            i nabofilene.
+
+            ## Steg 4 — Post inline-kommentarer
+
+            For hvert konkret problem knyttet til en bestemt linje, bruk
+            `mcp__github_inline_comment__create_inline_comment` med `confirmed: true`.
+
+            Hver kommentar bør:
+            - Peke på ETT problem
+            - Være kort og konstruktiv
+            - Henvise til Diataxis-prinsippet som brytes (kort)
+            - Ved behov foreslå retning ("vurder å flytte til explanation-side")
+
+            Hopp over inline hvis problemet gjelder HELE filen (f.eks. helt feil
+            diataxis-type) — ta det i summary-kommentaren i stedet.
+
+            ## Steg 5 — Bygg og post summary-kommentar
 
             Skriv kommentar-body til en midlertidig fil (f.eks. /tmp/review.md)
             for å unngå shell-escaping-trøbbel med markdown-tegn. Bruk dette formatet:
 
                 <!-- diataxis-review -->
-                ## Diataxis-review
+                ## Docs review
+
+                **Oppsummering:** [En-to setninger om overall inntrykk.]
 
                 ### docs/hjelp/lorem.md — how-to
-                - **Frontmatter mangler `description`** (linje 3)
-                - **Tutorial-form i how-to** — "Vi skal nå..." (linje 7). Bruk imperativer.
-                - **Forklaring innbakt** — seksjonen "Hvorfor..." (linje 11-13) hører
-                  hjemme i en explanation-side.
+                [En-to setninger om filen, inkludert:
+                - Diataxis-vurdering
+                - Eventuell duplikat/konflikt med eksisterende docs
+                - Om filen er lagt til i navigasjonen
+                - Tydelige stilavvik
+                Henvis til inline-kommentarer for linje-spesifikke funn.]
 
                 ### docs/referanse/noe.md — reference
-                - ...
+                [...]
 
                 ---
                 <sub>Sist oppdatert etter commit ${{ github.event.after }}</sub>
 
-            Hvis INGEN problemer funnet: skriv kort "Ingen Diataxis-problemer funnet
-            i endringene." (behold markøren og footer).
-
-            ### Post kommentaren
+            Hvis INGEN problemer funnet: skriv "Ingen problemer funnet i endringene."
+            (behold markør og footer).
 
             Hvis du fant en eksisterende kommentar-ID i steg 1:
 
@@ -307,9 +378,15 @@ jobs:
 
             ## Retningslinjer
 
-            - Per-fil-seksjon med filnavn + deklarert type i overskriften
-            - Hvert funn som ett bullet-punkt: kort beskrivelse + linjenummer
-            - Ved delta-review: fokuser KUN på endringene i deltaet
-            - Vær konstruktiv og konkret — henvis til prinsipper fra Diataxis-referansene
-            - Ikke nit-pick stil — fokus på strukturelle type-problemer
-            - Skriv på norsk
+            - Inline-kommentarer: ett konkret problem per kommentar, knyttet til
+              riktig linje. Kort og konstruktiv.
+            - Summary-kommentar: per-fil-seksjon med kort prosa som dekker alle
+              fire sjekk-klassene (Diataxis, duplikat/konflikt, navigasjon, stil).
+              Inline bærer detaljene — summary gir overblikket.
+            - Ved delta-review: kommenter KUN på endringene i deltaet — unngå
+              duplikater på linjer som ikke er endret siden forrige push.
+            - Henvis til Diataxis-referansene for type-problemer, og til
+              nabofiler/eksisterende docs for stil- og duplikatvurderinger.
+            - Ikke nit-pick — fokus på tydelige strukturelle problemer og
+              tydelige avvik fra etablert mønster.
+            - Skriv på norsk.

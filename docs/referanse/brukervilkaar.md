@@ -16,6 +16,7 @@ Padda er Oslo kommunes dataplattform for datainnsamling, prosessering og analyse
 
 ## Krav ved bruk av Dataplattformen (Databricks)
 Ved bruk av dataplattformen gjelder følgende krav:
+
 **Dataeierskap og samtykke**
 Dataproduktteamet (teamet) er ansvarlig for at:
 - dataeier har godkjent opplasting av data

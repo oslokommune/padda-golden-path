@@ -24,7 +24,7 @@ Dataproduktteamet (teamet) er ansvarlig for at:
 **Krav til personvern- og risikovurdering**
 Dataspeilet har gjennomført en overordnet risikovurdering av dataplattformen og Paddas standardoppsett for Databricks workspace.
 
-Teamet må gjennomføre en egen personvern- og risikovurdering for sin bruk av data på plattformen.
+En egen personvern- og risikovurdering for teamets bruk av data på plattformen er påkrevd.
 
 Teamet er ansvarlig for at:
 - risikovurdering er gjennomført

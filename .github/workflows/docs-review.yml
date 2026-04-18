@@ -1,222 +1,52 @@
-# ============================================================================
-# Docs Review — Automatisk gjennomgang av dokumentasjonsendringer
-# ============================================================================
-#
-# HVA GJØR DENNE WORKFLOWEN?
-#   Når noen åpner eller oppdaterer en PR som endrer markdown-filer i docs/,
-#   kjører Claude Code en review som dekker fire klasser av sjekker:
-#     1. Diataxis-compliance (tutorial / how-to / reference / explanation)
-#     2. Duplikat- og konflikt-sjekk mot eksisterende docs
-#     3. Navigasjons-sjekk (er filen lagt til i zensical.toml?)
-#     4. Stil-konsistens mot nabofiler
-#   Claude poster konkrete funn som inline-kommentarer og en sticky
-#   summary-kommentar som oppdateres in-place hver run.
-#
-# AUTENTISERING:
-#   AWS Bedrock via OIDC (OpenID Connect).
-#   GitHub Actions beviser sin identitet til AWS uten statiske nøkler.
-#   Krever en IAM-rolle med Bedrock-tilgang — se AWS-steget for detaljer.
-#
-# KOSTNAD:
-#   Bruker Claude Sonnet som er rask og rimelig. Typisk PR-review bruker
-#   ~10-50k tokens avhengig av diff-størrelse. Bytt til "opus" i claude_args
-#   for grundigere (men dyrere) analyse.
-# ============================================================================
+# Docs Review — Claude reviewer endringer i docs/ på PR-er.
+# Fire sjekk-klasser: Diataxis, duplikat/konflikt, navigasjon, stil.
+# Poster inline-kommentarer på konkrete linjer og én sticky summary-kommentar
+# (markør <!-- diataxis-review -->) som oppdateres in-place hver run.
 
 name: Docs Review
 
-# ── Trigger ──────────────────────────────────────────────────────────────────
-#
-# "on" definerer NÅR workflowen kjører.
-#
-# pull_request:
-#   GitHub-hendelse som fyres av når noen oppretter eller oppdaterer en PR.
-#
-# types:
-#   - opened:      Når en ny PR opprettes
-#   - synchronize: Når nye commits pushes til PR-branchen
-#   (Det finnes flere typer som "reopened", "ready_for_review" osv.
-#    Vi trenger bare disse to for å fange opp nye og oppdaterte PRs.)
-#
-# paths:
-#   Filfilter — workflowen kjører BARE når filer som matcher mønsteret endres.
-#   'docs/**/*.md' betyr "alle .md-filer i docs/ og undermapper".
-#   Hvis en PR bare endrer Python-filer, kjører IKKE denne workflowen.
-#
 on:
   pull_request:
     types: [opened, synchronize]
     paths:
       - "docs/**/*.md"
 
-# ── Tilganger ────────────────────────────────────────────────────────────────
-#
-# Hver workflow får et automatisk GITHUB_TOKEN med begrensede tilganger.
-# Her definerer vi hva tokenet skal ha lov til:
-#
-# contents: read      — Lese filer i repoet (Claude trenger dette for å lese docs)
-# pull-requests: write — Poste kommentarer på PR-en
-# id-token: write     — For OIDC-autentisering (Bedrock). Ufarlig å ha med
-#                        selv om du bruker API-nøkkel — den gjør ingenting
-#                        med mindre en OIDC-provider faktisk bruker den.
-#
 permissions:
   contents: read
   pull-requests: write
   id-token: write
 
-# ── Concurrency ──────────────────────────────────────────────────────────────
-#
-# Hindrer at flere reviews kjører parallelt for samme PR.
-#
-# Scenario: Du pusher commit A. Review starter. Du pusher commit B 2 min
-# senere. Uten concurrency ville begge reviews fullført og postet doble
-# kommentarer. Med concurrency:
-#   - group: Unik nøkkel per PR (basert på PR-nummeret)
-#   - cancel-in-progress: true — kansellerer review av commit A når commit B
-#     trigger en ny kjøring
-#
-# Resultat: Bare siste push får en review-kommentar.
-#
 concurrency:
   group: docs-review-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
-# ── Jobs ─────────────────────────────────────────────────────────────────────
-#
-# En workflow har én eller flere "jobs". Hver job kjører på en egen
-# virtuell maskin (runner). Jobs kjører parallelt med mindre du setter
-# avhengigheter med "needs".
-#
-# Vi trenger bare én job her: selve reviewen.
-#
 jobs:
   review:
-    # "if" er en betingelse — jobben hopper over hvis den er false.
-    # Her sjekker vi at PR-en IKKE er et draft. Ingen vits i å reviewe
-    # uferdige PRs.
     if: github.event.pull_request.draft == false
-
-    # GitHub Environment: gir tilgang til miljøspesifikke secrets og
-    # eventuelle deployment-regler (f.eks. godkjenning før kjøring).
-    # AWS_ROLE_ARN må ligge som secret i dette environmentet.
     environment: claude-test
-
-    # Hvilken type maskin jobben kjører på. ubuntu-latest er standard
-    # og billigst for GitHub-hosted runners.
     runs-on: ubuntu-latest
 
     steps:
-      # ── Steg 1: Sjekk ut koden ────────────────────────────────────────
-      #
-      # "uses" kjører en ferdig action fra GitHub Marketplace.
-      # actions/checkout kloner repoet inn på runner-maskinen.
-      #
-      # fetch-depth er default 1 (bare HEAD-commiten). Vi trenger ikke
-      # historikk — `gh pr diff` går mot GitHub API-en, ikke lokal git.
-      #
-      # sparse-checkout begrenser hvilke mapper som lastes ned. Vi
-      # trenger bare docs/ (filene som skal reviewes) og .github/
-      # (Diataxis-referansene som prompten leser).
-      #
       - uses: actions/checkout@v4
         with:
           sparse-checkout: |
             .github
             docs
 
-      # ── Steg 2: Hent AWS-credentials via OIDC ──────────────────────────
-      #
-      # OIDC (OpenID Connect) lar GitHub Actions autentisere mot AWS uten
-      # å lagre statiske nøkler. Flyten er:
-      #
-      #   1. GitHub Actions genererer et JWT-token som sier
-      #      "Jeg er workflow X i repo Y"
-      #   2. AWS verifiserer tokenet mot GitHubs OIDC-provider
-      #   3. AWS gir tilbake midlertidige credentials (gyldig ~1 time)
-      #
-      # For at dette skal funke trenger du:
-      #   a) En IAM OIDC Identity Provider for GitHub i AWS-kontoen
-      #      (kan allerede finnes — sjekk IAM → Identity providers)
-      #   b) En IAM-rolle som:
-      #      - Stoler på GitHubs OIDC-provider
-      #      - Har policy for Bedrock (se under)
-      #      - Har condition som begrenser til dette repoet
-      #   c) Rolle-ARN lagret som GitHub secret: AWS_ROLE_TO_ASSUME
-      #
-      # role-to-assume: ARN-en til IAM-rollen, f.eks.
-      #   arn:aws:iam::123456789012:role/github-actions-claude-bedrock
-      #
-      # aws-region: Hvilken AWS-region Bedrock-modellene kjører i.
-      #   Sjekk at Claude er tilgjengelig i regionen dere velger.
-      #   eu-west-1 (Irland) og us-east-1 (Virginia) er vanlige.
-      #
       - name: Configure AWS Credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: eu-west-1
 
-      # ── Steg 2: Kjør Claude Code ──────────────────────────────────────
-      #
-      # anthropics/claude-code-action kjører Claude Code i CI.
-      #
-      # Når "prompt" er satt, kjører den i "automation mode": Claude starter
-      # umiddelbart med oppgaven. Uten prompt ville den ventet på en
-      # @claude-mention i en PR-kommentar ("interactive mode").
-      #
-      # Claude har tilgang til hele repoet (checkout-steget over) og kan
-      # bruke verktøyene vi spesifiserer i --allowedTools.
-      #
-      # CLAUDE.md i repoet lastes automatisk som ekstra kontekst.
-      #
-      - name: Diataxis review
+      - name: Docs review
         uses: anthropics/claude-code-action@v1
         with:
-          # ── Autentisering ──
-          # use_bedrock forteller claude-code-action at den skal bruke
-          # AWS Bedrock i stedet for direkte Anthropic API. Credentials
-          # er allerede satt opp av OIDC-steget over — de ligger i
-          # miljøvariabler som AWS SDK-en plukker opp automatisk.
           use_bedrock: "true"
-
-          # ── Fremdriftsvisning ──
-          # Poster en kommentar med sjekkbokser som oppdateres mens
-          # Claude jobber, så du kan se at noe skjer.
           track_progress: true
-
-          # ── Claude CLI-argumenter ──
-          #
-          # --model: Bedrock-modell-ID for Sonnet 4.6 via EU inference profile.
-          #
-          # --allowedTools "..."
-          #   Verktøy Claude har lov til å bruke. Sikkerhetsprinsipp:
-          #   gi bare tilgang til det som trengs.
-          #
-          #   Read                   — Lese filer i repoet
-          #   Glob                   — Finne filer etter mønster
-          #   Grep                   — Søke i filinnhold
-          #   Bash(gh pr diff:*)     — Hente PR-diffen
-          #   Bash(gh pr view:*)     — Se PR-metadata
-          #   Bash(gh pr comment:*)  — Opprette ny summary-kommentar
-          #   Bash(gh api:*)         — Finne/oppdatere eksisterende summary-kommentar
-          #   mcp__github_inline_comment__create_inline_comment
-          #                          — Poste inline-kommentar på bestemte linjer
-          #
           claude_args: |
             --model eu.anthropic.claude-sonnet-4-6
             --allowedTools "Read,Glob,Grep,Bash(gh pr diff:*),Bash(gh pr view:*),Bash(gh pr comment:*),Bash(gh api:*),mcp__github_inline_comment__create_inline_comment"
-
-          # ── Prompt ──
-          #
-          # Review-strategi:
-          # - Delta-review: på "synchronize" reviewes kun det som endret seg
-          #   siden forrige push (bruker github.event.before/after). Dette
-          #   forhindrer duplikate inline-kommentarer på uendrede linjer.
-          # - Inline-kommentarer: festes til konkrete linjer der problemet er
-          # - Sticky top-level summary: én kommentar merket
-          #   <!-- diataxis-review --> som oppdateres in-place hver run
-          #
           prompt: |
             REPO: ${{ github.repository }}
             PR NUMBER: ${{ github.event.pull_request.number }}
@@ -245,6 +75,12 @@ jobs:
 
             - Returnerer en ID → OPPDATER den kommentaren i steg 5
             - Returnerer tomt → OPPRETT ny kommentar i steg 5
+
+            Hvis du oppdaterer en eksisterende kommentar: les først den gamle
+            kommentar-body-en (`gh api /repos/.../issues/comments/<ID>`). Bruk
+            den som utgangspunkt og merk fiksede punkter med gjennomstreking
+            (`~~...~~ ✓ Rettet i <SHA>`) i stedet for å fjerne dem. Slik ser
+            brukeren hva de har løst siden sist.
 
             ## Steg 2 — Bestem review-omfang
 
@@ -362,6 +198,9 @@ jobs:
                 ---
                 <sub>Sist oppdatert etter commit ${{ github.event.after }}</sub>
 
+            Ved oppdatering: behold tidligere funn, men merk fiksede med
+            `~~tekst~~ ✓ Rettet i <SHA>`. Nye funn legges til uten gjennomstreking.
+
             Hvis INGEN problemer funnet: skriv "Ingen problemer funnet i endringene."
             (behold markør og footer).
 
@@ -385,6 +224,8 @@ jobs:
               Inline bærer detaljene — summary gir overblikket.
             - Ved delta-review: kommenter KUN på endringene i deltaet — unngå
               duplikater på linjer som ikke er endret siden forrige push.
+            - Ved oppdatering av summary: gjennomstreking på fiksede funn,
+              ikke sletting. Brukeren skal se progresjonen.
             - Henvis til Diataxis-referansene for type-problemer, og til
               nabofiler/eksisterende docs for stil- og duplikatvurderinger.
             - Ikke nit-pick — fokus på tydelige strukturelle problemer og

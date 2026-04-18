@@ -2,13 +2,9 @@
 title: Brukervilkår og ansvar
 description: Brukervilkår, dataeierskap, risikovurdering og ansvar ved bruk av plattformen.
 diataxis: reference
-icon: lucide/split
 ---
 
 # Brukervilkår og ansvar
-
-!!! info "Opprinnelse"
-    Denne siden inneholder referansedelen fra `docs/ONBOARDING.md`. Onboarding-prosedyren (slik du bekrefter via PR) ligger nå under [Slik får du tilgang](../kom-i-gang/slik-faar-du-tilgang.md).
 
 ## Formål
 

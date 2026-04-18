@@ -1,5 +1,6 @@
 ---
 title: Databricks-kurs
+description: Kom igang med Databricks-kurs og sertifiseringer.
 diataxis: how-to
 ---
 

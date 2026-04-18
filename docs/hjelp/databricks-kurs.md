@@ -40,6 +40,12 @@ Start med introduksjonskurset. Gratulerer — du har nå paameldt deg ditt foers
 | Data Analyst | Associate | $200 | 2 timer |
 | ML Engineer | Associate | $200 | 2 timer |
 
+## Tanker om verdien av sertifiseringer
+
+Det er verdt å reflektere litt over hvorfor sertifiseringer i det hele tatt er nyttige. Historisk sett har IT-sertifiseringer hatt blandet rykte — noen mener de er rene salgsdokumenter fra leverandører, andre ser dem som en objektiv måte å vise kompetanse på. Sannheten ligger nok et sted i midten. For Databricks spesifikt har sertifiseringene blitt mer anerkjente de siste årene, delvis fordi pensum er teknisk strengt og fordi Databricks-økosystemet er komplekst nok til at målrettede kurs faktisk tilfører verdi.
+
+På den annen side er ikke sertifisering en erstatning for reell erfaring — de fleste arbeidsgivere vil fortsatt vekte hands-on-prosjekter tyngre.
+
 ## Andre ressurser
 
 Det finnes også andre lærings-ressurser:

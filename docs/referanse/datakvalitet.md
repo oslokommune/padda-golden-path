@@ -39,7 +39,7 @@ CREATE TABLE people10m (
 );
 ```
 
-Her er `NOT NULL` og `dateWithinRange` constraints. Disse håndheves strengt, og et forsøk på å sette inn rader som ikke oppfyller kravene vil feile. `PRIMARY KEY` og `FOREIGN KEY` er strengt tatt også constraints, men håndheves ikke. De har andre funksjoner.
+Her er `NOT NULL` og `dateWithinRange` constraints. Disse håndheves strengt, og et forsøk på å sette inn rader som ikke oppfyller kravene vil feile. `PRIMARY KEY` og `FOREIGN KEY` er strengt tatt også constraints, men håndheves ikke. De har [andre](https://www.databricks.com/blog/primary-key-and-foreign-key-constraints-are-ga-and-now-enable-faster-queries) [funksjoner](https://docs.databricks.com/aws/en/partners/bi/power-bi-service#features-and-notes).
 
 Declarative Pipelines har `NOT NULL` på lik linje med normale delta-tabeller, men `CONSTRAINT`-ordet fungerer litt annerledes. `CHECK` støttes ikke, men i stedet brukes `EXPECT`. Her er `valid_customer_age` ikke en constraint men en [expectation](https://docs.databricks.com/aws/en/ldp/expectations):
 

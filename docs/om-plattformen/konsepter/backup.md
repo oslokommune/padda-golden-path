@@ -55,7 +55,19 @@ def updated_backup_schedule_table(backup_table_name):
     )
     return new_backup_df
 backup_table_name = "ops.ops.table_backup_schedule"
-updated_backup_schedule_table(backup_table_name).write.mode("overwrite").saveAsTable(backup_table_name)
+backup_schedule_df = updated_backup_schedule_table(backup_table_name)
+default_backup_frequency_sql = "INTERVAL '" + str(60*60*24) + " seconds'"
+needs_backup = backup_schedule_df.filter("last_backup IS NULL OR last_backup + COALESCE(backup_frequency_sec, " + default_backup_frequency_sql + ") > current_timestamp()").collect()
+for table in needs_backup:
+    full_name = ".".join([table.catalog, table.schema, table.name])
+    do_backup(full_name) # TODO
+    backup_schedule_df = (backup_schedule_df
+        .withColumn("last_backup",
+            sf.when(backup_schedule_df.catalog == table.catalog
+                & backup_schedule_df.schema == table.schema
+                & backup_schedule_df.name == table.name, sf.current_timestamp())
+            .otherwise(backup_schedule_df.last_backup)))
+backup_schedule_df.write.mode("overwrite").saveAsTable(backup_table_name)
 ```
 
 ## Databricks-metadata

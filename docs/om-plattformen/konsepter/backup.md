@@ -17,7 +17,7 @@ from datetime import datetime
 spark.catalog.setCurrentCatalog("system")
 spark.catalog.setCurrentDatabase("information_schema")
 workspace = spark.conf.get("spark.databricks.workspaceUrl").split(".")[0]
-dir_path = "s3://backup_place/" + workspace + "/" + datetime.now().strftime("%Y-%m-%d")
+dir_path = "s3://backup_place/information_schema/" + workspace + "/" + datetime.now().strftime("%Y-%m-%d")
 for table in spark.catalog.listTables():
     file_name = table.name.replace(".", "_")
     file_path = dir_path + "/" + file_name

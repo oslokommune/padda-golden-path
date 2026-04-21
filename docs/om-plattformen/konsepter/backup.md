@@ -21,7 +21,7 @@ dir_path = "s3://backup_place/information_schema/" + workspace + "/" + datetime.
 for table in spark.catalog.listTables():
     file_name = table.name.replace(".", "_")
     file_path = dir_path + "/" + file_name
-    spark.read.table(table.name).write.json(dir_path, mode="overwrite")
+    spark.read.table(table.name).write.json(dir_path, mode="overwrite", compression="json")
 ```
 
 ## Landing Zone

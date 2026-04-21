@@ -23,7 +23,7 @@ CREATE TEMPORARY TABLE schedule_tmp AS SELECT * FROM ops.ops.table_backup_schedu
 ```
 
 ```python
-def update_backup_schedule_table(backup_table_name):
+def updated_backup_schedule_table(backup_table_name):
     from pyspark.sql import functions as sf
     tables_df = spark.read.table("system.information_schema.tables").filter("table_owner != 'System user'")
     backup_df = None
@@ -53,9 +53,9 @@ def update_backup_schedule_table(backup_table_name):
             backup_df.last_backup)
         .checkpoint()
     )
-    new_backup_df.write.mode("overwrite").saveAsTable(backup_table_name)
+    return new_backup_df
 backup_table_name = "ops.ops.table_backup_schedule"
-update_backup_schedule_table(backup_table_name)
+updated_backup_schedule_table(backup_table_name).write.mode("overwrite").saveAsTable(backup_table_name)
 ```
 
 ## Databricks-metadata

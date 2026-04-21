@@ -14,9 +14,10 @@ diataxis: explanation
 from datetime import datetime
 spark.catalog.setCurrentCatalog("system")
 spark.catalog.setCurrentDatabase("information_schema")
+workspace = spark.conf.get("spark.databricks.workspaceUrl").split(".")[0]
+dir_path = "s3://backup_place/" + workspace + "/" + datetime.now().strftime("%Y-%m-%d")
 for table in spark.catalog.listTables():
     file_name = table.name.replace(".", "_")
-    dir_path = "s3://backup_place/my_workspace/" + datetime.now().strftime("%Y-%m-%d")
     file_path = dir_path + "/" + file_name
     spark.read.table(table.name).write.json(dir_path, mode="overwrite")
 ```

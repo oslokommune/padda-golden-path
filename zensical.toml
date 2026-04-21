@@ -39,6 +39,7 @@ nav = [
       { "Deling og bruk" = "om-plattformen/konsepter/deling-og-bruk.md" },
       { "Overvåking" = "om-plattformen/konsepter/overvaaking.md" },
       { "Serverless compute" = "om-plattformen/konsepter/serverless-compute.md" },
+      { "Datakvalitet" = "om-plattformen/konsepter/datakvalitet.md" },
     ]},
   ]},
   { "Kom i gang" = [
@@ -76,6 +77,7 @@ nav = [
       { "Slack-alarmer" = "guider/overvaake-og-drifte/slack-alarmer.md" },
       { "Gjenopprette etter feil" = "guider/overvaake-og-drifte/gjenopprette-etter-feil.md" },
       { "Feilsøke med logger" = "guider/overvaake-og-drifte/logging.md" },
+      { "Bruke DQX" = "guider/overvaake-og-drifte/bruke-dqx.md" },
     ]},
   ]},
   { "Referanse" = [
@@ -89,6 +91,7 @@ nav = [
     { "Databricks Bundles" = "referanse/databricks-bundles.md" },
     { "SAM-deploy" = "referanse/sam-deploy.md" },
     { "Lagring og ytelse" = "referanse/lagring-og-ytelse.md" },
+    { "Datakvalitet" = "referanse/datakvalitet.md" },
   ]},
   { "Hjelp" = [
     { "index" = "hjelp/index.md" },

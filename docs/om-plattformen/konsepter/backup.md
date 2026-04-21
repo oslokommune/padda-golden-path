@@ -6,6 +6,8 @@ diataxis: explanation
 
 # Backup
 
+Backup is done to S3 in a separate AWS account to guard against account deletion.
+
 ## Databricks-tabeller
 
 ## Databricks-metadata

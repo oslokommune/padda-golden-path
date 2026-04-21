@@ -41,6 +41,7 @@ nav = [
       { "Serverless compute" = "om-plattformen/konsepter/serverless-compute.md" },
       { "Declarative Automation Bundles" = "om-plattformen/konsepter/databricks-bundles.md" },
       { "Datakvalitet" = "om-plattformen/konsepter/datakvalitet.md" },
+      { "Backup" = "om-plattformen/konsepter/backup.md" },
     ]},
   ]},
   { "Kom i gang" = [

@@ -8,9 +8,6 @@ diataxis: reference
 
 Denne referansen dokumenterer bundle-konfigurasjonen, tilgjengelige eksempler og navnekonvensjoner brukt på plattformen.
 
-## Tilgjengelige eksempelbundler
-(TODO)
-
 ## Mappestruktur
 
 Kanonisk layout for en bundle:

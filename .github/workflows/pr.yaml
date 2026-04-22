@@ -27,6 +27,8 @@ jobs:
       - name: Lint
         run: uvx ruff check
       - uses: databricks/setup-cli@8f31045b51b51b0ffe719d36a4aaf9c556691b3b
+        with:
+          version: "0.297.2"
       - name: Validate bundle
         run: databricks bundle validate
       - name: Plan bundle

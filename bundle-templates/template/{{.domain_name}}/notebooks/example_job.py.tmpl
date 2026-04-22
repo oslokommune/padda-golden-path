@@ -1,0 +1,32 @@
+# Databricks notebook source
+# MAGIC %md
+# MAGIC # Example Job
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC #### Import wheel package function
+
+# COMMAND ----------
+
+from {{template `package_name` .}}.main import main
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC #### Run imported function
+
+# COMMAND ----------
+
+result = main()
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC #### Assert equality
+
+# COMMAND ----------
+expected: bool = True
+assert expected == result  # noqa: S101
+
+print("Notebook task is successfully completed.")

@@ -1,0 +1,44 @@
+resources:
+  jobs:
+    example_pipeline_job:
+      name: example_pipeline_job
+
+      tasks:
+        - task_key: pipeline_task
+          pipeline_task:
+            pipeline_id: ${resources.pipelines.example_pipeline.id}
+
+  pipelines:
+    example_pipeline:
+      name: example_pipeline
+      catalog: ${var.catalog}
+      schema: ${var.schema}
+      root_path: ../notebooks/pipelines/example-pipeline
+
+      libraries:
+        - glob:
+            include: ../notebooks/pipelines/example-pipeline/**
+
+      environment:
+        dependencies:
+          # Install the wheel file built from pyproject.toml.
+          # See: https://docs.databricks.com/aws/en/ldp/developer/external-dependencies
+          - ${var.wheel_path}
+
+      clusters:
+       - label: default
+         num_workers: 1
+         node_type_id: i3.xlarge
+
+      configuration:
+        table: nyctaxi
+        autoloader_path: dbfs:/databricks-datasets/nyctaxi-with-zipcodes/subsampled
+        pipelines.clusterShutdown.delay: 20min
+
+      continuous: false
+      photon: false
+
+      edition: ADVANCED
+      channel: CURRENT
+
+      serverless: false

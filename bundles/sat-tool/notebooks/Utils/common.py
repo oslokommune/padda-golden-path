@@ -597,7 +597,7 @@ def generateGCPWSToken(deployment_url, cred_file_path, target_principal):
     target_scopes = [deployment_url]
     print(target_scopes)
     # Reading gcs files with gcsfs
-    gcs_file_system = gcsfs.GCSFileSystem(project="gcp_project_name")
+    gcs_file_system = gcsfs.GCSFileSystem(project="gcp_domain_name")
     gcs_json_path = cred_file_path
     with gcs_file_system.open(gcs_json_path) as f:
         json_dict = json.load(f)

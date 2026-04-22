@@ -69,7 +69,7 @@ needs_backup = (backup_schedule_df
     .collect())
 for table in needs_backup:
     full_name = ".".join([table.catalog, table.schema, table.name])
-    do_backup(full_name) # TODO
+    do_backup(full_name)
     backup_schedule_df = (backup_schedule_df
         .withColumn("last_backup",
             sf.when(backup_schedule_df.catalog == table.catalog

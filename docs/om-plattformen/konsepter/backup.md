@@ -8,7 +8,7 @@ diataxis: explanation
 
 Backup gjøres til S3 i en separat (???) AWS-konto for å beskytte mot sletting av AWS-konto som Databricks ligger i. Kan også bruke air-gapped vault.
 
-Strengt tatt så skal alt kunne gjenskapes fra landing zone, Terraform og DAB. Dette er minimum som må backes opp. I tillegg så kreves det da scripting av DAB-orkestrering, så systemet kan komme opp igjen så fort som mulig.
+Strengt tatt så skal alt kunne gjenskapes fra landing zone, Terraform og DAB. Siden Terraform og DAB er i VCS så er landing zone minimum som må backes opp. I tillegg så kreves det da scripting av DAB-orkestrering, så systemet kan komme opp igjen så fort som mulig.
 
 ## Databricks-tabeller (optional)
 

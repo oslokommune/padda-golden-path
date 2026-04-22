@@ -75,8 +75,9 @@ for table in needs_backup:
             sf.when(backup_schedule_df.catalog == table.catalog
                 & backup_schedule_df.schema == table.schema
                 & backup_schedule_df.name == table.name, sf.current_timestamp())
-            .otherwise(backup_schedule_df.last_backup)))
-backup_schedule_df.write.mode("overwrite").saveAsTable(backup_table_name)
+            .otherwise(backup_schedule_df.last_backup))
+        .checkpoint())
+    backup_schedule_df.write.mode("overwrite").saveAsTable(backup_table_name)
 ```
 
 ## Databricks-metadata

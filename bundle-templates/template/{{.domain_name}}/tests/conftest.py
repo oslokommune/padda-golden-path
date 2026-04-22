@@ -8,7 +8,7 @@ from pyspark.sql import SparkSession
 
 
 @pytest.fixture(scope="session")
-def spark() -> Generator[SparkSession, None, None]:
+def spark() -> Generator[SparkSession]:
     """Fixture for a serverless DatabricksSession instance for testing."""
     spark_serverless_session = DatabricksSession.builder.serverless(True).getOrCreate()
     yield spark_serverless_session

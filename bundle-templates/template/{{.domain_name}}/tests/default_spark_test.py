@@ -26,7 +26,10 @@ def create_test_df(spark: SparkSession) -> DataFrame:
 def test_create_dataframe(
     create_test_df: DataFrame,
 ) -> None:
-    """Tests DataFrame creation with schema validation using the 'create_test_df' fixture."""
+    """Tests DataFrame creation with schema validation.
+
+    Uses the `create_test_df` fixture.
+    """
     test_df = create_test_df
     assert test_df.count() == 3, "DataFrame should have 3 rows."
     assert len(test_df.columns) == 2, "DataFrame should have 2 columns."

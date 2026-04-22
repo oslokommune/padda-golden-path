@@ -54,6 +54,15 @@ def updated_backup_schedule_table(backup_table_name):
         .checkpoint()
     )
     return new_backup_df
+def do_backup(full_table_name):
+    workspace = spark.conf.get("spark.databricks.workspaceUrl").split(".")[0]
+    dir_path = ("s3://backup_place/information_schema/"
+        + workspace
+        + "/"
+        + datetime.now().strftime("%Y-%m-%d_%H:%M"))
+    file_name = full_table_name.replace(".", "_")
+    file_path = dir_path + "/" + file_name
+    spark.read.table(full_table_name).write.json(dir_path, mode="overwrite", compression="json")
 backup_table_name = "ops.ops.table_backup_schedule"
 backup_schedule_df = updated_backup_schedule_table(backup_table_name)
 default_backup_frequency_sql = str(60*60*24)

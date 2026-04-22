@@ -103,7 +103,7 @@ artifacts:
     build: uv build --wheel
 ```
 
-For tredjepartsbiblioteker som `openpyxl` — der du ikke har kildekoden — er manuell opplasting til en UC Volume den enkleste løsningen. Se [Laste opp Python-biblioteker](../../guider/bearbeide-data/laste-opp-python-biblioteker.md) for en steg-for-steg-guide.
+For tredjepartsbiblioteker som `openpyxl` — der du ikke har kildekoden — er manuell opplasting til en UC Volume den enkleste løsningen. Se [Laste opp Python-biblioteker](../../guider/bearbeide-data/laste-opp-python-biblioteker.md) for en steg-for-steg-guide, inkludert hvordan du håndterer forskjellen mellom ARM lokalt og Linux `x86_64` i Databricks.
 
 !!! Tip "Fler alternativ finnes"
     Lag et script som sjekkes inn og legg wheels i gitignore.

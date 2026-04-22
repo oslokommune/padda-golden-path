@@ -14,7 +14,7 @@ Uten Bundles deployer du manuelt: laster opp notebooks via UI, konfigurerer jobb
 
 - **Reproduserbarhet** — en ny utvikler skal kunne deploye hele pipelinen uten hjelp.
 - **Miljø-separasjon** — samme kode skal kjøre i stage med lavere ressurser og i prod med schedules og alarmer.
-- **Versjonskontroll** — endringer i jobbkonfigurasjon skal versjoneres, reviewes og rulles tilbake pa lik linje med koden.
+- **Versjonskontroll** — endringer i jobbkonfigurasjon skal versjoneres, reviewes og rulles tilbake på lik linje med koden.
 
 Bundles løser dette ved at alt — jobbdefinisjoner, cluster-konfigurasjon, variabler og tilganger — lever i Git sammen med koden.
 

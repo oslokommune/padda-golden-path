@@ -240,4 +240,4 @@ job_clusters:
 - Se [Ta i bruk Bundles](../guider/bearbeide-data/ta-i-bruk-bundles.md) for steg-for-steg-instruksjoner
 - Se [Declarative Automation Bundles (konsept)](../om-plattformen/konsepter/databricks-bundles.md) for bakgrunn om targets, modes og wheel-strategier
 - Se [Databricks-opplaering](../hjelp/databricks-opplaering.md#utvalgt-dokumentasjon) for offisiell Databricks-dokumentasjon
-- Spør i [#dig-dataspeilet](https://oslokommune.slack.com/archives/C01SFNFEXK7) pa Slack
+- Spør i [#dig-dataspeilet](https://oslokommune.slack.com/archives/C01SFNFEXK7) på Slack

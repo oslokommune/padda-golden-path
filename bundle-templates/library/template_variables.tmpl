@@ -1,0 +1,25 @@
+{{ define `package_name` -}}
+    {{- (regexp `-`).ReplaceAllString ((regexp `[^A-Za-z0-9_-]`).ReplaceAllString (print .domain_name) "") "_" -}}
+{{- end }}
+
+{{ define `org_name` -}}
+    {{- $org := (regexp `^[^_]+_[^_]+`).FindString .catalog_name -}}
+    {{- if $org -}}
+        {{- $org -}}
+    {{- else -}}
+        {{- .catalog_name -}}
+    {{- end -}}
+{{- end }}
+
+{{ define `service_principal_name` -}}
+    {{- if .catalog_name -}}
+        {{- $org := (regexp `^[^_]+_[^_]+`).FindString .catalog_name -}}
+        {{- if $org -}}
+            {{- printf "%s-gha-deploy" ((regexp `_`).ReplaceAllString $org "-") -}}
+        {{- else -}}
+            {{- printf "%s-gha-deploy" .catalog_name -}}
+        {{- end -}}
+    {{- else -}}
+        replace-me-gha-deploy
+    {{- end -}}
+{{- end }}

@@ -19,6 +19,23 @@ Denne guiden viser hvordan du legger en wheel-fil (f.eks. `openpyxl`) på en UC 
   pip download openpyxl==3.1.5 -d wheels/
   ```
 
+!!! info "ARM vs. x86_64"
+    Databricks-klustre forventer vanligvis Linux `x86_64`-wheels, mens mange utviklere jobber på Mac med ARM64. Dette er uproblematisk for universelle wheels som `py3-none-any`, men pakker med "native" kode må matches mot riktig plattform og Python-versjon.
+
+    Hvis du trenger en plattformspesifikk wheel, last den ned eksplisitt for Linux `x86_64` i stedet for a bruke det maskinen din føreslår:
+
+    ```bash
+    pip download \
+      --only-binary=:all: \
+      --platform manylinux2014_x86_64 \
+      --implementation cp \
+      --python-version 313 \
+      <pakke>==<versjon> \
+      -d wheels/
+    ```
+
+    Bytt ut `313` med Python-versjonen som matcher Databricks-runtimen din. En `macosx_arm64`-wheel vil ikke kunne installeres pa klusteret.
+
 ## 2) Opprett en mappe for dependencies i Volume
 - I UI: Catalog → velg katalog/schema → Volumes → lag Volume `wheels`.
 - Resultatsti: `dbfs:/Volumes/<catalog>/<schema>/wheels`.

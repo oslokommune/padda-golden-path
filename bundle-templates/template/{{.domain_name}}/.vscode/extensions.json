@@ -1,0 +1,15 @@
+{
+  "recommendations": [
+    "charliermarsh.ruff",
+    "databricks.databricks",
+    "esbenp.prettier-vscode",
+    "ms-python.mypy-type-checker",
+    "ms-python.vscode-pylance",
+    "ms-toolsai.jupyter",
+    "ms-vscode.makefile-tools",
+    "njpwerner.autodocstring",
+    "redhat.vscode-yaml",
+    "tamasfe.even-better-toml",
+    "vscode-icons-team.vscode-icons"
+  ]
+}

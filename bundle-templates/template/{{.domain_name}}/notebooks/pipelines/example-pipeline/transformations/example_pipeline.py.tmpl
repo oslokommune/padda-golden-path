@@ -1,0 +1,80 @@
+# MAGIC %md
+# MAGIC # Example Pipeline
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC #### Load libraries and wheel functions
+# MAGIC
+
+# COMMAND ----------
+
+from databricks.sdk.runtime import spark
+from pyspark import pipelines as dp  # type: ignore[attr-defined]
+from pyspark.sql import DataFrame
+from pyspark.sql import functions as F
+
+from {{template `package_name` .}}.main import main
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ### Set parameters
+# MAGIC
+
+# COMMAND ----------
+
+table = spark.conf.get("table")
+autoloader_path = spark.conf.get("autoloader_path")
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ## Ingest data with Delta streaming
+# MAGIC We made the ingestion dependent on the `main` function of our wheel for demonstration purposes.
+
+# COMMAND ----------
+
+# Since main() always returns `True` this condition will always be met
+if main():
+
+    @dp.table(
+        name=f"raw_{table}",
+        table_properties={"quality": "raw"},
+        comment="Data loaded from Landing Zone",
+    )
+    def ingest() -> DataFrame:
+        """Ingest raw data using Delta streaming."""
+        return (
+            spark.readStream.format("delta")
+            .load(autoloader_path)
+            .withColumn("load_date", F.current_timestamp())
+            .select("*", "_metadata")
+        )
+
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC ## Set [expectations](https://docs.databricks.com/aws/en/ldp/expectations) to ensure bronze data quality
+# MAGIC
+
+# COMMAND ----------
+
+expectations: dict[str, str] = {
+    "valid_trip_distance": "trip_distance > 0",
+    "valid_fare_amount": "fare_amount > 0",
+}
+
+# COMMAND ----------
+
+
+@dp.table(
+    name=f"bronze_{table}",
+    table_properties={"quality": "bronze"},
+    comment="Data transformed from raw",
+)
+@dp.expect_all_or_drop(expectations)
+def set_expectations() -> DataFrame:
+    """Set expectations on raw data for bronze quality."""
+    return spark.readStream.table(f"raw_{table}")

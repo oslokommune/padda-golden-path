@@ -10,7 +10,7 @@ Backup gjøres til S3 i en separat (???) AWS-konto for å beskytte mot sletting 
 
 Strengt tatt så skal alt kunne gjenskapes fra landing zone, Terraform og DAB. Dette er minimum som må backes opp. I tillegg så kreves det da scripting av DAB-orkestrering, så systemet kan komme opp igjen så fort som mulig.
 
-## Databricks-tabeller
+## Databricks-tabeller (optional)
 
 Ser for meg noe sånt som dette:
 
@@ -82,7 +82,7 @@ for table in needs_backup:
     backup_schedule_df.write.mode("overwrite").saveAsTable(backup_table_name)
 ```
 
-## Databricks-metadata
+## Databricks-metadata (optional)
 
 Denne tar backup av alt som ligger i system.information_schema. Det dekker tabeller, views, permissions, etc.
 

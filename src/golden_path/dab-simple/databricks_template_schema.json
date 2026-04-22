@@ -1,6 +1,6 @@
 {
     "properties": {
-      "project_name": {
+      "domain_name": {
         "type": "string",
         "default": "prosjekt-xyz",
         "description": "Prosjektnavn",

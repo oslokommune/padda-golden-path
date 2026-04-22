@@ -1,13 +1,13 @@
-  # The main job for {{.project_name}}
+  # The main job for {{.domain_name}}
   resources:
     jobs:
-      {{.project_name}}_job:
-        name: {{.project_name}}_job
+      {{.domain_name}}_job:
+        name: {{.domain_name}}_job
         tasks:
           - task_key: python_task
             job_cluster_key: job_cluster
             spark_python_task:
-              python_file: ../src/{{.project_name}}/task.py
+              python_file: ../src/{{.domain_name}}/task.py
         job_clusters:
           - job_cluster_key: job_cluster
             new_cluster:

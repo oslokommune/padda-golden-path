@@ -7,10 +7,10 @@ include:
 
 sync:
   include:
-    - wheels/*.whl
-    - configs/**
-    - bin/trufflehog
-    - dashboards/**
+    - "wheels/*.whl"
+    - "configs/**"
+    - "bin/trufflehog"
+    - "dashboards/**"
 
 targets:
   dev:

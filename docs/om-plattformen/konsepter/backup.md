@@ -62,7 +62,7 @@ def do_backup(full_table_name):
         + datetime.now().strftime("%Y-%m-%d_%H:%M"))
     file_name = full_table_name.replace(".", "_")
     file_path = dir_path + "/" + file_name
-    spark.read.table(full_table_name).write.json(dir_path, mode="overwrite", compression="json")
+    spark.read.table(full_table_name).write.json(dir_path, mode="overwrite", compression="gzip")
 backup_table_name = "ops.ops.table_backup_schedule"
 backup_schedule_df = updated_backup_schedule_table(backup_table_name)
 default_backup_frequency_sql = str(60*60*24)
@@ -94,7 +94,7 @@ dir_path = "s3://backup_place/information_schema/" + workspace + "/" + datetime.
 for table in spark.catalog.listTables():
     file_name = table.name.replace(".", "_")
     file_path = dir_path + "/" + file_name
-    spark.read.table(table.name).write.json(dir_path, mode="overwrite", compression="json")
+    spark.read.table(table.name).write.json(dir_path, mode="overwrite", compression="gzip")
 ```
 
 ## Landing Zone

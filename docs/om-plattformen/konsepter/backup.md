@@ -56,8 +56,12 @@ def updated_backup_schedule_table(backup_table_name):
     return new_backup_df
 backup_table_name = "ops.ops.table_backup_schedule"
 backup_schedule_df = updated_backup_schedule_table(backup_table_name)
-default_backup_frequency_sql = "INTERVAL '" + str(60*60*24) + " seconds'"
-needs_backup = backup_schedule_df.filter("last_backup IS NULL OR last_backup + COALESCE(backup_frequency_sec, " + default_backup_frequency_sql + ") > current_timestamp()").collect()
+default_backup_frequency_sql = str(60*60*24)
+needs_backup = (backup_schedule_df
+    .filter(
+        "last_backup IS NULL OR timestamp_add('SECOND', COALESCE(backup_frequency_sec, "
+        + default_backup_frequency_sql + "), last_backup) > current_timestamp()")
+    .collect())
 for table in needs_backup:
     full_name = ".".join([table.catalog, table.schema, table.name])
     do_backup(full_name) # TODO

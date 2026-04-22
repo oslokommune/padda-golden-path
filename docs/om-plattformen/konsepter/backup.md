@@ -6,21 +6,17 @@ diataxis: explanation
 
 # Backup
 
-Backup is done to S3 in a separate AWS account to guard against account deletion.
+Backup gjøres til S3 i en separat AWS-konto for å beskytte mot sletting av AWS-konto som Databricks ligger i.
 
 ## Databricks-tabeller
 
-```sql
-CREATE TABLE IF NOT EXISTS ops.ops.table_backup_schedule (
-    catalog STRING NOT NULL,
-    schema STRING NOT NULL,
-    name STRING NOT NULL,
-    backup_frequency INTERVAL SECOND,
-    last_backup TIMESTAMP
-);
+Ser for meg noe sånt som dette:
 
-CREATE TEMPORARY TABLE schedule_tmp AS SELECT * FROM ops.ops.table_backup_schedule;
-```
+- Vi har en tabell med liste over alle tabeller, hvor ofte de skal backes opp, og når de siste ble backet opp
+- Vi leser ut alle brukerstyrte tabeller og oppdaterer tabellen over om nødvendig
+- Vi gjør backup i henhold til tabell
+
+Utestet kode:
 
 ```python
 def updated_backup_schedule_table(backup_table_name):
@@ -85,6 +81,8 @@ backup_schedule_df.write.mode("overwrite").saveAsTable(backup_table_name)
 
 ## Databricks-metadata
 
+Denne tar backup av alt som ligger i system.information_schema. Det dekker tabeller, views, permissions, etc.
+
 ```python
 from datetime import datetime
 spark.catalog.setCurrentCatalog("system")
@@ -99,4 +97,4 @@ for table in spark.catalog.listTables():
 
 ## Landing Zone
 
-https://docs.aws.amazon.com/aws-backup/latest/devguide/create-cross-account-backup.html
+AWS har dokumentert hvordan S3 kan [backes opp til annen konto](https://docs.aws.amazon.com/aws-backup/latest/devguide/create-cross-account-backup.html).

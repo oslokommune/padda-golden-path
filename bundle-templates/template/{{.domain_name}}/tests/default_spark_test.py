@@ -30,8 +30,12 @@ def test_create_dataframe(
     test_df = create_test_df
     assert test_df.count() == 3, "DataFrame should have 3 rows."
     assert len(test_df.columns) == 2, "DataFrame should have 2 columns."
-    assert test_df.schema["name"].dataType == StringType(), "Name column should be StringType."
-    assert test_df.schema["age"].dataType == IntegerType(), "Age column should be IntegerType."
+    assert test_df.schema["name"].dataType == StringType(), (
+        "Name column should be StringType."
+    )
+    assert test_df.schema["age"].dataType == IntegerType(), (
+        "Age column should be IntegerType."
+    )
 
 
 def test_filter_operation(create_test_df: DataFrame) -> None:

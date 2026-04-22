@@ -141,7 +141,7 @@ Lokalt kjører utviklere `validate` og `deploy` mot stage-target. I CI/CD-pipeli
 
 Bundles dekker deploy av jobber, pipelines og artifacts. De dekker *ikke*:
 
-- **Secrets** — hemmeligheter må konfigureres separat i Databricks-workspacen (TODO: LINKE!)
+- **Secrets** — hemmeligheter må konfigureres separat i Databricks-workspacen [Håndtere secrets](../../guider/hente-inn-data/haandtere-secrets.md
 - **Cluster policies** — administreres av plattformteamet, ikke av den enkelte bundle
 - **Rollback** — det finnes ingen innebygd rollback-mekanisme; du deployer forrige versjon på nytt fra Git
 - **Workspace-oppretting** — workspacen må eksistere før du deployer til den

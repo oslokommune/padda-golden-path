@@ -1,6 +1,6 @@
 # Padda Asset Bundle Templates
 
-The `Padda Asset Bundle Templates` contains our own custom templates for Databricks Asset Bundles. The template provides a complete development environment for new Databricks projects TODO
+The `Padda Asset Bundle Templates` contains our own custom templates for Databricks Asset Bundles. The template provides a good start for structure and where it possible som standard values based on good practise from Dataspeilet.
 
 ## Why This Template?
 

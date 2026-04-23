@@ -99,9 +99,16 @@ Docs are deployed to GitHub Pages via the `pages` workflow on push to main.
 - Lint rules: E, F, W, I (isort), B (bugbear), UP (pyupgrade)
 - First-party imports: `common`, `pipelines`, `etl_job`, `golden_path`
 
-## CI
+## GitHub Actions
 
-PR workflow (`pr.yaml`) runs: format check → lint → DAB validate → DAB plan. Uses GitHub OIDC for Databricks auth (no hardcoded secrets).
+Four workflows run on this repo:
+
+- **pr.yaml** — on every PR: format check → lint → DAB validate → DAB plan. Uses GitHub OIDC for Databricks auth (no hardcoded secrets).
+- **pages.yml** — on push to `main`: deploys Zensical docs to GitHub Pages.
+- **docs-review.yml** — on PRs that touch `docs/`: Claude (via AWS Bedrock) reviews changes against Diataxis, flags duplicates, checks `zensical.toml` navigation, and comments on style deviations. Posts inline comments plus a sticky summary comment.
+- **databricks-feed-watcher.yml** — weekdays at 07:00 UTC (manual trigger also available): fetches the Databricks release-notes RSS feed, asks Claude to judge whether each new entry is relevant to this repo, `padda-iac`, or `padda-databrikker`, and posts relevant items to Slack.
+
+The Claude-powered workflows run on AWS Bedrock via OIDC (no Anthropic API key). The feed watcher additionally uses a GitHub App for read-only cross-repo access.
 
 ## pytest configuration
 

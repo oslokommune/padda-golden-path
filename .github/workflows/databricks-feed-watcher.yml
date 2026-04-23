@@ -95,7 +95,7 @@ jobs:
           use_bedrock: "true"
           claude_args: |
             --model eu.anthropic.claude-sonnet-4-6
-            --allowedTools "Read,Glob,Grep,Bash(ls:*),Bash(cat:*)"
+            --allowedTools "Read,Write,Glob,Grep,Bash(ls:*),Bash(cat:*)"
           prompt: |
             You will assess whether new Databricks release-notes entries are
             relevant for our Databricks platform, composed of three repos:

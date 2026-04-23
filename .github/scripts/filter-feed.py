@@ -85,16 +85,14 @@ def parse_entries(xml_text: str) -> list[dict]:
         if pub_date.tzinfo is None:
             pub_date = pub_date.replace(tzinfo=timezone.utc)
 
-        entries.append(
-            {
-                "id": guid,
-                "title": title,
-                "link": link,
-                "pub_date": pub_date.isoformat(),
-                "categories": categories,
-                "summary": strip_html(description_raw)[:1200],
-            }
-        )
+        entries.append({
+            "id": guid,
+            "title": title,
+            "link": link,
+            "pub_date": pub_date.isoformat(),
+            "categories": categories,
+            "summary": strip_html(description_raw)[:1200],
+        })
     return entries
 
 
@@ -119,15 +117,17 @@ def main() -> int:
         since = datetime.now(timezone.utc) - timedelta(days=3)
         source += " → defaulting to last 3 days"
 
-    print(f"Filtering entries newer than {since.isoformat()} (from {source})", file=sys.stderr)
+    print(
+        f"Filtering entries newer than {since.isoformat()} (from {source})",
+        file=sys.stderr,
+    )
 
     xml_text = fetch_feed(FEED_URL)
     all_entries = parse_entries(xml_text)
     print(f"Feed has {len(all_entries)} total entries", file=sys.stderr)
 
     new_entries = [
-        e for e in all_entries
-        if datetime.fromisoformat(e["pub_date"]) > since
+        e for e in all_entries if datetime.fromisoformat(e["pub_date"]) > since
     ]
     new_entries.sort(key=lambda e: e["pub_date"], reverse=True)
 

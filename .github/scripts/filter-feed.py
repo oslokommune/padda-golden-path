@@ -15,11 +15,10 @@ import json
 import re
 import sys
 import urllib.request
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from email.utils import parsedate_to_datetime
 from pathlib import Path
 from xml.etree import ElementTree as ET
-
 
 FEED_URL = "https://docs.databricks.com/aws/en/feed.xml"
 
@@ -32,13 +31,13 @@ def parse_since(value: str) -> datetime | None:
 
     m = re.fullmatch(r"(\d+)\s+days?\s+ago", value, flags=re.IGNORECASE)
     if m:
-        return datetime.now(timezone.utc) - timedelta(days=int(m.group(1)))
+        return datetime.now(UTC) - timedelta(days=int(m.group(1)))
 
     # ISO 8601 — tolerate 'Z' suffix
     iso = value.replace("Z", "+00:00")
     dt = datetime.fromisoformat(iso)
     if dt.tzinfo is None:
-        dt = dt.replace(tzinfo=timezone.utc)
+        dt = dt.replace(tzinfo=UTC)
     return dt
 
 
@@ -83,7 +82,7 @@ def parse_entries(xml_text: str) -> list[dict]:
         except (TypeError, ValueError):
             continue
         if pub_date.tzinfo is None:
-            pub_date = pub_date.replace(tzinfo=timezone.utc)
+            pub_date = pub_date.replace(tzinfo=UTC)
 
         entries.append({
             "id": guid,
@@ -114,7 +113,7 @@ def main() -> int:
 
     if since is None:
         # First run or empty state and no override — default to last 3 days.
-        since = datetime.now(timezone.utc) - timedelta(days=3)
+        since = datetime.now(UTC) - timedelta(days=3)
         source += " → defaulting to last 3 days"
 
     print(

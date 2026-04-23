@@ -158,6 +158,8 @@ jobs:
 
       - name: Commit updated last-seen state
         if: steps.feed.outputs.count != '0' && env.DRY_RUN != 'true'
+        env:
+          GH_PUSH_TOKEN: ${{ github.token }}
         run: |
           mv /tmp/new-last-seen.txt .github/databricks-feed-last-seen.txt
           git config user.name "github-actions[bot]"
@@ -167,5 +169,7 @@ jobs:
             echo "No state changes to commit"
           else
             git commit -m "chore: update databricks feed last-seen timestamp"
-            git push
+            # Explicit auth: avoids conflicts with credential helpers set up
+            # by earlier steps (e.g. the GitHub App token for cross-repo reads).
+            git push "https://x-access-token:${GH_PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:${GITHUB_REF_NAME}
           fi

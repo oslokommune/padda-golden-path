@@ -6,9 +6,13 @@ diataxis: explanation
 
 # Backup
 
-Backup gjøres til S3 i en separat (???) AWS-konto for å beskytte mot sletting av AWS-konto som Databricks ligger i. Kan også bruke air-gapped vault.
+Backup gjøres slik:
 
-Strengt tatt så skal alt kunne gjenskapes fra landing zone, Terraform og DAB. Siden Terraform og DAB er i VCS så er landing zone minimum som må backes opp. I tillegg så kreves det da scripting av DAB-orkestrering, så systemet kan komme opp igjen så fort som mulig.
+- Backup av landing zone-bøtte
+- Versjonskontroll av kode-artifakter
+- Backup av tabeller i system.information_schema for å få med seg permissions etc. (dumpes til ny S3-bøtte som i sin tur tas backup av)
+
+Backup følger default KM-oppførsel. Avvikende behov tas når den tid kommer. GDPR er ikke relevant for backup.
 
 ## Databricks-tabeller (optional)
 
@@ -82,7 +86,7 @@ for table in needs_backup:
     backup_schedule_df.write.mode("overwrite").saveAsTable(backup_table_name)
 ```
 
-## Databricks-metadata (optional)
+## Databricks-metadata
 
 Denne tar backup av alt som ligger i system.information_schema. Det dekker tabeller, views, permissions, etc.
 
@@ -99,7 +103,5 @@ for table in spark.catalog.listTables():
 ```
 
 ## Landing Zone
-
-AWS har dokumentert hvordan S3 kan [backes opp til annen konto](https://docs.aws.amazon.com/aws-backup/latest/devguide/create-cross-account-backup.html).
 
 Golden Path har [boilerplate for backup](https://github.com/oslokommune/golden-path-boilerplate/tree/main/boilerplate/terraform/backup).

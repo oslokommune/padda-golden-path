@@ -93,9 +93,12 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           use_bedrock: "true"
+          # Write only affects this ephemeral runner's checkouts. The cross-repo
+          # token is read-only, and the commit step below stages only
+          # .github/databricks-feed-last-seen.txt — nothing else reaches any repo.
           claude_args: |
             --model eu.anthropic.claude-sonnet-4-6
-            --allowedTools "Read,Glob,Grep,Bash(ls:*),Bash(cat:*)"
+            --allowedTools "Read,Write,Glob,Grep,Bash(ls:*),Bash(cat:*)"
           prompt: |
             You will assess whether new Databricks release-notes entries are
             relevant for our Databricks platform, composed of three repos:

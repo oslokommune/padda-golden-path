@@ -6,8 +6,8 @@ name: Databricks Feed Watcher
 
 on:
   schedule:
-    # 07:00 UTC Mon-Fri (~08-09 Oslo time depending on DST)
-    - cron: "0 7 * * 1-5"
+    # 03:00 UTC Mon-Fri = 04:00 CET (winter) or 05:00 CEST (summer).
+    - cron: "0 3 * * 1-5"
   workflow_dispatch:
     inputs:
       since:

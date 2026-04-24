@@ -66,6 +66,17 @@ def post(webhook: str, payload: dict) -> None:
             raise RuntimeError(f"Slack responded {resp.status}: {body}")
 
 
+def print_summary(assessments: list[dict]) -> None:
+    print("=== Assessment summary ===", file=sys.stderr)
+    for a in assessments:
+        flag = "RELEVANT" if a.get("relevant") else "skip    "
+        title = a.get("title", "(uten tittel)")
+        reason = a.get("reason", "").strip() or "(ingen begrunnelse)"
+        print(f"  [{flag}] {title}", file=sys.stderr)
+        print(f"             {reason}", file=sys.stderr)
+    print("", file=sys.stderr)
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--report", required=True, type=Path)
@@ -76,6 +87,7 @@ def main() -> int:
     assessments = report.get("assessments", [])
     relevant = [a for a in assessments if a.get("relevant")]
 
+    print_summary(assessments)
     print(
         f"Assessed {len(assessments)} entries, {len(relevant)} flagged relevant",
         file=sys.stderr,

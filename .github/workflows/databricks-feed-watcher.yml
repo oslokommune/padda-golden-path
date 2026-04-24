@@ -6,8 +6,9 @@ name: Databricks Feed Watcher
 
 on:
   schedule:
-    # 07:00 UTC Mon-Fri (~08-09 Oslo time depending on DST)
-    - cron: "0 7 * * 1-5"
+    # 06:00 Oslo time Mon-Fri, DST handled automatically by the timezone field.
+    - cron: "0 6 * * 1-5"
+      timezone: "Europe/Oslo"
   workflow_dispatch:
     inputs:
       since:
@@ -125,9 +126,15 @@ jobs:
                  existing functionality, configuration, or stated needs.
                  Start with READMEs and top-level docs, then dig into modules,
                  resource definitions, or code when that helps you decide.
-              3. Use your own judgement. It is fine — and common — for an
+              3. Flag as relevant even if the feature isn't present in the
+                 repos today, but represents a meaningful platform-level
+                 capability the team should consider enabling for users —
+                 e.g. new governance primitives, metric views, policy
+                 tooling. Be conservative: not every UI tweak or
+                 incremental tool change qualifies.
+              4. Use your own judgement. It is fine — and common — for an
                  entry to be irrelevant. Do not stretch to find relevance.
-              4. Do not quote secrets, tokens, or credentials in the report,
+              5. Do not quote secrets, tokens, or credentials in the report,
                  even if you come across them. Just the reasoning.
 
             Write the result to /tmp/relevance-report.json with this exact shape:

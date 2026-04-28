@@ -105,3 +105,7 @@ for table in spark.catalog.listTables():
 ## Landing Zone
 
 Golden Path har [boilerplate for backup](https://github.com/oslokommune/golden-path-boilerplate/tree/main/boilerplate/terraform/backup).
+
+## Restore
+
+Det er viktig å merke seg at default rolle for restore ikke har rettigheter til å jobbe med S3. Til det trenger man policien `AWSBackupServiceRolePolicyForS3Restore`. I forbindelse med at backup tas opprettes det en rolle som har denne. Navn skal være på formen `aws-backup-[dato][masse tall]`. Bruk denne i stedet.

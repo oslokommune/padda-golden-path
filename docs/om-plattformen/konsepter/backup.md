@@ -91,16 +91,20 @@ for table in needs_backup:
 Denne tar backup av alt som ligger i system.information_schema. Det dekker tabeller, views, permissions, etc.
 
 ```python
-from datetime import datetime
+import sys
 spark.catalog.setCurrentCatalog("system")
 spark.catalog.setCurrentDatabase("information_schema")
-workspace = spark.conf.get("spark.databricks.workspaceUrl").split(".")[0]
-dir_path = "s3://backup_place/information_schema/" + workspace + "/" + datetime.now().strftime("%Y-%m-%d")
+bucket = sys.argv[1]
 for table in spark.catalog.listTables():
-    file_name = table.name.replace(".", "_")
-    file_path = dir_path + "/" + file_name
-    spark.read.table(table.name).write.json(dir_path, mode="overwrite", compression="gzip")
+    file_name = table.name.replace(".", "_") + ".json"
+    df = spark.read.table(table.name)
+    rdd = df.toJSON().collect()
+    jsonlist = [row.value for row in rdd]
+    json_string = "\n".join(jsonlist)
+    dbutils.fs.put(f"s3://{bucket}/{file_name}", json_string, True)
 ```
+
+Dette lander i en dedikert S3-bøtte per workspace. Denne bøtten tas så backup av. Backupen speiler slik clickops-config, og kan brukes til å gjenopprette f.eks. tillatelser. Se [eksempel-script](../../../scripts/restore/generate_privilege_sql.py).
 
 ## Landing Zone
 

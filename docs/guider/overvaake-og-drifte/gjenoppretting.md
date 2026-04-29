@@ -1,35 +1,41 @@
 ---
-title: Gjenopprette fra backup
-description: Hvordan hente tilbake filer i landing zone og Databricks-tillatelser fra backup.
+title: Gjenopprette når uhellet er ute
+description: Hvordan komme seg tilbake til et fungerende system.
 diataxis: how-to
 icon: lucide/construction
 ---
 
-# Gjenopprette fra backup
+# Gjenopprette når uhellet er ute
 
-Denne veiledningen hjelper deg hente tilbake innhold fra S3-backupene som Golden Path tar av landing zone og Databricks-metadata (`system.information_schema`). Et vellykket resultat er at filene ligger i en ny eller eksisterende bøtte, og — hvis du gjenoppretter metadata — at tillatelsene er satt tilbake i Databricks.
+Denne veiledningen hjelper deg når ting har gått galt og viktig data er mistet.
 
 For gjenoppretting etter feil i en pipeline-kjøring (rerun, checkpoints, schema-endringer), se [Gjenopprette etter feil i pipelines](gjenopprette-etter-feil.md).
 
 ## Før du begynner
 
-Sørg for at du har:
+Hva du trenger kommer helt an på hvor galt det har gått. I verste fall er det eneste du trenger mulighet til å nå AWS- og Databricks-support. Vi forutsetter at nåde-perioden for sletting av AWS- og Databricks-kontoer ikke er utløpt.
 
-- Tilgang til AWS-kontoen der backupen ligger, med rettigheter til å starte restore-jobber i AWS Backup
-- Databricks workspace-admin hvis du skal gjenopprette tillatelser
-- Navnet på bøtten eller backup-vaulten du vil gjenopprette fra, og tidspunkt/recovery point
-- Python 3 lokalt hvis du skal konvertere metadata-backup til SQL
+Finn ut hva som har skjedd og hopp til det steget. Forhåpentligvis er ikke alt her relevant.
 
-## Trinn 1: Finn riktig recovery point
+## Trinn 1: Sørg for at Databricks og AWS er satt opp riktig
 
-1. Åpne **AWS Backup** i kontoen der backupen ligger.
-2. Gå til **Backup vaults** og velg vaulten som inneholder backupen.
-3. Finn recovery point for ønsket tidspunkt. Noter ID-en.
+Skulle dette ikke være på plass er den enkleste måten å komme tilbake på å kontakte AWS og Databricks og be om gjenoppretting av kontoer. Naturligvis først AWS-kontoer (dev og prod) og deretter de to tilhørende Databricks-kontoene.
 
-!!! note
-Landing zone og metadata-bøtten er separate backup-kilder. Sjekk at du har valgt riktig vault for det du skal gjenopprette.
+Vi bruker [IaC](https://github.com/oslokommune/padda-iac) og de overordnede strukturene er der. Hvis AWS- eller Databricks-konto er ikke kan gjenopprettes så kan det kreve litt tilpassing av variabler som Databricks-kontonummer. Den som gjenoppretter må sikre seg admin-rettigheter for Databricks og AWS og kjøre (`terraform apply`) alle Terraform-stackene der.
 
-## Trinn 2: Velg en rolle som kan skrive til S3
+## Trinn 2: Gjenopprett kode i eventuelt rammede workspacer
+
+Kode som kjører i et workspace skal ligge under versjonskontroll. [Her er SYE-koden](https://github.com/oslokommune/sye-dvh-dataplattform) som eksempel. Alle DABer, AWS Lambdaer og annen programvare der må settes opp.
+
+Sjekk README i det gjeldende prosjektet for mer info om hvordan dette gjøres.
+
+## Trinn 3: Gjenopprett landing zone der nødvendig
+
+Data i landing zone kan gjenopprettes med AWS Backup om nødvendig.
+
+### Trinn 1: TODO
+
+### Trinn 2: Velg en rolle som kan skrive til S3
 
 Standardrollen for restore i AWS Backup har **ikke** rettigheter til S3. Bruk i stedet rollen som ble opprettet sammen med backup-jobben, og som har policyen `AWSBackupServiceRolePolicyForS3Restore`.
 
@@ -40,7 +46,7 @@ Standardrollen for restore i AWS Backup har **ikke** rettigheter til S3. Bruk i 
 !!! warning
 Hvis du kjører restore med standardrollen feiler jobben med en rettighetsfeil. Det er ingen automatisk fallback.
 
-## Trinn 3: Start restore-jobben
+### Trinn 3: Start restore-jobben
 
 1. I **AWS Backup**, velg recovery point fra trinn 1 og klikk **Restore**.
 2. Velg destinasjonsbøtte (ny eller eksisterende).

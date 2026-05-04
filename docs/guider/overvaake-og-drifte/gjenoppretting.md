@@ -33,7 +33,11 @@ Sjekk README i det gjeldende prosjektet for mer info om hvordan dette gjøres.
 
 Data i landing zone kan gjenopprettes med AWS Backup om nødvendig.
 
-### Trinn 1: TODO
+### Trinn A: TODO
+
+## Trinn 4: Kjør alle jobber og pipelines
+
+## Trinn 5: Gjenopprett tillatelser
 
 ### Trinn 2: Velg en rolle som kan skrive til S3
 

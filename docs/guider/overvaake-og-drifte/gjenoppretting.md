@@ -31,15 +31,9 @@ Sjekk README i det gjeldende prosjektet for mer info om hvordan dette gjøres.
 
 ## Trinn 3: Gjenopprett landing zone der nødvendig
 
-Data i landing zone kan gjenopprettes med AWS Backup om nødvendig.
+Data i landing zone kan gjenopprettes med AWS Backup om nødvendig. Landing zonen er en S3-bøtte med workspace-navn og "landing-zone" i navnet. Det relevante recovery point har et lignende navn.
 
-### Trinn A: TODO
-
-## Trinn 4: Kjør alle jobber og pipelines
-
-## Trinn 5: Gjenopprett tillatelser
-
-### Trinn 2: Velg en rolle som kan skrive til S3
+### Trinn A: Velg en rolle som kan skrive til S3
 
 Standardrollen for restore i AWS Backup har **ikke** rettigheter til S3. Bruk i stedet rollen som ble opprettet sammen med backup-jobben, og som har policyen `AWSBackupServiceRolePolicyForS3Restore`.
 
@@ -50,36 +44,40 @@ Standardrollen for restore i AWS Backup har **ikke** rettigheter til S3. Bruk i 
 !!! warning
 Hvis du kjører restore med standardrollen feiler jobben med en rettighetsfeil. Det er ingen automatisk fallback.
 
-### Trinn 3: Start restore-jobben
+### Trinn B: Start restore-jobben
 
-1. I **AWS Backup**, velg recovery point fra trinn 1 og klikk **Restore**.
+1. I **AWS Backup**, velg vault og recovery point, og klikk **Restore**.
 2. Velg destinasjonsbøtte (ny eller eksisterende).
-3. Under **IAM role**, velg rollen fra trinn 2.
+3. Under **Restore role**, velg rollen fra trinn 2.
 4. Start jobben og vent til status er **Completed**.
 
 !!! warning
 Hvis du gjenoppretter til en eksisterende bøtte, vil filer med samme navn kunne bli overskrevet. Vurder å gjenopprette til en ny bøtte først og kopiere over manuelt.
 
-[TODO: verifisere eksakte menyvalg i AWS Backup-konsollen og legge inn CLI-alternativ hvis relevant.]
+## Trinn 4: Kjør alle jobber og pipelines
 
-## Trinn 4: Gjenopprett Databricks-tillatelser
+Gå inn i Databricks og kjør alle jobber under "Jobs & Pipelines" slik de normalt sett hadde blitt kjørt automatisk. Dette betyr i praksis å kjøre alle jobber som har en schedule. Hvis det er noen continuous pipelines som er avslått så må disse også startes.
 
-Gjør dette bare hvis du har gjenopprettet metadata-backupen (JSON-filer fra `system.information_schema`).
+Dette burde bringe alle tabeller, etc. tilbake til det samme innhold de hadde før ting gikk galt. Det er viktig før neste steg.
+
+## Trinn 5: Gjenopprett Databricks-tillatelser
+
+### Trinn A: Gjenopprett metadata-bøtten
+
+Først må du gjenopprette metadata-backupen (JSON-filer fra `system.information_schema`). Se etter et recovery point med et navn som innneholder workspace-navnet og "information-schema-dump". Følg ellers stegene i trinn 3.
+
+### Trinn B: Generer og kjør SQL-script
 
 1. Last ned JSON-filene fra den gjenopprettede bøtten til en lokal mappe.
 2. Kjør konverteringsscriptet for å generere SQL:
 
    ```bash
-   python scripts/restore/generate_privilege_sql.py <mappe-med-json>
+   python scripts/restore/generate_privilege_sql.py mappe_med_json > privileges.sql
    ```
 
    Scriptet skriver `GRANT`-setninger for kataloger, skjemaer, tabeller og volumer til stdout.
 
-3. Inspiser SQL-utdataet og lagre det til fil:
-
-   ```bash
-   python scripts/restore/generate_privilege_sql.py ./restore-json > privileges.sql
-   ```
+3. Inspiser SQL-utdataet og fjern ting du ikke vil ha
 
 4. Kjør SQL-filen i Databricks (SQL Editor eller via en notebook tilknyttet et workspace der du er admin).
 
@@ -90,11 +88,7 @@ Scriptet gjenoppretter bare tillatelser som ikke er arvet (`inherited_from = NON
 
 For landing zone-restore:
 
-```bash
-aws s3 ls s3://<destinasjonsbøtte>/ --recursive | head
-```
-
-Kontroller at forventede filer og prefikser er til stede.
+Kontroller at forventede filer og prefikser er til stede i konsollen/GUI.
 
 For tillatelses-restore, kjør i Databricks:
 
@@ -102,7 +96,7 @@ For tillatelses-restore, kjør i Databricks:
 SHOW GRANTS ON CATALOG <katalognavn>;
 ```
 
-Forventet utdata: Tillatelsene du forventer å ha gjenopprettet, listet med `principal`, `action_type` og `object_type`.
+Forventet utdata: Tillatelsene du forventer å ha gjenopprettet, listet med `principal`, `action_type` og `object_type`. Det bekrefter ikke alt, men burde være avslørende dersom ingenting fungerte.
 
 ## Feilsøking
 
@@ -118,8 +112,8 @@ Sannsynlig årsak: Mappen du pekte på mangler én eller flere av de forventede 
 
     Løsning:
 
-    - Kontroller at restore-jobben faktisk fullførte og at alle objekttyper er med i backupen.
-    - Hvis en objekttype bevisst mangler i denne backupen, kjør scriptet mot en undermappe som inneholder filene som finnes.
+    - Kontroller at du oppga riktig mappe
+    - Skulle det være ønskelig å ikke ha med en fil, lag en tom en med samme navn
 
 ??? failure "`GRANT`-setningen feiler i Databricks med `principal does not exist`"
 Sannsynlig årsak: Gruppen eller brukeren som hadde tilgang er slettet eller endret siden backupen ble tatt.

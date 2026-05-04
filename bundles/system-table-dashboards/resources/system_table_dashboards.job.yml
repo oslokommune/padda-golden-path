@@ -1,0 +1,29 @@
+resources:
+  jobs:
+    system_table_dashboards_initializer:
+      name: "System Tables Dashboards Initializer"
+      tags:
+        Application: system-table-dashboards
+
+      environments:
+        - environment_key: "Default"
+          spec:
+            environment_version: "2"
+
+      tasks:
+        - task_key: "create_system_table_dashboards"
+          environment_key: "Default"
+          notebook_task:
+            notebook_path: ../notebooks/create_system_table_dashboards.py
+            base_parameters:
+              actions: "All"
+              catalog: ${var.catalog}
+              schema: ${var.schema}
+              warehouse_id: ${var.warehouse_id}
+              tags_to_consider_for_team_name: ${var.tags_to_consider_for_team_name}
+              dashboard_viewers_group: ${var.dashboard_viewers_group}
+              workspace_reference_csv: ${var.workspace_reference_csv}
+              account_host: ${var.account_host}
+              account_id: ${var.account_id}
+              client_id: ${var.client_id}
+              client_secret: ${var.client_secret}

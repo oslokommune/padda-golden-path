@@ -1,0 +1,54 @@
+bundle:
+  name: SYSTEM_TABLE_DASHBOARDS
+
+include:
+  - resources/*.yml
+
+sync:
+  include:
+    - dashboard_templates/**
+    - data/*.csv
+    - wheels/*.whl
+
+variables:
+  catalog:
+    description: Catalog for helper tables and SQL functions used by the dashboards.
+    default: main
+  schema:
+    description: Schema for helper tables and SQL functions used by the dashboards.
+    default: system_table_dashboards
+  warehouse_id:
+    description: Optional SQL warehouse ID used when publishing dashboards. If empty, the initializer chooses an available warehouse.
+    default: ""
+  tags_to_consider_for_team_name:
+    description: Comma-separated tag keys used to derive team names from cluster and job tags.
+    default: team_name,group
+  dashboard_viewers_group:
+    description: Workspace group granted CAN_READ on the published dashboards. Leave empty to skip permission grants.
+    default: users
+  workspace_reference_csv:
+    description: Bundle-relative CSV with workspace_id,workspace_name mappings.
+    default: data/workspace_reference.csv
+  account_host:
+    description: Databricks account console host used to resolve workspace display names.
+    default: https://accounts.cloud.databricks.com/
+  account_id:
+    description: Optional Databricks account ID used to resolve workspace display names.
+    default: ""
+  client_id:
+    description: Optional account-level OAuth client ID used to resolve workspace display names.
+    default: ""
+  client_secret:
+    description: Optional account-level OAuth client secret used to resolve workspace display names.
+    default: ""
+
+targets:
+  dev:
+    mode: development
+    default: true
+    workspace:
+      host: https://dbc-d17b7ed1-eac0.cloud.databricks.com
+      root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/${bundle.target}
+    variables:
+      catalog: main
+      schema: system_table_dashboards

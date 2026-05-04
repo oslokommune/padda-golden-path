@@ -120,7 +120,7 @@ Sannsynlig årsak: Gruppen eller brukeren som hadde tilgang er slettet eller end
 
     Løsning:
 
-    - Verifiser principalen i workspace-admin og tilpass SQL-en før du kjører den.
+    - Verifiser principalen under innstillinger og tilpass SQL-en før du kjører den.
 
 ## Relatert innhold
 

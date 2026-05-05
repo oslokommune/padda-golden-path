@@ -12,13 +12,13 @@ For gjenoppretting etter feil i en pipeline-kjøring (rerun, checkpoints, schema
 
 ## Før du begynner
 
-Hva du trenger kommer helt an på hvor galt det har gått. I verste fall er det eneste du trenger mulighet til å nå AWS- og Databricks-support. Vi forutsetter at nåde-perioden for sletting av AWS- og Databricks-kontoer ikke er utløpt.
+Hva du trenger kommer helt an på hvor galt det har gått. I verste fall er det eneste du trenger mulighet til å nå AWS- og Databricks-support, samt tilgang til IaC-repos på GitHub. Vi forutsetter at nåde-perioden for sletting av AWS- og Databricks-kontoer ikke er utløpt.
 
 Finn ut hva som har skjedd og hopp til det steget. Forhåpentligvis er ikke alt her relevant.
 
 ## Trinn 1: Sørg for at Databricks og AWS er satt opp riktig
 
-Skulle dette ikke være på plass er den enkleste måten å komme tilbake på å kontakte AWS og Databricks og be om gjenoppretting av kontoer. Naturligvis først AWS-kontoer (dev og prod) og deretter de to tilhørende Databricks-kontoene.
+Skulle dette ikke være på plass er den enkleste måten å komme tilbake på å kontakte AWS og Databricks og be om gjenoppretting av kontoer. Naturligvis først AWS-kontoer (dev og prod) og deretter de to tilhørende Databricks-kontoene. I skrivende stund kan Thomas Torp hjelpe med AWS.
 
 Vi bruker [IaC](https://github.com/oslokommune/padda-iac), og de overordnede strukturene er der. Hvis AWS- eller Databricks-konto ikke kan gjenopprettes så kan det kreve litt tilpassing av variabler som Databricks-kontonummer. Den som gjenoppretter må sikre seg admin-rettigheter for Databricks og AWS og kjøre `terraform apply` på alle Terraform-stackene der.
 
@@ -77,7 +77,7 @@ Først må du gjenopprette metadata-backupen (JSON-filer fra `system.information
    python scripts/restore/generate_privilege_sql.py mappe_med_json > privileges.sql
    ```
 
-   Scriptet skriver `GRANT`-setninger for kataloger, skjemaer, tabeller og volumer til stdout.
+   Scriptet skriver `GRANT`-setninger for kataloger, skjemaer, tabeller og volumer til stdout. Har du ikke Python lokalt kan det kjøres i Databricks.
 
 3. Inspiser SQL-utdataet og fjern ting du ikke vil ha
 
@@ -100,7 +100,7 @@ SHOW GRANTS ON CATALOG <katalognavn>;
 
 Forventet utdata: Tillatelsene du forventer å ha gjenopprettet, listet med `principal`, `action_type` og `object_type`. Det bekrefter ikke alt, men burde være avslørende dersom ingenting fungerte.
 
-Gå gjennom Databricks-UI og sjekk at jobber går som normalt. Sjekk relevante Slack-kanaler for alerts.
+Gå gjennom Databricks-UI og sjekk at jobber og pipelines går som normalt. Sjekk relevante Slack-kanaler for alerts.
 
 ## Feilsøking
 
@@ -130,4 +130,4 @@ Sannsynlig årsak: Gruppen eller brukeren som hadde tilgang er slettet eller end
 
 - [Backup](../../om-plattformen/konsepter/backup.md) — hvorfor backup er satt opp slik den er
 - [Gjenopprette etter feil i pipelines](gjenopprette-etter-feil.md)
-- [`scripts/restore/generate_privilege_sql.py`](../../../scripts/restore/generate_privilege_sql.py) (link fungerer kun lokalt)
+- [`scripts/restore/generate_privilege_sql.py`](../../../scripts/restore/generate_privilege_sql.py) (scriptet er ikke tilgjengelig gjennom dokumentasjonssiden)

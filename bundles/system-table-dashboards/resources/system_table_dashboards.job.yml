@@ -22,6 +22,8 @@ resources:
               warehouse_id: ${var.warehouse_id}
               tags_to_consider_for_team_name: ${var.tags_to_consider_for_team_name}
               dashboard_viewers_group: ${var.dashboard_viewers_group}
+              workspace_scope: ${var.workspace_scope}
+              dashboard_variant: ${var.dashboard_variant}
               workspace_reference_csv: ${var.workspace_reference_csv}
               account_host: ${var.account_host}
               account_id: ${var.account_id}

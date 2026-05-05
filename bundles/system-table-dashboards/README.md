@@ -69,6 +69,64 @@ databricks bundle deploy --target dev
 databricks bundle run system_table_dashboards_initializer --target dev
 ```
 
+To deploy a side-by-side variant whose dashboard queries only show data for the
+workspace where the bundle is deployed, set `workspace_scope=current`:
+
+```bash
+databricks bundle deploy --target dev \
+  --var catalog=<catalog> \
+  --var schema=<schema> \
+  --var workspace_scope=current
+
+databricks bundle run system_table_dashboards_initializer --target dev \
+  --var catalog=<catalog> \
+  --var schema=<schema> \
+  --var workspace_scope=current
+```
+
+Current-workspace deployments are published under a separate
+`dashboards_current_workspace` folder and dashboard names are suffixed with
+`Current Workspace`. Set `dashboard_variant` to use another label.
+
+For the stage workspace/profile used by DIG Databrikker:
+
+```bash
+databricks bundle deploy --target dev \
+  --var catalog=dig_databrikker_stage_yellow \
+  --var schema=analyst_default \
+  -p databrikker-stage
+
+databricks bundle summary --target dev \
+  --var catalog=dig_databrikker_stage_yellow \
+  --var schema=analyst_default \
+  -p databrikker-stage
+
+databricks bundle run system_table_dashboards_initializer --target dev \
+  --var catalog=dig_databrikker_stage_yellow \
+  --var schema=analyst_default \
+  -p databrikker-stage
+```
+
+Current-workspace variant for DIG Databrikker stage:
+
+```bash
+databricks bundle deploy --target dev \
+  --var catalog=dig_databrikker_stage_yellow \
+  --var schema=analyst_default \
+  --var workspace_scope=current \
+  -p databrikker-stage
+
+databricks bundle run system_table_dashboards_initializer --target dev \
+  --var catalog=dig_databrikker_stage_yellow \
+  --var schema=analyst_default \
+  --var workspace_scope=current \
+  -p databrikker-stage
+```
+
+Because the `dev` target uses `mode: development`, the deployed job name is
+prefixed with the target and user name, for example:
+`[dev fredrik_lovejord] System Tables Dashboards Initializer`.
+
 Override target variables when needed:
 
 ```bash

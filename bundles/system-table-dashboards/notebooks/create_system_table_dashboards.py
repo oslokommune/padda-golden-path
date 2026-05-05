@@ -8,10 +8,9 @@
 
 # COMMAND ----------
 
-import glob
 import csv
+import glob
 import json
-import os
 import subprocess
 import sys
 from pathlib import Path
@@ -42,19 +41,17 @@ def install_local_databricks_sdk() -> None:
         )
 
     print(f"Installing databricks-sdk from bundled wheelhouse: {wheels_path}")
-    subprocess.check_call(
-        [
-            sys.executable,
-            "-m",
-            "pip",
-            "install",
-            "--quiet",
-            "--no-index",
-            "--find-links",
-            wheels_path,
-            "databricks-sdk==0.38.0",
-        ]
-    )
+    subprocess.check_call([
+        sys.executable,
+        "-m",
+        "pip",
+        "install",
+        "--quiet",
+        "--no-index",
+        "--find-links",
+        wheels_path,
+        "databricks-sdk==0.38.0",
+    ])
 
 
 install_local_databricks_sdk()
@@ -88,6 +85,8 @@ dbutils.widgets.text("schema", "system_table_dashboards")
 dbutils.widgets.text("warehouse_id", "")
 dbutils.widgets.text("tags_to_consider_for_team_name", "team_name,group")
 dbutils.widgets.text("dashboard_viewers_group", "users")
+dbutils.widgets.text("workspace_scope", "account")
+dbutils.widgets.text("dashboard_variant", "")
 dbutils.widgets.text("workspace_reference_csv", "data/workspace_reference.csv")
 dbutils.widgets.text("account_host", "https://accounts.cloud.databricks.com/")
 dbutils.widgets.text("account_id", "")
@@ -102,6 +101,8 @@ tags_to_consider_for_team_name = dbutils.widgets.get(
     "tags_to_consider_for_team_name"
 ).strip()
 dashboard_viewers_group = dbutils.widgets.get("dashboard_viewers_group").strip()
+workspace_scope = dbutils.widgets.get("workspace_scope").strip().lower()
+dashboard_variant = dbutils.widgets.get("dashboard_variant").strip()
 workspace_reference_csv = dbutils.widgets.get("workspace_reference_csv").strip()
 account_host = dbutils.widgets.get("account_host").strip()
 account_id = dbutils.widgets.get("account_id").strip()
@@ -110,6 +111,15 @@ client_secret = dbutils.widgets.get("client_secret").strip()
 
 if not catalog or not schema:
     raise ValueError("Both catalog and schema must be set.")
+
+current_workspace_only = workspace_scope in {"current", "current_workspace"}
+
+if workspace_scope not in {"", "account", "all"} and not current_workspace_only:
+    raise ValueError(
+        f"workspace_scope must be 'account' or 'current'. Got: {workspace_scope}"
+    )
+
+resolved_current_workspace_id = None
 
 
 def choose_warehouse_id() -> str:
@@ -120,7 +130,9 @@ def choose_warehouse_id() -> str:
     if not warehouses:
         raise RuntimeError("No SQL warehouses found. Set warehouse_id explicitly.")
 
-    serverless = [wh for wh in warehouses if getattr(wh, "enable_serverless_compute", False)]
+    serverless = [
+        wh for wh in warehouses if getattr(wh, "enable_serverless_compute", False)
+    ]
     selected = (serverless or warehouses)[0]
     print(f"Using SQL warehouse: {selected.name} ({selected.id})")
     return selected.id
@@ -145,16 +157,94 @@ def _template_dir() -> Path:
     return Path(f"{_bundle_root()}/dashboard_templates")
 
 
+def _variant_label() -> str:
+    if dashboard_variant:
+        return dashboard_variant
+    if current_workspace_only:
+        return "Current Workspace"
+    return ""
+
+
+def _safe_path_part(value: str) -> str:
+    safe = "".join(char if char.isalnum() else "_" for char in value.lower())
+    return "_".join(part for part in safe.split("_") if part)
+
+
 def _dashboard_parent_path() -> str:
-    return f"{_bundle_root()}/dashboards"
+    variant = _variant_label()
+    if not variant:
+        return f"{_bundle_root()}/dashboards"
+    return f"{_bundle_root()}/dashboards_{_safe_path_part(variant)}"
 
 
 def _dashboard_name(template: Path) -> str:
     return template.name.removesuffix(".lvdash.json.tmpl")
 
 
+def _dashboard_display_name(template: Path) -> str:
+    variant = _variant_label()
+    name = _dashboard_name(template)
+    return f"{name} - {variant}" if variant else name
+
+
 def _dashboard_workspace_path(template: Path) -> str:
-    return f"{_dashboard_parent_path()}/{_dashboard_name(template)}.lvdash.json"
+    return f"{_dashboard_parent_path()}/{_dashboard_display_name(template)}.lvdash.json"
+
+
+def _current_workspace_id() -> str:
+    global resolved_current_workspace_id
+    if resolved_current_workspace_id is None:
+        resolved_current_workspace_id = str(w.get_workspace_id())
+        print(f"Rendering dashboards for workspace_id={resolved_current_workspace_id}")
+    return resolved_current_workspace_id
+
+
+def _workspace_scoped_query(query: str) -> str:
+    if not current_workspace_only:
+        return query
+
+    workspace_id = _current_workspace_id()
+    scoped_tables = [
+        "system.access.audit",
+        "system.access.column_lineage",
+        "system.access.table_lineage",
+        "system.billing.usage",
+        "system.compute.clusters",
+        "system.compute.node_timeline",
+        "system.compute.warehouse_events",
+        "system.lakeflow.job_run_timeline",
+        "system.lakeflow.job_task_run_timeline",
+        "system.lakeflow.jobs",
+        "system.query.history",
+    ]
+
+    for table_name in scoped_tables:
+        query = query.replace(
+            table_name,
+            f"(SELECT * FROM {table_name} WHERE workspace_id = '{workspace_id}')",
+        )
+    return query
+
+
+def _scope_dashboard_queries(value):
+    if isinstance(value, dict):
+        return {
+            key: _workspace_scoped_query(item)
+            if key == "query" and isinstance(item, str)
+            else _scope_dashboard_queries(item)
+            for key, item in value.items()
+        }
+    if isinstance(value, list):
+        return [_scope_dashboard_queries(item) for item in value]
+    return value
+
+
+def _render_workspace_scope(data: str) -> str:
+    if not current_workspace_only:
+        return data
+
+    dashboard = json.loads(data)
+    return json.dumps(_scope_dashboard_queries(dashboard), separators=(",", ":"))
 
 
 def list_dashboard_templates() -> list[Path]:
@@ -167,9 +257,12 @@ def list_dashboard_templates() -> list[Path]:
     return templates
 
 
-def rendered_dashboard(template: Path, dashboard_ids: dict[str, str] | None = None) -> str:
+def rendered_dashboard(
+    template: Path, dashboard_ids: dict[str, str] | None = None
+) -> str:
     data = template.read_text()
     data = data.replace("{catalog}", f"`{catalog}`").replace("{schema}", f"`{schema}`")
+    data = _render_workspace_scope(data)
 
     if dashboard_ids:
         host_url = f"https://{spark.conf.get('spark.databricks.workspaceUrl')}"
@@ -198,25 +291,27 @@ def deploy_dashboards() -> dict[str, str]:
     dashboard_ids: dict[str, str] = {}
     for template in templates:
         dash_name = _dashboard_name(template)
+        display_name = _dashboard_display_name(template)
         dash_id = existing_dashboard_id(template)
         serialized = rendered_dashboard(template)
 
         if dash_id:
             current = w.lakeview.get(dash_id)
+            current.display_name = display_name
             current.serialized_dashboard = serialized
             updated = w.lakeview.update(dashboard_id=dash_id, dashboard=current)
-            print(f'Dashboard "{dash_name}" updated at {updated.create_time}')
+            print(f'Dashboard "{display_name}" updated at {updated.create_time}')
         else:
             created = w.lakeview.create(
                 dashboard=Dashboard(
-                    display_name=dash_name,
+                    display_name=display_name,
                     parent_path=parent_path,
                     serialized_dashboard=serialized,
                     warehouse_id=resolved_warehouse_id,
                 )
             )
             dash_id = created.dashboard_id
-            print(f'Dashboard "{dash_name}" created at {created.create_time}')
+            print(f'Dashboard "{display_name}" created at {created.create_time}')
 
         dashboard_ids[dash_name] = dash_id
 
@@ -224,7 +319,9 @@ def deploy_dashboards() -> dict[str, str]:
     return dashboard_ids
 
 
-def update_index_dashboard_links(templates: list[Path], dashboard_ids: dict[str, str]) -> None:
+def update_index_dashboard_links(
+    templates: list[Path], dashboard_ids: dict[str, str]
+) -> None:
     for template in templates:
         if "Databricks Unified Cost Analysis" not in template.name:
             continue
@@ -237,7 +334,7 @@ def update_index_dashboard_links(templates: list[Path], dashboard_ids: dict[str,
         current.serialized_dashboard = rendered_dashboard(template, dashboard_ids)
         updated = w.lakeview.update(dashboard_id=dash_id, dashboard=current)
         host_url = f"https://{spark.conf.get('spark.databricks.workspaceUrl')}"
-        print(f'Index dashboard links updated at {updated.create_time}')
+        print(f"Index dashboard links updated at {updated.create_time}")
         print(f"{host_url}/dashboardsv3/{dash_id}/published")
         return
 
@@ -279,6 +376,7 @@ def grant_dashboard_read(dashboard_id: str) -> None:
     except Exception as exc:
         print(f"Could not grant dashboard permissions for {dashboard_id}: {exc}")
 
+
 # COMMAND ----------
 
 
@@ -315,9 +413,7 @@ def create_sql_functions() -> None:
 
     print(f"Creating {catalog}.{schema}.team_name_from_tags function...")
     keys = [
-        key.strip()
-        for key in tags_to_consider_for_team_name.split(",")
-        if key.strip()
+        key.strip() for key in tags_to_consider_for_team_name.split(",") if key.strip()
     ]
     param_cols = ["cluster_tags", "job_tags"]
     case_list = []
@@ -364,7 +460,7 @@ def create_update_tables() -> None:
     def workspace_ref_with_usage_fallback(workspace_ref):
         workspace_ref.createOrReplaceTempView("workspace_ref")
         return spark.sql(
-            f"""SELECT * FROM workspace_ref
+            """SELECT * FROM workspace_ref
             UNION
             SELECT DISTINCT workspace_id, workspace_id AS workspace_name
             FROM system.billing.usage
@@ -492,7 +588,9 @@ def create_update_tables() -> None:
     )
     print(f"Table {catalog}.{schema}.warehouse_reference created/updated")
 
+
 # COMMAND ----------
+
 
 selected_actions = [action.strip() for action in actions.split(",") if action.strip()]
 run_all = "All" in selected_actions

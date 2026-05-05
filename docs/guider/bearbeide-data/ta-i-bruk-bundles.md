@@ -11,7 +11,7 @@ Denne guiden er ikke skrevet ennå.
 Claude foreslår at denne siden bør dekke:
 
 - Forutsetninger (Databricks CLI, tilgang til workspace)
-- Opprette en ny bundle fra eksemplene i `examples/`
+Se [Declarative Automation Bundles (referanse)](../../referanse/databricks-bundles.md) for oversikt over tilgjengelige bundler.
 - Bygge, deploye og kjøre bundlen
 - Overstyre variabler for ulike targets (dev/stage/prod)
 - Verifisere at jobben kjører i Databricks

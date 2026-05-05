@@ -1,0 +1,96 @@
+{
+  "welcome_message": "Welcome to Paddas Asset Bundle Templates!",
+  "min_databricks_cli_version": "v0.236.0",
+  "properties": {
+    "catalog_name": {
+      "type": "string",
+      "default": "{{default_catalog}}",
+      "description": "Target Unity Catalog name for this domain (e.g. main)",
+      "order": 0,
+      "pattern": "^[a-z0-9_]+$",
+      "pattern_match_failure_message": "Please enter a valid catalog name consisting of lowercase letters, numbers, or underscores."
+    },
+    "stage_workspace_host": {
+      "type": "string",
+      "default": "{{workspace_host}}",
+      "description": "Stage Databricks workspace host URL (e.g. https://adb-1234567890123456.cloud.databricks.com)",
+      "order": 1,
+      "pattern": "^https://.+$",
+      "pattern_match_failure_message": "Please enter a valid Databricks workspace URL beginning with https://."
+    },
+    "prod_workspace_host": {
+      "type": "string",
+      "default": "{{workspace_host}}",
+      "description": "Prod Databricks workspace host URL (e.g. https://adb-1234567890123456.cloud.databricks.com)",
+      "order": 2,
+      "pattern": "^https://.+$",
+      "pattern_match_failure_message": "Please enter a valid Databricks workspace URL beginning with https://."
+    },
+    "domain_name": {
+      "type": "string",
+      "description": "{{if false}}\n\nERROR: This template is not supported by your current Databricks CLI version.\nPlease hit control-C and go to https://docs.databricks.com/en/dev-tools/cli/install.html for instructions on upgrading the CLI to the minimum version (v0.236.0) supported by Padda Asset Bundle Templates.\n\n\n{{end}}Domain name",
+      "order": 3,
+      "pattern": "^[A-Za-z0-9_-]+$",
+      "pattern_match_failure_message": "Project name must consist of letters, numbers, dashes, or underscores."
+    },
+    "domain_description": {
+      "type": "string",
+      "description": "Description of the domain",
+      "order": 4
+    },
+    "setup_type": {
+      "type": "string",
+      "default": "default",
+      "enum": ["default", "minimal", "tailored"],
+      "description": "Select how this template should be configured.",
+      "order": 5
+    },
+    "include_example_jobs": {
+      "type": "string",
+      "default": "yes",
+      "enum": ["no", "yes"],
+      "description": "Include example pipelines and jobs in '{{.domain_name}}{{path_separator}}resources'?",
+      "order": 20,
+      "skip_prompt_if": {
+        "anyOf": [
+          {"properties": {
+              "setup_type": {
+                "const": "default"
+              }
+            }
+          },
+          {"properties": {
+              "setup_type": {
+                "const": "minimal"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "empower_vscode": {
+      "type": "string",
+      "default": "yes",
+      "enum": ["no", "yes"],
+      "description": "Include VS Code settings, extension recommendations?",
+      "order": 41,
+      "skip_prompt_if": {
+        "anyOf": [
+          {"properties": {
+              "setup_type": {
+                "const": "default"
+              }
+            }
+          },
+          {"properties": {
+              "setup_type": {
+                "const": "minimal"
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  "success_message": "\nStage workspace: {{.stage_workspace_host}}\nProd workspace: {{.prod_workspace_host}}\nProd service principal: {{template `service_principal_name` .}}\n→ To alter the bundle target, update the 'databricks.yml' and configure 'PROFILE_NAME' in a `.env` file\n\n✨ Your new domain has been created in the '{{.domain_name}}' directory!\n"
+}

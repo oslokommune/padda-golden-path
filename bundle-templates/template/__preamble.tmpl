@@ -1,0 +1,38 @@
+# Preamble
+
+This file only provides template directives; it is skipped for the actual output.
+
+{{skip "__preamble"}}
+
+{{if (eq .setup_type "minimal")}}
+
+  {{skip "{{.domain_name}}/notebooks/example_job.py"}}
+  {{skip "{{.domain_name}}/notebooks/pipelines"}}
+  {{skip "{{.domain_name}}/resources/example_job.yml"}}
+  {{skip "{{.domain_name}}/resources/example_pipeline_job.yml"}}
+  {{skip "{{.domain_name}}/.vscode"}}
+
+{{else}}
+
+  {{if (eq .setup_type "default")}}
+
+    {{skip "{{.domain_name}}/resources/.gitkeep"}}
+
+  {{else}}
+
+    {{if not (eq .include_example_jobs "yes") }}
+      {{skip "{{.domain_name}}/notebooks/example_job.py"}}
+      {{skip "{{.domain_name}}/notebooks/pipelines"}}
+      {{skip "{{.domain_name}}/resources/example_job.yml"}}
+      {{skip "{{.domain_name}}/resources/example_pipeline_job.yml"}}
+    {{else}}
+      {{skip "{{.domain_name}}/resources/.gitkeep"}}
+    {{end}}
+
+    {{if not (eq .empower_vscode "yes") }}
+      {{skip "{{.domain_name}}/.vscode"}}
+    {{end}}
+
+  {{end}}
+
+{{end}}

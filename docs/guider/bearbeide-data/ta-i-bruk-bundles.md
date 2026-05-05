@@ -1,8 +1,7 @@
 ---
 title: Ta i bruk Bundles
-description: Hvordan pakke og kjøre jobber og pipelines i Databricks med Bundles.
+description: Hvordan pakke og deploye jobber til Databricks med Bundles.
 diataxis: how-to
-icon: lucide/construction
 ---
 
 # Ta i bruk Bundles

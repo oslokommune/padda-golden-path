@@ -1,0 +1,187 @@
+# Databricks Feed Watcher — daily relevance check of Databricks release notes
+# against our three platform repos (padda-golden-path, padda-iac, padda-databrikker).
+# Posts short Slack notifications for entries Claude judges to be relevant.
+
+name: Databricks Feed Watcher
+
+on:
+  schedule:
+    # 06:00 Oslo time Mon-Fri, DST handled automatically by the timezone field.
+    - cron: "0 6 * * 1-5"
+      timezone: "Europe/Oslo"
+  workflow_dispatch:
+    inputs:
+      since:
+        description: "Override last-seen. ISO 8601 or 'N days ago'. Empty = use cached state."
+        required: false
+        default: ""
+      max_entries:
+        description: "Hard cap on entries handed to Claude."
+        required: false
+        default: "3"
+      dry_run:
+        description: "Skip Slack posting and don't persist last-seen state."
+        required: false
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: databricks-feed-watcher
+  cancel-in-progress: false
+
+jobs:
+  watch:
+    environment: claude-test
+    runs-on: ubuntu-latest
+
+    env:
+      MAX_ENTRIES: ${{ inputs.max_entries || '50' }}
+      OVERRIDE_SINCE: ${{ inputs.since || '' }}
+      DRY_RUN: ${{ inputs.dry_run || 'false' }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate GitHub App token for cross-repo reads
+        id: app-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.DATABRICKS_FEED_APP_ID }}
+          private-key: ${{ secrets.DATABRICKS_FEED_APP_PRIVATE_KEY }}
+          owner: oslokommune
+          repositories: padda-iac,padda-databrikker
+
+      - name: Checkout padda-iac
+        uses: actions/checkout@v4
+        with:
+          repository: oslokommune/padda-iac
+          token: ${{ steps.app-token.outputs.token }}
+          path: .repos/padda-iac
+
+      - name: Checkout padda-databrikker
+        uses: actions/checkout@v4
+        with:
+          repository: oslokommune/padda-databrikker
+          token: ${{ steps.app-token.outputs.token }}
+          path: .repos/padda-databrikker
+
+      - name: Restore last-seen state from cache
+        uses: actions/cache/restore@v4
+        with:
+          path: /tmp/state/last-seen.txt
+          key: databricks-feed-last-seen-${{ github.run_id }}
+          restore-keys: |
+            databricks-feed-last-seen-
+
+      - name: Fetch feed and filter new entries
+        id: feed
+        run: |
+          mkdir -p /tmp/state
+          python3 .github/scripts/filter-feed.py \
+            --state-file /tmp/state/last-seen.txt \
+            --override-since "$OVERRIDE_SINCE" \
+            --max-entries "$MAX_ENTRIES" \
+            --output-entries /tmp/new-entries.json \
+            --output-new-state /tmp/state/last-seen.txt.new
+          count=$(python3 -c 'import json; print(len(json.load(open("/tmp/new-entries.json"))["entries"]))')
+          echo "count=$count" >> "$GITHUB_OUTPUT"
+          echo "Found $count new entries"
+
+      - name: Configure AWS Credentials (OIDC)
+        if: steps.feed.outputs.count != '0'
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: eu-west-1
+
+      - name: Assess relevance with Claude
+        if: steps.feed.outputs.count != '0'
+        uses: anthropics/claude-code-action@v1
+        with:
+          use_bedrock: "true"
+          # Write only affects this ephemeral runner. State is stored in Actions
+          # cache (no git writes), and the cross-repo token is read-only — so
+          # nothing Claude writes reaches any repo.
+          claude_args: |
+            --model eu.anthropic.claude-sonnet-4-6
+            --allowedTools "Read,Write,Glob,Grep,Bash(ls:*),Bash(cat:*)"
+          prompt: |
+            You will assess whether new Databricks release-notes entries are
+            relevant for our Databricks platform, composed of three repos:
+
+              - padda-golden-path (this repo) — platform documentation
+              - .repos/padda-iac — infrastructure (Terraform)
+              - .repos/padda-databrikker — SAM/Lambda examples
+
+            Read the new entries from /tmp/new-entries.json. Each entry has
+            id, title, link, pub_date, categories, and summary.
+
+            For each entry:
+              1. Read title and summary.
+              2. Explore the three repos to see whether the feature touches
+                 existing functionality, configuration, or stated needs.
+                 Start with READMEs and top-level docs, then dig into modules,
+                 resource definitions, or code when that helps you decide.
+              3. Flag as relevant even if the feature isn't present in the
+                 repos today, but represents a meaningful platform-level
+                 capability the team should consider enabling for users —
+                 e.g. new governance primitives, metric views, policy
+                 tooling. Be conservative: not every UI tweak or
+                 incremental tool change qualifies.
+              4. Use your own judgement. It is fine — and common — for an
+                 entry to be irrelevant. Do not stretch to find relevance.
+              5. Do not quote secrets, tokens, or credentials in the report,
+                 even if you come across them. Just the reasoning.
+
+            Write the result to /tmp/relevance-report.json with this exact shape:
+
+              {
+                "assessments": [
+                  {
+                    "id": "<entry id>",
+                    "title": "<entry title>",
+                    "link": "<entry link>",
+                    "relevant": true | false,
+                    "reason": "<one or two sentences, in Norwegian>"
+                  }
+                ]
+              }
+
+            Rules:
+              - One assessment per input entry, in the same order.
+              - reason is in Norwegian, brief (one or two sentences).
+                For relevant=true, explain *why* it matters for our platform.
+                For relevant=false, a short note is enough (can be one sentence).
+              - Do not post anywhere. Do not create other files. Only write
+                /tmp/relevance-report.json.
+
+      - name: Post to Slack
+        if: steps.feed.outputs.count != '0'
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          args=()
+          if [ "$DRY_RUN" = "true" ]; then
+            args+=(--dry-run)
+          fi
+          python3 .github/scripts/post-to-slack.py \
+            --report /tmp/relevance-report.json \
+            "${args[@]}"
+
+      - name: Promote new state
+        if: env.DRY_RUN != 'true'
+        run: |
+          if [ -f /tmp/state/last-seen.txt.new ]; then
+            mv /tmp/state/last-seen.txt.new /tmp/state/last-seen.txt
+          fi
+
+      - name: Save last-seen state to cache
+        if: env.DRY_RUN != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: /tmp/state/last-seen.txt
+          key: databricks-feed-last-seen-${{ github.run_id }}

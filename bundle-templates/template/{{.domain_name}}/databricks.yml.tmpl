@@ -1,0 +1,53 @@
+bundle:
+  name: {{.domain_name}}
+
+include:
+  - "resources/*.yml"
+
+artifacts:
+  platform:
+    type: whl
+    path: .
+    build: uv build --wheel
+
+variables:
+  spark_version:
+    description: Default Spark version to use for jobs. LTS is default from bundle init.
+    default: 17.3.x-scala2.13
+  wheel_path:
+    description: Path of the wheel file.
+    default: ${workspace.root_path}/artifacts/.internal/*.whl
+  catalog:
+    description: Unity Catalog catalog for tables and schemas.
+    default: dev_catalog
+  schema:
+    description: Default schema for tables.
+    default: default
+
+targets:
+
+  # The 'stage' target, used for development
+  stage:
+    ## We use 'mode: development' to indicate this is a personal development copy:
+    ## - Deployed resources get prefixed with '[dev my_user_name]'
+    ## - Any job schedules and triggers are paused by default
+    ## - The 'development' mode is used for pipelines
+    mode: development
+    default: true
+    workspace:
+      host: {{.stage_workspace_host}}
+    presets:
+      artifacts_dynamic_version: true
+
+  # The 'prod' target, used for production deployment.
+  prod:
+    mode: production
+    workspace:
+      host: {{.prod_workspace_host}}
+      root_path: /Shared/.bundle/prod/${bundle.name}
+    run_as:
+      # Override this if your deployment should run as a different principal.
+      service_principal_name: {{template `service_principal_name` .}}
+    variables:
+      catalog: prod_catalog
+      schema: production

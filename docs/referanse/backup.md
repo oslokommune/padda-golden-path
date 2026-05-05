@@ -1,39 +1,40 @@
 ---
 title: Backup
-description: Hvordan backup fungerer.
+description: Beskrivelse av backup-løsningen for landing zone og Databricks-metadata.
 diataxis: reference
 ---
 
-# Hvordan backup fungerer
+# Backup
+
+Backup-løsningen sikrer at data og metadata kan gjenopprettes ved tap. Den dekker landing zone-bøtten og Databricks-metadata per workspace.
 
 ## Oversikt
 
-Det må være mulig å hente seg inn ved tap av data. For å sikre dette gjør vi følgende:
+- **Gjelder for:** Alle Databricks-workspaces og tilhørende S3-bøtter
+- **Mekanisme:** AWS Backup
+- **Komponenter som backes opp:** Landing zone-bøtte, Databricks-metadata-bøtte per workspace
+- **Komponenter som ikke backes opp:** Notebooks, tabeller (Delta-data)
+- **Avhengigheter:** [Standard boilerplate for backup](https://github.com/oslokommune/golden-path-boilerplate/tree/main/boilerplate/terraform/backup)
 
-- Backup av landing zone-bøtte
-- Versjonskontroll av kode-artifakter
-- Backup av metadata-tabeller i system.information_schema
+## Backup-komponenter
 
-## Trinnvis forløp av backup
-
-1. For hver workspace dumpes metadataen i system.information_schema til en S3-bøtte
-2. Metadata-bøtte og landing zone-bøtte tas backup av med AWS Backup
+| Komponent           | Hva som backes opp                                                           | Mekanisme                    | Destinasjon                                                |
+| ------------------- | ---------------------------------------------------------------------------- | ---------------------------- | ---------------------------------------------------------- |
+| Landing zone        | S3-bøtte med rådata                                                          | AWS Backup                   | AWS Backup vault                                           |
+| Databricks-metadata | Innhold fra `system.information_schema` (tabeller, views, permissions, m.m.) | Databricks-jobb + AWS Backup | Dedikert S3-bøtte per workspace, deretter AWS Backup vault |
 
 ## Databricks-metadata
 
-Et script som lever inne i hvert workspace tar backup av alt som ligger i system.information_schema gjennom en Databricks-jobb. Det dekker tabeller, views, permissions, etc.
+Et script som kjører som en Databricks-jobb inne i hvert workspace eksporterer alt innhold fra `system.information_schema`. Eksporten lagres i en dedikert S3-bøtte per workspace. Denne bøtten tas deretter backup av med AWS Backup på samme måte som landing zone.
 
-Dette lander i en dedikert S3-bøtte per workspace. Denne bøtten tas så backup av på samme måte som landing zone (se under).
+## Landing zone
 
-## Landing Zone
-
-Denne S3-bøtten tas backup av ved hjelp av [standard boilerplate for backup](https://github.com/oslokommune/golden-path-boilerplate/tree/main/boilerplate/terraform/backup). Denne bruker AWS Backup.
-
-[Utestet kode](../../../scripts/drafts/backup_tables.py)
+Landing zone-bøtten tas backup av med AWS Backup via [standard boilerplate for backup](https://github.com/oslokommune/golden-path-boilerplate/tree/main/boilerplate/terraform/backup).
 
 ## Begrensninger
 
-Det tas ikke backup av ting som notebooks og tabeller. Skulle det være et behov for dette i fremtiden finnes det artikler om [hvordan man gjør eksport](https://docs.databricks.com/aws/en/security/privacy/export-workspace-data).
+- Notebooks og Delta-tabeller (selve datainnholdet) inngår ikke i backup-løsningen.
+- Backup dekker kun det som er eksplisitt listet i [Backup-komponenter](#backup-komponenter).
 
 ## Relatert innhold
 

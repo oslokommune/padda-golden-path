@@ -6,14 +6,16 @@ import sys
 
 
 def generate_sql_from_json(json_file, object_type, name_fn):
-    with open(json_file, "r") as f:
+    with open(json_file) as f:
         for line in f:
             data = json.loads(line)
             if data.get("inherited_from", "NONE") == "NONE":
                 object_name = name_fn(data)
-                print(
-                    f"GRANT {data['privilege_type']} ON {object_type} {object_name} TO `{data['grantee']}`;"
+                grant = (
+                    f"GRANT {data['privilege_type']} ON {object_type}"
+                    f" {object_name} TO `{data['grantee']}`;"
                 )
+                print(grant)
 
 
 OBJECT_CONFIGS = [

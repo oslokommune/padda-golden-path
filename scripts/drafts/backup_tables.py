@@ -15,7 +15,13 @@ def updated_backup_schedule_table(backup_table_name):
     if spark.catalog.tableExists(backup_table_name):
         backup_df = spark.read.table(backup_table_name)
     else:
-        from pyspark.sql.types import IntegerType, StringType, StructField, StructType
+        from pyspark.sql.types import (
+            IntegerType,
+            StringType,
+            StructField,
+            StructType,
+            TimestampType,
+        )
 
         schema = StructType([
             StructField("catalog", StringType(), False),

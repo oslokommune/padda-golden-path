@@ -132,6 +132,6 @@ Fjern eventuelle midlertidige ressurser, slik som S3-bøtter for mellomlagring.
 
 ## Relatert innhold
 
-- [Backup](../../om-plattformen/konsepter/backup.md) — hvorfor backup er satt opp slik den er
+- [Backup](../../referanse/backup.md) — hvordan backup er satt opp
 - [Gjenopprette etter feil i pipelines](gjenopprette-etter-feil.md)
 - [`scripts/restore/generate_privilege_sql.py`](../../../scripts/restore/generate_privilege_sql.py) (scriptet er ikke tilgjengelig gjennom dokumentasjonssiden)

@@ -1,7 +1,7 @@
 ---
 title: Backup
 description: Hvordan backup fungerer.
-diataxis: explanation
+diataxis: reference
 ---
 
 # Backup

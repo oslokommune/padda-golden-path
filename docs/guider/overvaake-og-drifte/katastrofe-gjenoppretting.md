@@ -21,7 +21,7 @@ Finn ut hva som har skjedd og hopp til det steget. Forhåpentligvis er ikke alt 
 
 Skulle dette ikke være på plass er den enkleste måten å komme tilbake på å kontakte AWS og Databricks og be om gjenoppretting av kontoer. Naturligvis først AWS-kontoer (dev og prod) og deretter de to tilhørende Databricks-kontoene.
 
-Vi bruker [IaC](https://github.com/oslokommune/padda-iac) og de overordnede strukturene er der. Hvis AWS- eller Databricks-konto er ikke kan gjenopprettes så kan det kreve litt tilpassing av variabler som Databricks-kontonummer. Den som gjenoppretter må sikre seg admin-rettigheter for Databricks og AWS og kjøre (`terraform apply`) alle Terraform-stackene der.
+Vi bruker [IaC](https://github.com/oslokommune/padda-iac), og de overordnede strukturene er der. Hvis AWS- eller Databricks-konto ikke kan gjenopprettes så kan det kreve litt tilpassing av variabler som Databricks-kontonummer. Den som gjenoppretter må sikre seg admin-rettigheter for Databricks og AWS og kjøre `terraform apply` på alle Terraform-stackene der.
 
 ## Trinn 2: Gjenopprett kode i eventuelt rammede workspacer
 
@@ -98,6 +98,8 @@ SHOW GRANTS ON CATALOG <katalognavn>;
 
 Forventet utdata: Tillatelsene du forventer å ha gjenopprettet, listet med `principal`, `action_type` og `object_type`. Det bekrefter ikke alt, men burde være avslørende dersom ingenting fungerte.
 
+Gå gjennom Databricks-UI og sjekk at jobber går som normalt. Sjekk relevante Slack-kanaler for alerts.
+
 ## Feilsøking
 
 ??? failure "Restore-jobb feiler med `AccessDenied` mot S3"
@@ -105,7 +107,7 @@ Sannsynlig årsak: Du brukte standardrollen for AWS Backup, som ikke har `AWSBac
 
     Løsning:
 
-    - Start jobben på nytt med rollen `aws-backup-[dato][tall]` (se trinn 2).
+    - Start jobben på nytt med rollen `aws-backup-[dato][tall]` (se trinn 3A).
 
 ??? failure "`generate_privilege_sql.py` feiler med `<filnavn>.json not found`"
 Sannsynlig årsak: Mappen du pekte på mangler én eller flere av de forventede filene (`catalog_privileges.json`, `schema_privileges.json`, `table_privileges.json`, `volume_privileges.json`).
@@ -126,4 +128,4 @@ Sannsynlig årsak: Gruppen eller brukeren som hadde tilgang er slettet eller end
 
 - [Backup](../../om-plattformen/konsepter/backup.md) — hvorfor backup er satt opp slik den er
 - [Gjenopprette etter feil i pipelines](gjenopprette-etter-feil.md)
-- [`scripts/restore/generate_privilege_sql.py`](../../../scripts/restore/generate_privilege_sql.py)
+- [`scripts/restore/generate_privilege_sql.py`](../../../scripts/restore/generate_privilege_sql.py) (link fungerer kun lokalt)

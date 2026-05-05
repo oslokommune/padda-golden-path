@@ -2,7 +2,6 @@
 title: Gjenopprette når uhellet er ute
 description: Hvordan komme seg tilbake til et fungerende system.
 diataxis: how-to
-icon: lucide/construction
 ---
 
 # Gjenopprette når uhellet er ute
@@ -52,15 +51,18 @@ Hvis du kjører restore med standardrollen feiler jobben med en rettighetsfeil. 
 4. Start jobben og vent til status er **Completed**.
 
 !!! warning
-Hvis du gjenoppretter til en eksisterende bøtte, vil filer med samme navn kunne bli overskrevet. Vurder å gjenopprette til en ny bøtte først og kopiere over manuelt.
+Hvis du gjenoppretter til en eksisterende bøtte, vil filer i mål-bøtten med samme navn som i backup [ha prioritet](https://docs.aws.amazon.com/aws-backup/latest/devguide/restoring-s3.html#s3-restore-considerations). Hvis du ikke er sikker på at mål-bøtten er tom og at ingen skriver til den før restore er ferdig, vurder å gjenopprette til en ny bøtte først og kopiere over manuelt.
 
 ## Trinn 4: Kjør alle jobber og pipelines
 
 Gå inn i Databricks og kjør alle jobber under "Jobs & Pipelines" slik de normalt sett hadde blitt kjørt automatisk. Dette betyr i praksis å kjøre alle jobber som har en schedule. Hvis det er noen continuous pipelines som er avslått så må disse også startes.
 
-Dette burde bringe alle tabeller, etc. tilbake til det samme innhold de hadde før ting gikk galt. Det er viktig før neste steg.
+Dette burde bringe alle tabeller, etc. tilbake til det samme innhold de hadde før ting gikk galt. Sjekk et par tabeller manuelt og kontroller at ingenting er åpenbart feil.
 
 ## Trinn 5: Gjenopprett Databricks-tillatelser
+
+!!! note
+Sørg for at trinn 4 er gjort. Gjenoppretting av tillatelser på tabeller som ikke finnes vil fungere dårlig.
 
 ### Trinn A: Gjenopprett metadata-bøtten
 
@@ -88,7 +90,7 @@ Scriptet gjenoppretter bare tillatelser som ikke er arvet (`inherited_from = NON
 
 For landing zone-restore:
 
-Kontroller at forventede filer og prefikser er til stede i konsollen/GUI.
+Kontroller at filer og prefikser ser noenlunde riktig ut i AWS-konsollen/GUI.
 
 For tillatelses-restore, kjør i Databricks:
 

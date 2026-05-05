@@ -6,7 +6,7 @@ diataxis: how-to
 
 # Gjenopprette når uhellet er ute
 
-Denne veiledningen hjelper deg når ting har gått galt og viktig data er mistet.
+Denne veiledningen hjelper deg når ting har gått galt og viktig data er mistet. Vi tar ikke backup av alt, så det du skal ende opp med er ikke en fullstendig gjenoppretting, men i stedet et fungerende system.
 
 For gjenoppretting etter feil i en pipeline-kjøring (rerun, checkpoints, schema-endringer), se [Gjenopprette etter feil i pipelines](gjenopprette-etter-feil.md).
 
@@ -18,7 +18,7 @@ Finn ut hva som har skjedd og hopp til det steget. Forhåpentligvis er ikke alt 
 
 ## Trinn 1: Sørg for at Databricks og AWS er satt opp riktig
 
-Skulle dette ikke være på plass er den enkleste måten å komme tilbake på å kontakte AWS og Databricks og be om gjenoppretting av kontoer. Naturligvis først AWS-kontoer (dev og prod) og deretter de to tilhørende Databricks-kontoene. I skrivende stund kan Thomas Torp hjelpe med AWS.
+Skulle dette ikke være på plass er den enkleste måten å komme tilbake på å kontakte AWS og Databricks og be om gjenoppretting av kontoer. Naturligvis først AWS-kontoer (dev og prod) og deretter de to tilhørende Databricks-kontoene. Utviklerflyt-avdelingen og arkitektene i avdelingen for teknologi og sikker utvikling kan hjelpe med dette.
 
 Vi bruker [IaC](https://github.com/oslokommune/padda-iac), og de overordnede strukturene er der. Hvis AWS- eller Databricks-konto ikke kan gjenopprettes så kan det kreve litt tilpassing av variabler som Databricks-kontonummer. Den som gjenoppretter må sikre seg admin-rettigheter for Databricks og AWS og kjøre `terraform apply` på alle Terraform-stackene der.
 
@@ -100,7 +100,7 @@ SHOW GRANTS ON CATALOG <katalognavn>;
 
 Forventet utdata: Tillatelsene du forventer å ha gjenopprettet, listet med `principal`, `action_type` og `object_type`. Det bekrefter ikke alt, men burde være avslørende dersom ingenting fungerte.
 
-Gå gjennom Databricks-UI og sjekk at jobber og pipelines går som normalt. Sjekk relevante Slack-kanaler for alerts.
+Gå gjennom Databricks-UI og sjekk at jobber og pipelines går som normalt. Sjekk relevante Slack-kanaler for alerts. Sjekk at dashboards og Power BI-rapporter har plausible data.
 
 ## Feilsøking
 
@@ -125,6 +125,10 @@ Sannsynlig årsak: Gruppen eller brukeren som hadde tilgang er slettet eller end
     Løsning:
 
     - Verifiser principalen under innstillinger og tilpass SQL-en før du kjører den.
+
+## Rydd opp
+
+Fjern eventuelle midlertidige ressurser, slik som S3-bøtter for mellomlagring.
 
 ## Relatert innhold
 

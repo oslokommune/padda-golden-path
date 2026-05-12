@@ -1,0 +1,32 @@
+# Example job running on serverless compute.
+# Serverless is the default on this platform. Prefer it unless you specifically
+# need classic compute features (see 'example_job.yml').
+resources:
+  jobs:
+    example_serverless_job:
+      name: example_serverless_job
+
+      email_notifications:
+        on_failure:
+          # TODO: Replace with your team's notification email.
+          - notifications@example.com
+
+      tasks:
+        - task_key: wheel_task
+          timeout_seconds: 600
+          python_wheel_task:
+            package_name: {{template `package_name` .}}
+            entry_point: main
+          environment_key: default
+
+      # Dependencies for serverless tasks are declared per-environment at the
+      # job level. Tasks reference an environment via 'environment_key'.
+      environments:
+        - environment_key: default
+          spec:
+            # Serverless environment version. See release notes for available
+            # versions and their Databricks Runtime equivalents:
+            # https://docs.databricks.com/aws/en/release-notes/serverless/environment-version/
+            client: "5"
+            dependencies:
+              - ../dist/*.whl

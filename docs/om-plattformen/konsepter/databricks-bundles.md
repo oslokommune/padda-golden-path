@@ -1,26 +1,38 @@
 ---
 title: Declarative Automation Bundles
-description: Hvorfor vi bruker Bundles for deploy, hvordan targets og modes fungerer, og hva som gjor wheels problematiske.
+description: Hvorfor vi bruker bundles for deploy, hvordan targets og modes fungerer, og hva som gjør wheels problematiske.
 diataxis: explanation
 ---
 
 # Declarative Automation Bundles
 
-Declarative Automation Bundles (tidligere *Databricks Asset Bundles / DABs*) lar deg definere jobber, pipelines og artifacts som kode i YAML-filer, og deploye dem til en Databricks-workspace med en enkelt kommando. Tenk på det som infrastruktur-som-kode for Databricks.
+Declarative Automation Bundles (tidligere *Databricks Asset Bundles / DABs*) lar
+deg definere jobber, pipelines og artifacts som kode i YAML-filer, og deploye
+dem til et Databricks-workspace med én enkelt kommando. Tenk på det som
+infrastruktur-som-kode (IaC) for Databricks.
 
-## Hvorfor Bundles?
+## Hvorfor bundles?
 
-Uten Bundles deployer du manuelt: laster opp notebooks via UI, konfigurerer jobber med pek-og-klikk, og håper på at stage og prod er like. Det fungerer for en utvikler og et miljø, men bryter sammen når du trenger:
+Uten bundles deployer du manuelt: laster opp notebooks via det grafiske
+brukergrensesnittet, konfigurerer jobber med pek-og-klikk, og håper at stage og
+prod er like. Det fungerer for én utvikler og ett miljø, men bryter sammen når
+du trenger:
 
-- **Reproduserbarhet** — en ny utvikler skal kunne deploye hele pipelinen uten hjelp.
-- **Miljø-separasjon** — samme kode skal kjøre i stage med lavere ressurser og i prod med schedules og alarmer.
-- **Versjonskontroll** — endringer i jobbkonfigurasjon skal versjoneres, reviewes og rulles tilbake på lik linje med koden.
+- **Reproduserbarhet** — en ny utvikler skal kunne deploye hele pipelinen uten
+  hjelp.
+- **Miljøseparasjon** — samme kode skal kjøre i stage med lavere ressurser og i
+  prod med schedules og alarmer.
+- **Versjonskontroll** — endringer i jobbkonfigurasjon skal versjoneres,
+  reviewes og rulles tilbake på lik linje med koden.
 
-Bundles løser dette ved at alt — jobbdefinisjoner, cluster-konfigurasjon, variabler og tilganger — lever i Git sammen med koden.
+Bundles løser dette ved at alt — jobbdefinisjoner, cluster-konfigurasjon,
+variabler og tilganger — lever i Git sammen med koden.
 
-## Din Kode, flere workspaces
+## Din kode, flere workspaces
 
-Kjerneproblemet er enkelt: du har *en* kodebase, men *to eller flere* Databricks-workspaces med ulike hosts, kataloger, rettigheter og schedules. Bundles løser dette med **targets** og **modes**.
+Kjerneproblemet er enkelt: du har *en* kodebase, men *to eller flere*
+Databricks-workspaces med ulike hosts, kataloger, rettigheter og
+schedules. Bundles løser dette med **targets** og **modes**.
 
 ```mermaid
 flowchart LR
@@ -28,10 +40,10 @@ flowchart LR
         B["databricks.yml\n+ kode"]
     end
     subgraph Stage["Stage-workspace"]
-        D["[stage bruker] min_jobb\nSchedules: av"]
+        D["[stage bruker] my_job\nSchedules: av"]
     end
     subgraph Prod["Prod-workspace"]
-        P["min_jobb\nSchedules: aktive"]
+        P["my_job\nSchedules: aktive"]
     end
     B -->|"deploy -t stage"| Stage
     B -->|"deploy -t prod"| Prod
@@ -39,7 +51,8 @@ flowchart LR
 
 ### Targets — en konfigurasjon per miljø
 
-En *target* er en navngitt deploy-destinasjon. Hvert target peker på et workspace og kan overstyre variabler:
+Et *target* er en navngitt deploy-destinasjon. Hvert target peker på et
+workspace og kan overstyre variabler:
 
 ```yaml
 targets:
@@ -56,45 +69,79 @@ targets:
       catalog: prod_catalog
 ```
 
-Når du kjører `databricks bundle deploy`, brukes default-target (typisk `stage`). Med `databricks bundle deploy -t prod` brukes prod-target. Selve jobbdefinisjonen er identisk — bare destinasjonen endres.
+Når du kjører `databricks bundle deploy`, brukes default-target (typisk
+`stage`). Med `databricks bundle deploy -t prod` brukes prod-target. Selve
+jobbdefinisjonen er identisk — bare destinasjonen endres.
 
-Noen team bruker tre targets (`sandbox`, `stage`, `prod`) der `sandbox` kun er ment for uttesting av funksjonalitet i databricks.
+Noen team bruker tre targets (`sandbox`, `stage`, `prod`) der `sandbox` kun er
+ment for uttesting av funksjonalitet i Databricks.
 
 ### Modes — development vs. production
 
-Hvert target har en *mode* som endrer hvordan Bundles oppfører seg:
+Hvert target har en *mode* som endrer hvordan bundles oppfører seg:
 
-| Egenskap | `development` | `production` |
-|----------|:-------------|:-------------|
-| Navneprefix | `[dev <brukernavn>]` legges til alle ressurser | Ingen prefix — ressurser får det faktiske navnet |
-| Schedules og triggers | Deaktiveres automatisk | Aktive — jobber kjører som planlagt |
-| Root path | Under brukerens personlige mappe | Delt sti, typisk `/Shared/.bundle/prod/` |
-| Validering | Minimal | Streng — krever `permissions` eller `run_as` |
-| Isolering | Hver utvikler får sin egen kopi | En felles kopi for hele teamet |
+| Egenskap              | `development`                                  | `production`                                                                                   |
+|-----------------------|:-----------------------------------------------|:-----------------------------------------------------------------------------------------------|
+| Navneprefiks          | `[dev <brukernavn>]` legges til alle ressurser | Ingen prefiks — ressurser får det faktiske navnet                                              |
+| Schedules og triggers | Deaktiveres automatisk                         | Aktive — jobber kjører som planlagt                                                            |
+| Root path             | Under brukerens personlige mappe               | Eksplisitt sti, typisk `~/.bundle/<bundle>/<target>` under hjemområdet til service principalen |
+| Validering            | Minimal                                        | Streng — krever `permissions` eller `run_as`                                                   |
+| Isolasjon             | Hver utvikler får sin egen kopi                | En felles kopi for hele teamet                                                                 |
 
 !!! tip "Bruk development-mode lokalt"
-    I `development`-mode far alle ressurser et prefix med brukernavnet ditt. Det betyr at to utviklere kan deploye samtidig uten a overskrive hverandres jobber.
+    I `development`-mode får alle ressurser et prefiks med brukernavnet ditt. Det
+    betyr at to utviklere kan deploye samtidig uten å overskrive hverandres jobber.
 
-`production`-mode krever at du eksplisitt definerer hvem som eier ressursene — enten gjennom `permissions` (hvem kan se/styre) eller `run_as` (hvilken bruker/service principal kjører jobbene). Dette forhindrer at produksjonsjobber avhenger av en enkelt utviklers konto.
+`production`-mode krever at du eksplisitt definerer hvem som eier ressursene —
+enten gjennom `permissions` (hvem kan se/styre) eller `run_as` (hvilken
+bruker/service principal kjører jobbene). Dette forhindrer at produksjonsjobber
+avhenger av en enkelt utviklers konto.
+
+For konkret YAML-oppsett av targets og modes, se [Ta i bruk bundles —
+Konfigurere targets for stage og
+prod](../../guider/bearbeide-data/ta-i-bruk-bundles.md#konfigurere-targets-for-stage-og-prod).
+
+### Root path og eierskap i prod
+
+Anbefalt mønster for prod-target er `root_path:
+~/.bundle/${bundle.name}/${bundle.target}`. `~/` refererer til hjemområdet til
+identiteten som deployer — for prod blir det service principalen i
+`run_as`. Eierskapet blir dermed tydelig knyttet til service principalen som
+faktisk eier ressursene, og leter du opp ressursene i workspacet, finner du dem
+under service principalens mappe.
+
+Target-suffikset er en billig forsikring mot at stage- og prod-deploy ender oppå
+hverandre om noen ved et uhell deployer feil target til samme workspace. I
+`development`-mode setter bundlen en tilsvarende sti automatisk under brukerens
+hjemområde, så `root_path` trenger normalt bare settes eksplisitt i prod-target.
 
 ## Wheels
 
-Python wheels er en vanlig kilde til frustrasjon i Databricks. På en lokal maskin kjører du `pip install` og alt fungerer. På et Databricks-cluster er situasjonen annerledes.
+Python wheels er en vanlig kilde til frustrasjon i Databricks. På en lokal
+maskin kjører du `pip install` og alt fungerer. I et Databricks-cluster er
+situasjonen annerledes.
 
-### Hvorfor klustre ikke har internett
+### Hvorfor clustere ikke har internett
 
-Databricks-klustre i Padda kjører i et isolert nettverk uten utgående internettilgang. Det betyr at `pip install <pakke>` fra PyPI ikke fungerer. I stedet må wheel-filer være tilgjengelige *inne i* workspacen — enten på en Unity Catalog Volume eller som en del av bundle-deployen.
+Databricks-clustere i Padda kjører i et isolert nettverk uten utgående
+internettilgang. Det betyr at `pip install <pakke>` fra PyPI ikke fungerer. I
+stedet må wheel-filer være tilgjengelige *inne i* workspacet — enten på en Unity
+Catalog Volume eller som en del av bundle-deployen.
 
-### To strategier for wheel-distribusjon
+### Hvor kommer wheelet fra?
 
-Det finnes 2 måter å levere wheels til klustrene på. Hvilken som passer avhenger av om du bygger koden selv eller bruker tredjepartsbiblioteker.
+Bundles laster alltid opp wheels under `dist/` til workspacet som en del av en
+deploy.  Det som varierer er hvordan wheelet havner der i utgangspunktet — om
+det bare *samles inn* som en ferdig fil eller om det må *bygges* fra kildekode.
 
-| Strategi | Brukstilfelle | Fordeler | Ulemper |
-|----------|:-------------|:---------|:--------|
-| **Manuell opplasting til UC Volume** | Tredjepartsbiblioteker du ikke bygger selv (f.eks. `openpyxl`) | Enkel og eksplisitt, fungerer uten build-steg | Manuelt vedlikehold, vanskelig a holde i sync mellom workspaces |
-| **`artifacts`-seksjonen** | Ditt eget prosjekt med `pyproject.toml` | Bygger wheel automatisk ved deploy, versjonering integrert | Krever at prosjektet har en gyldig `pyproject.toml` |
+**Tredjepartsbiblioteker**, som for eksempel `openpyxl`, har ikke noe byggesteg,
+wheelet er allerede tilgjengelig på PyPI. Du *vendorer* det: kjører `pip
+download` før deploy slik at wheelet havner under `dist/deps/`, og legges ved
+bundlen som en vanlig fil. Da følger versjonen av tredjepartsbiblioteket samme
+livssyklus som koden din og endres gjennom samme PR-flyt.
 
-**`artifacts`-seksjonen** er den anbefalte strategien for din egen kode. Den ber Bundles om a bygge en wheel før deploy:
+**Din egen kode** har derimot et byggesteg. `artifacts`-seksjonen i
+`databricks.yml` automatiserer det ved å kjøre en build-kommando før deploy:
 
 ```yaml
 artifacts:
@@ -103,15 +150,23 @@ artifacts:
     build: uv build --wheel
 ```
 
-For tredjepartsbiblioteker som `openpyxl` — der du ikke har kildekoden — er manuell opplasting til en UC Volume den enkleste løsningen. Se [Laste opp Python-biblioteker](../../guider/bearbeide-data/laste-opp-python-biblioteker.md) for en steg-for-steg-guide, inkludert hvordan du håndterer forskjellen mellom ARM lokalt og Linux `x86_64` i Databricks.
+Resultatet havner i `dist/` og lastes opp sammen med bundlen.
 
-!!! Tip "Fler alternativ finnes"
-    Lag et script som sjekkes inn og legg wheels i gitignore.
-    Vær kreativ...
+I noen tilfeller kan en avhengighet som er stor, eller som deles på tvers av
+mange bundles, legges på et Unity Catalog Volume og refereres derfra. Se [Laste opp
+Python-biblioteker](../../guider/bearbeide-data/laste-opp-python-biblioteker.md)
+for hvordan, og merk at versjonen da ikke følger koden — du må oppdatere volumet
+manuelt når du oppgraderer avhengigheten.
+
+For praktisk YAML-oppsett av begge mønstre, se [Ta i bruk bundles — Håndtere
+Python
+wheels](../../guider/bearbeide-data/ta-i-bruk-bundles.md#handtere-python-wheels).
 
 ### Versjoneringskonflikter i development-mode
 
-Et kluster cacher wheel-filer. Hvis du deployer en ny versjon av wheelen med samme versjonsnummer, kan klusteret fortsette a bruke den gamle. I `development`-mode løser du dette med presetet `artifacts_dynamic_version`:
+Et cluster cacher wheel-filer. Hvis du deployer en ny versjon av wheelet med
+samme versjonsnummer, kan clusteret fortsette å bruke det gamle. I
+`development`-mode løser du dette med presetet `artifacts_dynamic_version`:
 
 ```yaml
 targets:
@@ -121,11 +176,14 @@ targets:
       artifacts_dynamic_version: true
 ```
 
-Dette legger til et unikt tidsstempel i versjonsnummeret ved hver deploy, slik at klusteret alltid henter den nyeste wheelen. I `production`-mode bruker du faste versjonsnummer fra `pyproject.toml` — der er det CI/CD-pipelinen som sikrer at riktig versjon deployes.
+Dette legger til et unikt tidsstempel i versjonsnummeret ved hver deploy, slik
+at clusteret alltid henter det nyeste wheelet. I `production`-mode bruker du
+faste versjonsnummer fra `pyproject.toml` — der er det CI/CD-pipelinen som
+sikrer at riktig versjon deployes.
 
 ## Deployflyt
 
-Fra lokal kode til jobb som kjører, følger denne flyten:
+Fra lokal kode til jobb som kjører følges denne flyten:
 
 ```mermaid
 flowchart TD
@@ -135,15 +193,38 @@ flowchart TD
     CI["CI/CD\nGitHub Actions"] -->|"-t prod"| D
 ```
 
-Lokalt kjører utviklere `validate` og `deploy` mot stage-target. I CI/CD-pipelinen (GitHub Actions) kjører `deploy -t prod` med en service principal som har tilgang til prod-workspacen. Service principals er maskinbrukere som ikke er knyttet til en enkelt persons konto — det sikrer at prod-jobber fortsetter å kjøre selv om en utvikler slutter.
+Lokalt kjører utviklere `validate` og `deploy` mot stage-target. I
+CI/CD-pipelinen (GitHub Actions) kjøres `deploy -t prod` med en service
+principal som har tilgang til prod-workspacet. Service principals er
+maskinbrukere som ikke er knyttet til en enkelt persons konto — det sikrer at
+prod-jobber fortsetter å kjøre selv om en utvikler slutter.
 
 ## Avveininger og begrensninger
 
-Bundles dekker deploy av jobber, pipelines og artifacts. De dekker *ikke*:
+Bundles dekker deploy av jobber, pipelines og artifacts. De kan også eie Unity
+Catalog Volumes for data som er tett koblet til koden — men da sletter `bundle
+destroy` også volumet og dataene i det. Se [Deklarere volumes som
+bundle-ressurser](../../guider/bearbeide-data/ta-i-bruk-bundles.md#deklarere-volumes-som-bundle-ressurser)
+i guiden for detaljer.
 
-- **Secrets** — hemmeligheter må konfigureres separat i Databricks-workspacen [Håndtere secrets](../../guider/hente-inn-data/haandtere-secrets.md
-- **Cluster policies** — administreres av plattformteamet, ikke av den enkelte bundle
-- **Rollback** — det finnes ingen innebygd rollback-mekanisme; du deployer forrige versjon på nytt fra Git
-- **Workspace-oppretting** — workspacen må eksistere før du deployer til den
+Bundles dekker *ikke*:
 
-Se [Ta i bruk Bundles](../../guider/bearbeide-data/ta-i-bruk-bundles.md) for en praktisk guide til å deploye din første bundle, og [Declarative Automation Bundles (referanse)](../../referanse/databricks-bundles.md) for konfigurasjonsfelt og tilgjengelige eksempler.
+- **Secrets** — håndteres separat fra bundles. Se [Håndtere
+  secrets](../../guider/hente-inn-data/haandtere-secrets.md).
+- **Plattformressurser** — workspaces, kataloger, schemas som deles på tvers av
+  team, og cluster policies eies av `padda-iac`, ikke av den enkelte
+  bundle. Workspacet må eksistere før du deployer til det. Se [Ansvarsfordeling
+  mellom bundles og
+  padda-iac](../../referanse/databricks-bundles.md#ansvarsfordeling-mellom-bundles-og-padda-iac).
+- **Rollback** — det finnes ingen innebygd rollback-mekanisme; du deployer
+  forrige versjon på nytt fra Git
+
+## Trenger du hjelp?
+
+- Se [Ta i bruk bundles](../../guider/bearbeide-data/ta-i-bruk-bundles.md) for
+  en praktisk guide til å deploye din første bundle
+- Se [Declarative Automation Bundles
+  (referanse)](../../referanse/databricks-bundles.md) for konfigurasjonsfelt og
+  eksempler
+- Spør i [#dig-dataspeilet](https://oslokommune.slack.com/archives/C01SFNFEXK7)
+  på Slack

@@ -12,21 +12,19 @@ artifacts:
 
 variables:
   spark_version:
-    description: Default Spark version to use for jobs. LTS is default from bundle init.
+    description: Default Spark version for jobs that use classic compute.
     default: 17.3.x-scala2.13
   wheel_path:
     description: Path of the wheel file.
     default: ${workspace.root_path}/artifacts/.internal/*.whl
   catalog:
     description: Unity Catalog catalog for tables and schemas.
-    default: dev_catalog
   schema:
     description: Default schema for tables.
-    default: default
 
 targets:
 
-  # The 'stage' target, used for development
+  # The 'stage' target, used for development.
   stage:
     ## We use 'mode: development' to indicate this is a personal development copy:
     ## - Deployed resources get prefixed with '[dev my_user_name]'
@@ -38,13 +36,20 @@ targets:
       host: {{.stage_workspace_host}}
     presets:
       artifacts_dynamic_version: true
+    variables:
+      catalog: dev_catalog
+      schema: default
 
   # The 'prod' target, used for production deployment.
   prod:
     mode: production
     workspace:
       host: {{.prod_workspace_host}}
-      root_path: /Shared/.bundle/prod/${bundle.name}
+      # '~/' resolves to the home directory of the identity in 'run_as' (the
+      # service principal below). The '${bundle.target}' suffix prevents
+      # accidental collisions if multiple targets ever deploy to the same
+      # workspace.
+      root_path: ~/.bundle/${bundle.name}/${bundle.target}
     run_as:
       # Override this if your deployment should run as a different principal.
       service_principal_name: {{template `service_principal_name` .}}

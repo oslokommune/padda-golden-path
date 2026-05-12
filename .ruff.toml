@@ -35,7 +35,6 @@ known-first-party = [
   "common",
   "pipelines",
   "etl_job",
-  "golden_path",
 ]
 combine-as-imports = true
 

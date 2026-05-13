@@ -65,18 +65,16 @@ def build_payload(report: dict) -> dict:
         repo_url = f"https://github.com/{full_name}"
 
         if not prs:
-            blocks.append(
-                {
-                    "type": "section",
-                    "text": {
-                        "type": "mrkdwn",
-                        "text": (
-                            f"*<{repo_url}|{short_name}>*\n"
-                            "_Ingen sammenslåtte PR-er denne uken._"
-                        ),
-                    },
-                }
-            )
+            blocks.append({
+                "type": "section",
+                "text": {
+                    "type": "mrkdwn",
+                    "text": (
+                        f"*<{repo_url}|{short_name}>*\n"
+                        "_Ingen sammenslåtte PR-er denne uken._"
+                    ),
+                },
+            })
             continue
 
         lines = [f"*<{repo_url}|{short_name}>* — {len(prs)} sammenslåtte PR-er"]
@@ -87,12 +85,10 @@ def build_payload(report: dict) -> dict:
             author = (pr.get("author") or {}).get("login") or "ukjent"
             lines.append(f"• <{url}|#{number}> {title} — @{author}")
 
-        blocks.append(
-            {
-                "type": "section",
-                "text": {"type": "mrkdwn", "text": "\n".join(lines)},
-            }
-        )
+        blocks.append({
+            "type": "section",
+            "text": {"type": "mrkdwn", "text": "\n".join(lines)},
+        })
 
     return {"blocks": blocks}
 

@@ -1,0 +1,72 @@
+# Weekly Platform Report — Monday morning summary of merged PRs across the
+# three platform repos (padda-golden-path, padda-iac, padda-databrikker).
+# Posts a single Slack message to the PR-bot channel.
+
+name: Weekly Platform Report
+
+on:
+  schedule:
+    # 08:00 Oslo time every Monday (DST handled automatically).
+    - cron: "0 8 * * 1"
+      timezone: "Europe/Oslo"
+  workflow_dispatch:
+    inputs:
+      since_days:
+        description: "Lookback window in days (default 7)."
+        required: false
+        default: "7"
+      dry_run:
+        description: "Skip Slack posting and print payload instead."
+        required: false
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: weekly-platform-report
+  cancel-in-progress: false
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+
+    env:
+      SINCE_DAYS: ${{ inputs.since_days || '7' }}
+      DRY_RUN: ${{ inputs.dry_run || 'false' }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # App token is only needed for cross-repo reads (padda-iac,
+      # padda-databrikker).
+      - name: Generate GitHub App token for cross-repo reads
+        id: app-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.DATABRICKS_FEED_APP_ID }}
+          private-key: ${{ secrets.DATABRICKS_FEED_APP_PRIVATE_KEY }}
+          owner: oslokommune
+          repositories: padda-iac,padda-databrikker
+
+      - name: Build weekly report
+        env:
+          SELF_TOKEN: ${{ github.token }}
+          CROSS_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          python3 .github/scripts/build-weekly-report.py \
+            --since-days "$SINCE_DAYS" \
+            --output /tmp/weekly-report.json
+
+      - name: Post to Slack
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL_PR_BOT }}
+        run: |
+          args=()
+          if [ "$DRY_RUN" = "true" ]; then
+            args+=(--dry-run)
+          fi
+          python3 .github/scripts/post-weekly-report.py \
+            --report /tmp/weekly-report.json \
+            "${args[@]}"

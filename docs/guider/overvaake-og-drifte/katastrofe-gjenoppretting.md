@@ -41,7 +41,8 @@ Standardrollen for restore i AWS Backup har **ikke** rettigheter til S3. Bruk i 
 3. Noter ARN-en for rollen.
 
 !!! warning
-Hvis du kjører restore med standardrollen feiler jobben med en rettighetsfeil. Det er ingen automatisk fallback.
+
+    Hvis du kjører restore med standardrollen feiler jobben med en rettighetsfeil. Det er ingen automatisk fallback.
 
 ### Trinn B: Start restore-jobben
 
@@ -51,7 +52,8 @@ Hvis du kjører restore med standardrollen feiler jobben med en rettighetsfeil. 
 4. Start jobben og vent til status er **Completed**.
 
 !!! warning
-Hvis du gjenoppretter til en eksisterende bøtte, vil filer i mål-bøtten med samme navn som i backup [ha prioritet](https://docs.aws.amazon.com/aws-backup/latest/devguide/restoring-s3.html#s3-restore-considerations). Hvis du ikke er sikker på at mål-bøtten er tom og at ingen skriver til den før restore er ferdig, vurder å gjenopprette til en ny bøtte først og kopiere over manuelt.
+
+    Hvis du gjenoppretter til en eksisterende bøtte, vil filer i mål-bøtten med samme navn som i backup [ha prioritet](https://docs.aws.amazon.com/aws-backup/latest/devguide/restoring-s3.html#s3-restore-considerations). Hvis du ikke er sikker på at mål-bøtten er tom og at ingen skriver til den før restore er ferdig, vurder å gjenopprette til en ny bøtte først og kopiere over manuelt.
 
 ## Trinn 4: Kjør alle jobber og pipelines
 
@@ -62,7 +64,8 @@ Dette burde bringe alle tabeller, etc. tilbake til det samme innhold de hadde f�
 ## Trinn 5: Gjenopprett Databricks-tillatelser
 
 !!! note
-Sørg for at trinn 4 er gjort. Gjenoppretting av tillatelser på tabeller som ikke finnes vil fungere dårlig.
+
+    Sørg for at trinn 4 er gjort. Gjenoppretting av tillatelser på tabeller som ikke finnes vil fungere dårlig.
 
 ### Trinn A: Gjenopprett metadata-bøtten
 
@@ -84,7 +87,8 @@ Først må du gjenopprette metadata-backupen (JSON-filer fra `system.information
 4. Kjør SQL-filen i Databricks (SQL Editor eller via en notebook tilknyttet et workspace der du er admin).
 
 !!! note
-Scriptet gjenoppretter bare tillatelser som ikke er arvet (`inherited_from = NONE`). Arvede tillatelser følger automatisk når foreldreobjektets tillatelser er på plass.
+
+    Scriptet gjenoppretter bare tillatelser som ikke er arvet (`inherited_from = NONE`). Arvede tillatelser følger automatisk når foreldreobjektets tillatelser er på plass.
 
 ## Bekreft resultatet
 
@@ -105,14 +109,16 @@ Gå gjennom Databricks-UI og sjekk at jobber og pipelines går som normalt. Sjek
 ## Feilsøking
 
 ??? failure "Restore-jobb feiler med `AccessDenied` mot S3"
-Sannsynlig årsak: Du brukte standardrollen for AWS Backup, som ikke har `AWSBackupServiceRolePolicyForS3Restore`.
+
+    Sannsynlig årsak: Du brukte standardrollen for AWS Backup, som ikke har `AWSBackupServiceRolePolicyForS3Restore`.
 
     Løsning:
 
     - Start jobben på nytt med rollen `aws-backup-[dato][tall]` (se trinn 3A).
 
 ??? failure "`generate_privilege_sql.py` feiler med `<filnavn>.json not found`"
-Sannsynlig årsak: Mappen du pekte på mangler én eller flere av de forventede filene (`catalog_privileges.json`, `schema_privileges.json`, `table_privileges.json`, `volume_privileges.json`).
+
+    Sannsynlig årsak: Mappen du pekte på mangler én eller flere av de forventede filene (`catalog_privileges.json`, `schema_privileges.json`, `table_privileges.json`, `volume_privileges.json`).
 
     Løsning:
 
@@ -120,7 +126,8 @@ Sannsynlig årsak: Mappen du pekte på mangler én eller flere av de forventede 
     - Skulle det være ønskelig å ikke ha med en fil, lag en tom en med samme navn
 
 ??? failure "`GRANT`-setningen feiler i Databricks med `principal does not exist`"
-Sannsynlig årsak: Gruppen eller brukeren som hadde tilgang er slettet eller endret siden backupen ble tatt.
+
+    Sannsynlig årsak: Gruppen eller brukeren som hadde tilgang er slettet eller endret siden backupen ble tatt.
 
     Løsning:
 

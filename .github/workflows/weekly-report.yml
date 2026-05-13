@@ -30,6 +30,10 @@ concurrency:
 
 jobs:
   report:
+    # Required to access DATABRICKS_FEED_APP_ID and
+    # DATABRICKS_FEED_APP_PRIVATE_KEY, which are scoped to this environment
+    # (same as databricks-feed-watcher.yml).
+    environment: claude-test
     runs-on: ubuntu-latest
 
     env:

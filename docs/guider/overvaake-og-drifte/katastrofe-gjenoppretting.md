@@ -141,5 +141,5 @@ Fjern eventuelle midlertidige ressurser, slik som S3-bøtter for mellomlagring.
 
 - [Backup](../../referanse/backup.md) — hvordan backup er satt opp
 - [Gjenopprette etter feil i pipelines](gjenopprette-etter-feil.md)
-- [`scripts/restore/generate_privilege_sql.py`](../../../scripts/restore/generate_privilege_sql.py) (scriptet er ikke tilgjengelig gjennom dokumentasjonssiden)
+- [`scripts/restore/generate_privilege_sql.py`](https://github.com/oslokommune/padda-golden-path/blob/main/scripts/restore/generate_privilege_sql.py)
 - [Databricks: Disaster Recovery](https://docs.databricks.com/aws/en/admin/disaster-recovery#automation-scripts-samples-and-prototypes)

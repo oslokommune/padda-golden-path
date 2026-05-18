@@ -79,7 +79,6 @@ nav = [
       { "Gjenopprette etter feil" = "guider/overvaake-og-drifte/gjenopprette-etter-feil.md" },
       { "Feilsøke med logger" = "guider/overvaake-og-drifte/logging.md" },
       { "Bruke DQX" = "guider/overvaake-og-drifte/bruke-dqx.md" },
-      { "Gjenopprette når uhellet er ute" = "guider/overvaake-og-drifte/katastrofe-gjenoppretting.md" },
     ]},
   ]},
   { "Referanse" = [

@@ -93,6 +93,7 @@ Hvis feilen tyder på et forbigående problem (timeout, kildefeil, kortvarig res
     En vanlig start fortsetter fra siste vellykkede tilstand — den leser kun nye filer eller rader fra kilden.
 
 !!! note
+
     Hvis samme feil kommer tilbake ved første reforsøk, er det sjelden forbigående. Gå tilbake til Trinn 2 og se etter en strukturell årsak før du prøver igjen.
 
 ## Trinn 4: Håndter skjemaendringer som bryter pipelinen
@@ -149,6 +150,7 @@ Når kilden får nye eller endrede kolonner, avhenger gjenopprettingen av om pip
         ```
 
 !!! warning "Full refresh sletter og bygger tabellen på nytt"
+
     Alle rader regenereres fra kilden. Sørg for at kilden fortsatt har all data du trenger, og varsle nedstrøms forbrukere før du starter.
 
 ## Trinn 5: Resett en låst streaming-checkpoint
@@ -186,6 +188,7 @@ En streaming-jobb (eller en streaming-tabell i en Declarative Pipeline) som ble 
     3. Start jobben på nytt. Streamen leser fra start, eller fra konfigurert startposisjon (`cloudFiles.includeExistingFiles` for Auto Loader, `startingVersion` / `startingTimestamp` for Delta-kilder).
 
 !!! warning "Sletting av checkpoint er irreversibelt"
+
     Streamen mister kunnskapen om hvilke filer/rader som er behandlet. For Auto Loader betyr det at alle filer i kildeområdet leses inn på nytt — det kan gi duplikater hvis nedstrøms tabeller ikke er idempotente. Bruk full refresh i stedet når mulig.
 
 ## Bekreft resultatet
@@ -208,6 +211,7 @@ Kontroller at pipelinen er frisk igjen:
 ## Feilsøking
 
 ??? failure "Pipeline starter, men feiler umiddelbart med samme feil"
+
     Endringene dine er sannsynligvis ikke deployet.
 
     Løsning:
@@ -216,6 +220,7 @@ Kontroller at pipelinen er frisk igjen:
     - For Declarative Pipelines: åpne **Settings** og verifiser at SQL/Python-stiene peker på den oppdaterte versjonen.
 
 ??? failure "`Full refresh` etterlater nedstrøms tabeller tomme"
+
     En full refresh på en oppstrøms tabell uten å inkludere nedstrøms tabeller bryter avhengighetene.
 
     Løsning:
@@ -223,6 +228,7 @@ Kontroller at pipelinen er frisk igjen:
     - Kjør **Full refresh all**, eller velg alle tabeller som er nedstrøms av den du refreshet.
 
 ??? failure "`Repair run` er nedtonet i UI-et"
+
     Repair run er kun tilgjengelig for kjøringer som har feilet eller blitt avbrutt, og er kun støttet for jobber som orkestrerer to eller flere tasks.
 
     Løsning:
@@ -231,6 +237,7 @@ Kontroller at pipelinen er frisk igjen:
     - For en kjøring som står som `Succeeded` (men med feil i innholdet): trigg en ny kjøring på samme måte.
 
 ??? failure "Streaming-jobben starter, men leser ingen nye filer"
+
     Auto Loader bruker checkpointet til å huske hvilke filer som er sett. Hvis checkpointet peker på en tom eller utdatert tilstand, kan streamen stå stille.
 
     Løsning:

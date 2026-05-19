@@ -22,6 +22,7 @@ Sørg for at du har:
 - Run-ID eller jobbnavn for kjøringen du skal feilsøke
 
 !!! note
+
     Databricks oppbevarer kjørehistorikk i 60 dager. Eldre kjøringer må eksporteres
     før de utløper hvis du trenger dem til etterforskning.
 
@@ -65,6 +66,7 @@ databricks jobs get-run-output <RUN_ID>
 ```
 
 !!! note
+
     For serverless compute eksponeres ikke `log4j`-fanen og Spark UI på samme måte
     som for klassisk compute. Bruk **Query profile** og **Metrics**-fanen i jobb-UI-et
     for ytelses- og spørringsdetaljer.
@@ -81,7 +83,7 @@ Lokaliser stacktracen i `stderr` og les den nedenfra og opp:
   men den faktiske årsaken (f.eks. `AnalysisException`, `FileNotFoundException`,
   `OutOfMemoryError`) ligger lenger ned.
 - For tasks som feilet under utførelse av en Spark-jobb, finn `Job aborted due
-  to stage failure` i `log4j` og bla oppover til den første failed task —
+to stage failure` i `log4j` og bla oppover til den første failed task —
   den inneholder ofte mer kontekst enn drivermeldingen.
 
 Se [Gjenopprette etter feil i pipelines](gjenopprette-etter-feil.md) når du
@@ -113,6 +115,7 @@ except Exception:
    inne i `except`-blokker.
 
 !!! warning
+
     Ikke logg hemmeligheter, persondata eller hele rader fra datasett. Logger fra
     driveren kan ende opp i langtidslagring (se Trinn 5) og være tilgjengelige for
     flere enn de som har tilgang til selve dataene.
@@ -140,6 +143,7 @@ Databricks leverer logger hvert 5. minutt og arkiverer dem hver time under
 `READ VOLUME` og `WRITE VOLUME` på volumet.
 
 !!! note
+
     Logglevering til volum krever Unity Catalog-aktivert compute med tilgangsmodus
     **Standard** eller **Dedicated** (tilordnet en bruker). Det støttes ikke for
     serverless eller for **Dedicated** tilordnet en gruppe.
@@ -170,6 +174,7 @@ ID         Start Time           ...  Status     Result State
 ## Feilsøking
 
 ??? failure "Loggene er tomme eller mangler `log4j`"
+
     Sannsynlig årsak: tasken kjører på serverless compute, eller compute ble
     terminert før loggene ble levert til varig lagring.
 
@@ -181,6 +186,7 @@ ID         Start Time           ...  Status     Result State
       logger persisteres utenfor compute-livssyklusen.
 
 ??? failure "`Py4JJavaError` uten meningsfull årsak"
+
     Sannsynlig årsak: den faktiske feilen kommer fra en executor og er ikke
     fullstendig propagert til driveren.
 
@@ -191,6 +197,7 @@ ID         Start Time           ...  Status     Result State
       executor-loggene for den feilede tasken.
 
 ??? failure "`logger.info(...)` vises ikke i `stderr`"
+
     Sannsynlig årsak: rot-loggeren er konfigurert med et høyere nivå enn `INFO`,
     eller du har laget en logger uten å sette nivå.
 

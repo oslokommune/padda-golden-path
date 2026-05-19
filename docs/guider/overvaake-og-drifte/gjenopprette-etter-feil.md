@@ -41,24 +41,24 @@ Noter deg hvilket **task** eller hvilken **flow/tabell** som feilet — det er d
 
 Les feilmeldingen øverst på kjørings-/oppdateringssiden. De fleste feil havner i en av disse kategoriene:
 
-| Symptom                                              | Sannsynlig årsak                       | Hvor du leter videre                                              |
-| ---------------------------------------------------- | -------------------------------------- | ----------------------------------------------------------------- |
-| `UnknownFieldException`, skjemaavvik                 | Ny eller endret kolonne i kilden       | Trinn 4                                                           |
-| `AnalysisException`, type-mismatch                   | Brudd i kontrakten mellom lag          | Trinn 4                                                           |
-| Timeout, `RequestTimeout`, 5xx fra ekstern API       | Forbigående nettverks- eller kildefeil | Trinn 3                                                           |
-| `ConcurrentModificationException`, lås på checkpoint | Forrige kjøring ble avsluttet brått    | Trinn 5                                                           |
-| Permission denied, `does not have USE CATALOG`       | Manglende rettigheter                  | [Roller og rettigheter](../../referanse/roller-og-rettigheter.md) |
-| Expectation/DQX-feil                                 | Datakvalitetsbrudd                     | [Bruke DQX](./bruke-dqx.md)                                       |
+| Symptom                                                        | Sannsynlig årsak                       | Hvor du leter videre                                              |
+| -------------------------------------------------------------- | -------------------------------------- | ----------------------------------------------------------------- |
+| `UnknownFieldException` / `UNKNOWN_FIELD_EXCEPTION`            | Ny eller endret kolonne i kilden       | Trinn 4                                                           |
+| `AnalysisException` med `DATATYPE_MISMATCH`                    | Brudd i kontrakten mellom lag          | Trinn 4                                                           |
+| Timeout, `RequestTimeout`, 5xx fra ekstern API                 | Forbigående nettverks- eller kildefeil | Trinn 3                                                           |
+| `CONCURRENT_STREAM_LOG_UPDATE`, `DELTA_CONCURRENT_TRANSACTION` | Forrige kjøring ble avsluttet brått    | Trinn 5                                                           |
+| `INSUFFICIENT_PERMISSIONS`, f.eks. `does not have USE CATALOG` | Manglende rettigheter                  | [Roller og rettigheter](../../referanse/roller-og-rettigheter.md) |
+| Expectation/DQX-feil                                           | Datakvalitetsbrudd                     | [Bruke DQX](./bruke-dqx.md)                                       |
 
 For mer kontekst, se logger og event log:
 
 === "Job"
 
-    Klikk på den feilede tasken og åpne **Output**, **Logs** og **Spark UI**. Driver-loggen inneholder full stacktrace.
+    Klikk på den feilede tasken for å se **task run-detaljer** med output, lenker til logger (driver- og executor-logg) og lenke til Spark UI / cluster. Driver-loggen inneholder full stacktrace.
 
 === "Declarative Pipeline"
 
-    Åpne fanen **Event log** for oppdateringen. Filtrer på `ERROR` for å finne første feilende hendelse — feil i nedstrøms tabeller er ofte følgefeil av en feil lenger oppe.
+    Åpne **Event log** for oppdateringen (panel nederst, eller via **View event log**). Filtrer på hendelser med `level = ERROR` for å finne første feilende hendelse — feil i nedstrøms tabeller er ofte følgefeil av en feil lenger oppe.
 
 Trenger du mer hjelp til logging, se [Feilsøke med logger](./logging.md).
 
@@ -153,7 +153,7 @@ Når kilden får nye eller endrede kolonner, avhenger gjenopprettingen av om pip
 
 ## Trinn 5: Resett en låst streaming-checkpoint
 
-En streaming-jobb (eller en streaming-tabell i en Declarative Pipeline) som ble avsluttet brått midt i en commit, kan etterlate seg en checkpoint-tilstand som blokkerer ny progresjon. Symptomer er gjerne `ConcurrentModificationException`, melding om at en batch allerede er committet, eller en stream som henger i `INITIALIZING` uten å produsere data.
+En streaming-jobb (eller en streaming-tabell i en Declarative Pipeline) som ble avsluttet brått midt i en commit, kan etterlate seg en checkpoint-tilstand som blokkerer ny progresjon. Symptomer er gjerne `CONCURRENT_STREAM_LOG_UPDATE`, `DELTA_CONCURRENT_TRANSACTION` (eller en rå `ConcurrentModificationException` i stacktracen), melding om at en batch allerede er committet, eller en stream som henger i `INITIALIZING` uten å produsere data. Se også [Databricks-dokumentasjon: Recover a pipeline from streaming checkpoint failure](https://docs.databricks.com/aws/en/ldp/recover-streaming).
 
 === "Declarative Pipeline"
 
@@ -246,3 +246,4 @@ Kontroller at pipelinen er frisk igjen:
 - [Declarative Automation Bundles](../../referanse/databricks-bundles.md)
 - [Databricks-dokumentasjon: Repair an unsuccessful job run](https://docs.databricks.com/aws/en/jobs/repair-job-failures)
 - [Databricks-dokumentasjon: Run a pipeline update](https://docs.databricks.com/aws/en/dlt/updates)
+- [Databricks-dokumentasjon: Recover a pipeline from streaming checkpoint failure](https://docs.databricks.com/aws/en/ldp/recover-streaming)

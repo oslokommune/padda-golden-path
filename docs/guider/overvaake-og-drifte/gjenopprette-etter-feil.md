@@ -21,7 +21,7 @@ Sørg for at du har:
 
 ## Trinn 1: Finn den feilede kjøringen
 
-Gå til **Workflows** i Databricks-arbeidsområdet og velg fanen som matcher pipelinen din:
+Gå til **Jobs & Pipelines** i Databricks-arbeidsområdet og velg fanen som matcher pipelinen din:
 
 === "Job"
 
@@ -102,10 +102,10 @@ Når kilden får nye eller endrede kolonner, avhenger gjenopprettingen av om pip
 === "Permissive"
 
     1. Start pipelinen på nytt. Med `schemaEvolutionMode => 'addNewColumns'` feiler første kjøring som ser den nye kolonnen — Auto Loader registrerer kolonnen i schema-tilstanden, og neste start tar den med i bronse-tabellen automatisk.
-    2. Hvis du vil ha med den nye kolonnen i silver/gold med historikk, kjør **Full refresh** på de tabellene som leser fra bronse:
+    2. Hvis du vil ha med den nye kolonnen i silver/gold med historikk, kjør **Full refresh** på de tabellene som leser fra bronse. `--full-refresh` på `start-update` resetter alle tabeller i pipelinen:
 
         ```bash
-        databricks pipelines start-update <pipeline_id> --full-refresh-all
+        databricks pipelines start-update <pipeline_id> --full-refresh
         ```
 
         Eller via UI: **Start** → **Full refresh all** (eller **Full refresh selection** for utvalgte tabeller).
@@ -122,7 +122,14 @@ Når kilden får nye eller endrede kolonner, avhenger gjenopprettingen av om pip
     3. Kjør **Full refresh** på de tabellene du har endret skjema på. Streaming-tabellen er deklarert med eksplisitt kolonneliste, så en endret skjemadefinisjon krever at tabellen bygges på nytt:
 
         ```bash
-        databricks pipelines start-update <pipeline_id> --full-refresh-all
+        databricks pipelines start-update <pipeline_id> --full-refresh
+        ```
+
+        For å refreshe kun utvalgte tabeller, send en JSON-body med `full_refresh_selection`:
+
+        ```bash
+        databricks pipelines start-update <pipeline_id> \
+          --json '{"full_refresh_selection": ["<table_name>"]}'
         ```
 
 !!! warning "Full refresh sletter og bygger tabellen på nytt"
@@ -137,7 +144,8 @@ En streaming-jobb (eller en streaming-tabell i en Declarative Pipeline) som ble 
     Kjør **Full refresh** på den aktuelle streaming-tabellen. Pipelinen oppretter ny checkpoint-tilstand fra bunn:
 
     ```bash
-    databricks pipelines start-update <pipeline_id> --full-refresh <table_name>
+    databricks pipelines start-update <pipeline_id> \
+      --json '{"full_refresh_selection": ["<table_name>"]}'
     ```
 
 === "Egen streaming-jobb"
@@ -160,7 +168,7 @@ En streaming-jobb (eller en streaming-tabell i en Declarative Pipeline) som ble 
 
 Kontroller at pipelinen er frisk igjen:
 
-1. **Status:** Siste kjøring/oppdatering står som `Succeeded` i **Workflows**.
+1. **Status:** Siste kjøring/oppdatering står som `Succeeded` i **Jobs & Pipelines**.
 2. **Data:** Spør tabellene pipelinen skriver til, og verifiser at radantallet og siste tidsstempel er som forventet (forutsetter at tabellen har en `ingested_at`-kolonne — bundle-malene legger denne på automatisk):
 
    ```sql
@@ -191,11 +199,12 @@ Kontroller at pipelinen er frisk igjen:
     - Kjør **Full refresh all**, eller velg alle tabeller som er nedstrøms av den du refreshet.
 
 ??? failure "`Repair run` er nedtonet i UI-et"
-    Repair run er kun tilgjengelig for kjøringer som har feilet eller blitt avbrutt.
+    Repair run er kun tilgjengelig for kjøringer som har feilet eller blitt avbrutt, og er kun støttet for jobber som orkestrerer to eller flere tasks.
 
     Løsning:
 
-    - For en kjøring som står som `Succeeded` (men med feil i innholdet): trigg en ny kjøring med **Run now** eller `databricks bundle run`.
+    - For en jobb med kun én task: trigg en ny kjøring med **Run now** eller `databricks bundle run`. Den feilede kjøringen forblir markert som feilet i historikken.
+    - For en kjøring som står som `Succeeded` (men med feil i innholdet): trigg en ny kjøring på samme måte.
 
 ??? failure "Streaming-jobben starter, men leser ingen nye filer"
     Auto Loader bruker checkpointet til å huske hvilke filer som er sett. Hvis checkpointet peker på en tom eller utdatert tilstand, kan streamen stå stille.

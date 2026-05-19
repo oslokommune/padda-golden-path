@@ -110,7 +110,7 @@ Vellykkede tasks gjenbrukes som de er.
 === "CLI"
 
     ```bash
-    databricks jobs repair-run <RUN_ID> --rerun-tasks <TASK_KEY>,<TASK_KEY>
+    databricks jobs repair-run <RUN_ID> --rerun-all-failed-tasks
     ```
 
 !!! note

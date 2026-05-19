@@ -102,10 +102,18 @@ Når kilden får nye eller endrede kolonner, avhenger gjenopprettingen av om pip
 === "Permissive"
 
     1. Start pipelinen på nytt. Med `schemaEvolutionMode => 'addNewColumns'` feiler første kjøring som ser den nye kolonnen — Auto Loader registrerer kolonnen i schema-tilstanden, og neste start tar den med i bronse-tabellen automatisk.
-    2. Hvis du vil ha med den nye kolonnen i silver/gold med historikk, kjør **Full refresh** på de tabellene som leser fra bronse. `--full-refresh` på `start-update` resetter alle tabeller i pipelinen:
+    2. Hvis du vil ha med den nye kolonnen i silver/gold med historikk, kjør **Full refresh** på de tabellene som leser fra bronse.
+
+        For å refreshe alle tabeller i pipelinen:
 
         ```bash
         databricks pipelines start-update <pipeline_id> --full-refresh
+        ```
+
+        For å refreshe kun utvalgte tabeller (bundle-kommando som bruker pipeline-nøkkel fra YAML):
+
+        ```bash
+        databricks pipelines run <pipeline_key> -t <target> --full-refresh <tabell_navn>
         ```
 
         Eller via UI: **Start** → **Full refresh all** (eller **Full refresh selection** for utvalgte tabeller).
@@ -121,11 +129,19 @@ Når kilden får nye eller endrede kolonner, avhenger gjenopprettingen av om pip
 
     3. Kjør **Full refresh** på de tabellene du har endret skjema på. Streaming-tabellen er deklarert med eksplisitt kolonneliste, så en endret skjemadefinisjon krever at tabellen bygges på nytt:
 
+        For å refreshe alle tabeller i pipelinen:
+
         ```bash
         databricks pipelines start-update <pipeline_id> --full-refresh
         ```
 
-        For å refreshe kun utvalgte tabeller, send en JSON-body med `full_refresh_selection`:
+        For å refreshe kun utvalgte tabeller (bundle-kommando som bruker pipeline-nøkkel fra YAML):
+
+        ```bash
+        databricks pipelines run <pipeline_key> -t <target> --full-refresh <table_name>
+        ```
+
+        Alternativt via REST API-wrapperkommandoen med JSON-body:
 
         ```bash
         databricks pipelines start-update <pipeline_id> \
@@ -141,7 +157,15 @@ En streaming-jobb (eller en streaming-tabell i en Declarative Pipeline) som ble 
 
 === "Declarative Pipeline"
 
-    Kjør **Full refresh** på den aktuelle streaming-tabellen. Pipelinen oppretter ny checkpoint-tilstand fra bunn:
+    Kjør **Full refresh** på den aktuelle streaming-tabellen. Pipelinen oppretter ny checkpoint-tilstand fra bunn.
+
+    Via bundle-kommandoen (bruker pipeline-nøkkel fra YAML):
+
+    ```bash
+    databricks pipelines run <pipeline_key> -t <target> --full-refresh <table_name>
+    ```
+
+    Alternativt via REST API-wrapperkommandoen med JSON-body:
 
     ```bash
     databricks pipelines start-update <pipeline_id> \
@@ -154,7 +178,7 @@ En streaming-jobb (eller en streaming-tabell i en Declarative Pipeline) som ble 
     2. Slett (eller flytt) checkpoint-mappen. Plattformen bruker Unity Catalog Volumes for slik tilstand:
 
         ```bash
-        databricks fs rm -r dbfs:/Volumes/<katalog>/<skjema>/<volum>/checkpoints/<stream_navn>
+        databricks fs rm --recursive dbfs:/Volumes/<katalog>/<skjema>/<volum>/checkpoints/<stream_navn>
         ```
 
         Hvis pipelinen din fortsatt skriver checkpoint til legacy-DBFS (`dbfs:/path/...`), gjelder samme kommando med riktig sti.

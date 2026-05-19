@@ -76,15 +76,15 @@ for å se stages, tasks, shuffle-statistikk og executor-logger per node.
 
 ## Trinn 3: Tolk vanlige feilmeldinger
 
-Lokaliser stacktracen i `stderr` og les den nedenfra og opp:
+Lokaliser stacktracen i `stderr` og finn rotårsaken:
 
 - Den **innerste** `Caused by:`-linjen er som regel rotårsaken.
 - Spark-feil starter ofte med `Py4JJavaError` eller `SparkException` på toppen,
   men den faktiske årsaken (f.eks. `AnalysisException`, `FileNotFoundException`,
   `OutOfMemoryError`) ligger lenger ned.
-- For tasks som feilet under utførelse av en Spark-jobb, finn `Job aborted due
-to stage failure` i `log4j` og bla oppover til den første failed task —
-  den inneholder ofte mer kontekst enn drivermeldingen.
+- For tasks som feilet under utførelse av en Spark-jobb, søk etter
+  `Job aborted due to stage failure` i `log4j` og bla oppover til den første
+  failed task — den inneholder ofte mer kontekst enn drivermeldingen.
 
 Se [Gjenopprette etter feil i pipelines](gjenopprette-etter-feil.md) når du
 har identifisert årsaken og skal restarte eller reparere kjøringen.
@@ -109,8 +109,8 @@ except Exception:
     raise
 ```
 
-1. Bruk lazy formatting (`%s`, `%d`) i stedet for f-strings — da unngår du å
-   evaluere argumentene når loggnivået er deaktivert.
+1. Bruk lazy formatting (`%s`, `%d`) i stedet for f-strings — da hopper
+   `logging` over selve strengformateringen når loggnivået er deaktivert.
 2. `logger.exception(...)` legger automatisk til full stacktrace — bruk den
    inne i `except`-blokker.
 

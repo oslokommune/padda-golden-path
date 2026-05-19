@@ -121,7 +121,9 @@ Vellykkede tasks gjenbrukes som de er.
       hvilken konfigurasjon som ble brukt i hver kjøring.
     - Repair bruker hver tasks **run state**, ikke deres `disabled`-status.
       For å tvinge en deaktivert task med i en repair, må den eksplisitt listes
-      i `rerun_tasks`.
+      i `rerun_tasks`. Fra CLI gjøres det med
+      `--json '{"rerun_tasks": ["<TASK_KEY>"]}'` i stedet for
+      `--rerun-all-failed-tasks`.
 
 Se [Gjenopprette etter feil i pipelines](gjenopprette-etter-feil.md) for andre
 scenarier (forbigående feil, låste streaming-checkpoints, schema-endringer).

@@ -128,7 +128,9 @@ Når kilden får nye eller endrede kolonner, avhenger gjenopprettingen av om pip
         databricks bundle deploy -t <target>
         ```
 
-    3. Kjør **Full refresh** på de tabellene du har endret skjema på. Streaming-tabellen er deklarert med eksplisitt kolonneliste, så en endret skjemadefinisjon krever at tabellen bygges på nytt:
+    3. Start pipelinen. For rene additive endringer (kun nye kolonner) evolverer pipelinen skjemaet på streaming-tabellen uten full refresh — eksisterende rader får `NULL` i den nye kolonnen, og nye rader populeres fra kilden.
+
+    4. Kjør **Full refresh** kun hvis du trenger å populere historiske rader med verdier fra den nye kolonnen, eller ved breaking endringer (rename, type-endring, fjerning av kolonne):
 
         For å refreshe alle tabeller i pipelinen:
 

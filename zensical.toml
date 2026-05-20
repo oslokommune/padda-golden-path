@@ -93,6 +93,7 @@ nav = [
     { "SAM-deploy" = "referanse/sam-deploy.md" },
     { "Lagring og ytelse" = "referanse/lagring-og-ytelse.md" },
     { "Datakvalitet" = "referanse/datakvalitet.md" },
+    { "Backup" = "referanse/backup.md" },
   ]},
   { "Hjelp" = [
     { "index" = "hjelp/index.md" },

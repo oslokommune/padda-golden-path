@@ -38,4 +38,4 @@ Landing zone-bøtten tas backup av med AWS Backup via [standard boilerplate for 
 
 ## Relatert innhold
 
-- [Katastrofe-gjenoppretting](../guider/overvaake-og-drifte/katastrofe-gjenoppretting.md)
+- [Databricks: Disaster Recovery](https://docs.databricks.com/aws/en/admin/disaster-recovery)

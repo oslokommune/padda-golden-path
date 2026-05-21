@@ -229,7 +229,7 @@ resources:
 
 `spec.client` angir versjonen av
 [serverless-environmentet](https://docs.databricks.com/aws/en/release-notes/serverless/environment-version/)
-— bruk siste versjon (per mai 2026: `"5"`).
+— bruk siste versjon.
 
 Flere tasks i samme jobb kan dele én `environment_key`, eller bruke ulike
 `environments` hvis de trenger forskjellige avhengigheter.

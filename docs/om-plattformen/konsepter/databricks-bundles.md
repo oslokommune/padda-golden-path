@@ -166,20 +166,14 @@ wheels](../../guider/bearbeide-data/ta-i-bruk-bundles.md#handtere-python-wheels)
 
 Et cluster cacher wheel-filer. Hvis du deployer en ny versjon av wheelet med
 samme versjonsnummer, kan clusteret fortsette å bruke det gamle. I
-`development`-mode løser du dette med presetet `artifacts_dynamic_version`:
+`development`-mode løser du dette med presetet `artifacts_dynamic_version`, som
+legger til et unikt tidsstempel i versjonsnummeret ved hver deploy slik at
+clusteret alltid henter det nyeste wheelet. I `production`-mode bruker du faste
+versjonsnummer fra `pyproject.toml` — der er det CI/CD-pipelinen som sikrer at
+riktig versjon deployes.
 
-```yaml
-targets:
-  stage:
-    mode: development
-    presets:
-      artifacts_dynamic_version: true
-```
-
-Dette legger til et unikt tidsstempel i versjonsnummeret ved hver deploy, slik
-at clusteret alltid henter det nyeste wheelet. I `production`-mode bruker du
-faste versjonsnummer fra `pyproject.toml` — der er det CI/CD-pipelinen som
-sikrer at riktig versjon deployes.
+For praktisk YAML-oppsett, se [Ta i bruk bundles — Ditt eget prosjekt:
+artifacts-seksjonen](../../guider/bearbeide-data/ta-i-bruk-bundles.md#ditt-eget-prosjekt-artifacts-seksjonen).
 
 ## Deployflyt
 

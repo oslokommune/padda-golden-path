@@ -20,7 +20,7 @@ Sjekk at:
 For automatisk refresh trenger du i tillegg:
 
 - En Power BI-tilkobling i Unity Catalog (se [Opprette Power BI-tilkobling](#Trinn-1--opprett-power-bi-tilkobling-i-unity-catalog))
-- Et Databricks Asset Bundle med en jobb-definisjon (se [Ta i bruk Bundles](../../guider/bearbeide-data/ta-i-bruk-bundles.md))
+- En Declarative Automation Bundle med en jobb-definisjon (se [Ta i bruk bundles](../../guider/bearbeide-data/ta-i-bruk-bundles.md))
 
 ---
 

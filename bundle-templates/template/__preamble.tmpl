@@ -9,6 +9,7 @@ This file only provides template directives; it is skipped for the actual output
   {{skip "{{.domain_name}}/notebooks/example_job.py"}}
   {{skip "{{.domain_name}}/notebooks/pipelines"}}
   {{skip "{{.domain_name}}/resources/example_job.yml"}}
+  {{skip "{{.domain_name}}/resources/example_serverless_job.yml"}}
   {{skip "{{.domain_name}}/resources/example_pipeline_job.yml"}}
   {{skip "{{.domain_name}}/.vscode"}}
 
@@ -24,6 +25,7 @@ This file only provides template directives; it is skipped for the actual output
       {{skip "{{.domain_name}}/notebooks/example_job.py"}}
       {{skip "{{.domain_name}}/notebooks/pipelines"}}
       {{skip "{{.domain_name}}/resources/example_job.yml"}}
+      {{skip "{{.domain_name}}/resources/example_serverless_job.yml"}}
       {{skip "{{.domain_name}}/resources/example_pipeline_job.yml"}}
     {{else}}
       {{skip "{{.domain_name}}/resources/.gitkeep"}}

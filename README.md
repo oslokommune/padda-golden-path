@@ -5,7 +5,7 @@ Golden paths for **Padda** — the data platform for data engineers at Oslo komm
 - Zensical documentation (`docs/`) published to GitHub Pages
 - Reference implementations of Databricks pipelines (`examples/`)
 - Shared Python libraries (`libs/padda.common`, `libs/padda.pipelines`)
-- Databricks Asset Bundle (DAB) templates (`src/golden_path/dab-simple/`)
+- Padda Asset Bundle Templates (`bundle-templates/`)
 
 Official documentation: https://oslokommune.github.io/padda-golden-path/
 

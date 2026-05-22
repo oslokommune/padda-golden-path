@@ -6,7 +6,7 @@ diataxis: how-to
 
 # Håndtere secrets
 
-Denne guiden dekker to separate system for hemmeligheter på plattformen:
+Denne guiden dekker to separate systemer for hemmeligheter på plattformen:
 
 - [**Databricks secrets**](#databricks-secrets) — for notebooks og jobber som kjører i Databricks
 - [**SSM Parameter Store**](#ssm-parameter-store-lambda-fargate) — for Lambda-funksjoner og Fargate-tasks som kjører i AWS

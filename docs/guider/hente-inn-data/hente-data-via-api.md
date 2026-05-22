@@ -61,7 +61,7 @@ flowchart LR
 
 - Du har et workspace med en landing zone-sender konfigurert (se [Landing zone](../../referanse/landing-zone.md))
 - Du har et workspace med OIDC konfigurert for ditt repo
-- Du har SAM CLI installert lokalt (se [SAM-deploy — Verktøy](../../referanse/sam-deploy.md#verktoy))
+- Du har SAM CLI installert lokalt (se [SAM-deploy — Verktøy](../../referanse/sam-deploy.md#verkty))
 
 ---
 
@@ -213,7 +213,7 @@ sam local invoke MyApiCollectorFunction
 
 ### Steg 5 — Deploy
 
-Deploy skjer automatisk via GitHub Actions dersom det er satt opp. En eksempel workflow i padda-databrikker-repoet viser hvordan det kan settes opp. Se [SAM-deploy — CI/CD-pipeline](../../referanse/sam-deploy.md#cicd-pipeline) for detaljer.
+Deploy skjer automatisk via GitHub Actions dersom det er satt opp. En eksempel-workflow i padda-databrikker-repoet viser hvordan det kan settes opp. Se [SAM-deploy — CI/CD-pipeline](../../referanse/sam-deploy.md#cicd-pipeline) for detaljer.
 
 ### Steg 6 — Sett opp en schedule (valgfritt)
 
@@ -234,7 +234,7 @@ For å kjøre Lambdaen automatisk kan du legge til en `Events`-seksjon i `templa
 
 ### Steg 7 — Les data i Databricks
 
-Når dataen ligger i landing zone kan du lese den med Auto Loader i en Databricks-notebook eller som et job:
+Når dataen ligger i landing zone kan du lese den med Auto Loader i en Databricks-notebook eller som en jobb:
 
 ```python
 df = (

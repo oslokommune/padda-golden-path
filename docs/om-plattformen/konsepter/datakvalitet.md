@@ -12,7 +12,7 @@ Kvaliteten på data handler om hvor formålstjenlig dataen er — ikke bare om d
 
 Det finnes [flere definisjoner av datakvalitet](https://en.wikipedia.org/wiki/Data_quality#Dimensions_of_data_quality), men de peker gjerne mot de samme grunnleggende egenskapene. [Databricks' definisjon](https://www.databricks.com/blog/what-is-data-quality) er et godt utgangspunkt: data har høy kvalitet når den er nøyaktig, fullstendig, oppdatert, konsekvent, i riktig format og fri for duplikater.
 
-Det er altså ikke nok at data ikke er uriktig, den må heller ikke være misvisende. Data kan være nøyaktig men ufullstendig, eller fullstendig men inkonsekvent på tvers av datasett. Bruk av synonymer i tekstfelt er et eksempel: Ingen enkeltrad er teknisk feil, men samlet sett gir dataen et misvisende bilde, for eksempel når man grupperer basert på tekstfeltet. Dupliserte rader er et annet — ingen rad er teknisk feil, men duplikater vil nesten uunngåelig føre til feil i analyser i det en analytiker bruker `COUNT` eller lignende.
+Det er altså ikke nok at data ikke er uriktig, den må heller ikke være misvisende. Data kan være nøyaktig men ufullstendig, eller fullstendig men inkonsekvent på tvers av datasett. Bruk av synonymer i tekstfelt er et eksempel: Ingen enkeltrad er teknisk feil, men samlet sett gir dataen et misvisende bilde, for eksempel når man grupperer basert på tekstfeltet. Dupliserte rader er et annet — ingen rad er teknisk feil, men duplikater vil nesten uunngåelig føre til feil i analyser idet en analytiker bruker `COUNT` eller lignende.
 
 ## Hvorfor datakvalitet er vanskelig
 

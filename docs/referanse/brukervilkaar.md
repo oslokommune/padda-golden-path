@@ -40,7 +40,7 @@ Dataplattformen tar ikke backup av datasettene i løsningen.
 **Verktøystøtte**
 Følgende ressurser er tilgjengelige for å støtte arbeidet med personvern- og risikovurderinger:
 - [Risikovurdering av plattformen og standardoppsett](https://oslokommune.sharepoint.com/:b:/r/sites/21b20/Felles-dokumenter/Dataspeilet/ROS%20Data%20engineering%20plattform/ROS-rapport%20Dataengineeringplattform%20med%20Databricks.pdf?csf=1&web=1&e=VxwG4d)
-- [Miromal for gjennomføring av ROS-prosess (NextGen ROS)](https://miro.com/app/board/uXjVGQbi2BY=/)
+- [Miro-mal for gjennomføring av ROS-prosess (NextGen ROS)](https://miro.com/app/board/uXjVGQbi2BY=/)
 - [Mal for ROS-rapport](https://oslokommune.sharepoint.com/:w:/r/sites/TEAM-DIG-JIPI/Delte%20dokumenter/General/ROS%20Metoder/ROS-NextGen/MAL%20Rosrapport%20Databricks%20dataproduktteam.docx?d=w3ceef0c9ba314bc595e458967e19342d&csf=1&web=1&e=lCahPa)
 - [Juridisk systemvurdering av plattform, avtaler og leverandør](https://oslokommune.sharepoint.com/:w:/r/sites/21b20/Felles-dokumenter/Dataspeilet/ROS%20Data%20engineering%20plattform/Systemvurdering%20Databricks.docx?d=w1e03376ba20a4d1e870cfca1c5055569&csf=1&web=1&e=Y9I3dA)
 

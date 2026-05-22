@@ -6,7 +6,7 @@ diataxis: explanation
 
 # Velg riktig dataplattform
 
-Digitaliseringsetaten tilbyr flere dataplattformer som er tilgjengelig på tvers. Hvilken du bør bruke avhenger av hva du skal gjøre og hvordan du jobber.
+Digitaliseringsetaten tilbyr flere dataplattformer som er tilgjengelige på tvers. Hvilken du bør bruke avhenger av hva du skal gjøre og hvordan du jobber.
 
 ## To plattformer — ulike formål
 

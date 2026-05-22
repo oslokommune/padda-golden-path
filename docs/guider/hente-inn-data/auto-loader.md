@@ -6,7 +6,7 @@ diataxis: how-to
 
 # Sette opp Auto Loader
 
-Denne guiden hjelper deg å sette opp en Declarative Pipeline som leser inn nye filer fra landing zone og lagrer dem i bronze- og silver-tabeller i Unity Catalog. Resultatet er en pipeline som kjører daglig og automatisk plukker opp nye filer uten å lese alt på nytt. Vi bruker en av to eksempler. Guiden bruker disse litt slavisk, men dere må selvsagt tilpasse alt til deres bruksområde.
+Denne guiden hjelper deg å sette opp en Declarative Pipeline som leser inn nye filer fra landing zone og lagrer dem i bronze- og silver-tabeller i Unity Catalog. Resultatet er en pipeline som kjører daglig og automatisk plukker opp nye filer uten å lese alt på nytt. Vi bruker ett av to eksempler. Guiden bruker disse litt slavisk, men dere må selvsagt tilpasse alt til deres bruksområde.
 
 ## Før du begynner
 
@@ -189,10 +189,10 @@ Data samsvarer ikke med kvaliteten den skal ha.
 
     Løsning:
 
-    - Dataen har ikke blitt lest inn i tabellen med expectation. I de forestående tabellene og kildene før den der det feilet, derimot, ligger den problematiske dataen. Dette må korrigeres for hånd.
+    - Dataen har ikke blitt lest inn i tabellen med expectation. I de foregående tabellene og kildene før den der det feilet, derimot, ligger den problematiske dataen. Dette må korrigeres for hånd.
     - Ved neste refresh leses alt som normalt.
 
-Til slutt: Vurder om enten expectationen må endres, om den inkommende dataen må renses på noe vis, eller om kilden på dataen må kontakteres.
+Til slutt: Vurder om enten expectationen må endres, om den inkommende dataen må renses på noe vis, eller om kilden til dataen må kontaktes.
 
 ## Ytelsestips
 

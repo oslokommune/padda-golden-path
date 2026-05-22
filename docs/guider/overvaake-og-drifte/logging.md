@@ -70,7 +70,7 @@ databricks jobs get-run-output <RUN_ID>
     For serverless compute eksponeres ikke Spark UI på samme måte
     som for klassisk compute.
 
-For dypere undersøkelser av Spark-jobben, klikk **Spark UI** fra task-detaljsiden
+For dypere undersøkelser av Spark-jobben, klikk **Spark UI** fra compute-siden
 for å se stages, tasks, shuffle-statistikk og executor-logger per node.
 
 ## Trinn 3: Tolk vanlige feilmeldinger
@@ -190,7 +190,7 @@ ID         Start Time           ...  Status     Result State
       Da kan kun admins se driver-logger, og executor-logger er ikke
       tilgjengelige i det hele tatt. På **Dedicated** access mode kan tilordnet
       bruker/gruppe og admins se loggene.
-    - Tasken kjører på serverless compute. Da eksponeres ikke `log4j`-fanen og
+    - Tasken kjører på serverless compute. Da eksponeres ikke
       Spark UI på samme måte.
     - Compute ble terminert før loggene ble levert til varig lagring.
 
@@ -208,7 +208,7 @@ ID         Start Time           ...  Status     Result State
 
     Løsning:
 
-    1. Åpne **Spark UI** fra task-detaljsiden.
+    1. Åpne **Spark UI** fra compute-siden.
     2. Gå til **Stages**-fanen og finn stagen markert som **Failed**.
     3. Åpne den første failed tasken og noter **Task ID** og **Executor ID**.
     4. Gå til **Executors**-fanen og åpne loggene for den aktuelle executoren

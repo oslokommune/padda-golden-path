@@ -31,7 +31,7 @@ Sørg for at du har:
 === "UI"
 
     1. Klikk **Jobs & Pipelines** i venstremenyen.
-    2. Filtrer på **Run status: Failed** eller åpne jobben og se **Runs**-fanen.
+    2. Se **Runs**-fanen og filtrer på **Run status: Failed** eller åpne jobben og se **Runs**-fanen der inne.
     3. Klikk lenken i **Start time**-kolonnen for å åpne kjøringsdetaljene.
     4. I grafvisningen er feilede tasks røde — klikk noden for tasken som feilet.
 
@@ -51,7 +51,7 @@ Sørg for at du har:
 
 ## Trinn 2: Les driver- og Spark-loggene
 
-På siden **Task run details** finner du panelet til høyre med lenker til loggene.
+På panelet til høyre finner du **Compute** med lenker til loggene.
 Driveren skriver tre strømmer som er nyttige i ulike situasjoner:
 
 - **`stdout`** — alt som er skrevet med `print()` eller bibliotek som logger til standard ut.
@@ -67,9 +67,8 @@ databricks jobs get-run-output <RUN_ID>
 
 !!! note
 
-    For serverless compute eksponeres ikke `log4j`-fanen og Spark UI på samme måte
-    som for klassisk compute. Bruk **Query profile** og **Metrics**-fanen i jobb-UI-et
-    for ytelses- og spørringsdetaljer.
+    For serverless compute eksponeres ikke Spark UI på samme måte
+    som for klassisk compute.
 
 For dypere undersøkelser av Spark-jobben, klikk **Spark UI** fra task-detaljsiden
 for å se stages, tasks, shuffle-statistikk og executor-logger per node.
@@ -89,8 +88,7 @@ Lokaliser stacktracen i `stderr` og finn rotårsaken:
 !!! tip
 
     I Jobs UI kan du klikke **Diagnose Error** for å la **Genie Code** foreslå
-    en sannsynlig årsak basert på feilmeldingen. Bruk det som utgangspunkt —
-    verifiser alltid mot den faktiske stacktracen før du gjør endringer.
+    en sannsynlig årsak basert på feilmeldingen.
 
 ## Trinn 4: Reparer i stedet for å kjøre alt på nytt
 
@@ -159,42 +157,6 @@ except Exception:
     driveren kan ende opp i langtidslagring (se Trinn 6) og være tilgjengelige for
     flere enn de som har tilgang til selve dataene.
 
-## Trinn 6: Lever logger til varig lagring (valgfritt)
-
-Driver-logger forsvinner når compute-ressursen termineres. For jobber som kjører
-på `new_cluster` (klassisk compute) kan du levere logger kontinuerlig til et
-Unity Catalog-volum ved å sette `cluster_log_conf` i bundlen:
-
-```yaml
-job_clusters:
-  - job_cluster_key: job_cluster
-    new_cluster:
-      spark_version: 17.3.x-scala2.13
-      node_type_id: i3.xlarge
-      data_security_mode: SINGLE_USER
-      cluster_log_conf:
-        volumes:
-          destination: /Volumes/<katalog>/<skjema>/<volum>
-```
-
-Databricks leverer logger hvert 5. minutt og arkiverer dem hver time under
-`<destination>/<cluster_id>/` i undermappene `driver/`, `executor/`, `eventlog/`
-og (hvis aktuelt) `init_scripts/`. Owner eller assigned user på compute må ha
-`READ VOLUME` og `WRITE VOLUME` på volumet.
-
-!!! note
-
-    Logglevering til volum krever Unity Catalog-aktivert compute med tilgangsmodus
-    **Standard** eller **Dedicated** (tilordnet en bruker). Det støttes ikke for
-    serverless eller for **Dedicated** tilordnet en gruppe. Funksjonen er i
-    Public Preview.
-
-!!! tip
-
-    Sett `cluster_log_conf` som **fixed value** i en cluster policy slik at
-    teamet ikke kan glemme å slå det på. Da treffer alle nye job clusters samme
-    volum uten ekstra konfigurasjon i bundlen.
-
 ## Bekreft resultatet
 
 Etter at du har gjort en endring og deployet på nytt, kjør jobben og bekreft at:
@@ -238,8 +200,6 @@ ID         Start Time           ...  Status     Result State
       trenger å lese loggene selv.
     - For serverless: bruk `logger.info(...)` til `stderr`, **Metrics**-fanen og
       **Query profile** framfor å lete etter `log4j`-filer.
-    - For klassisk compute: aktiver `cluster_log_conf` (se Trinn 6) slik at
-      logger persisteres utenfor compute-livssyklusen.
 
 ??? failure "`Py4JJavaError` uten meningsfull årsak"
 

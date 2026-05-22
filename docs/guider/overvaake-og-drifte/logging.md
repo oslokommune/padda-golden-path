@@ -54,9 +54,9 @@ Sørg for at du har:
 På panelet til høyre finner du **Compute** med lenker til loggene.
 Driveren skriver tre strømmer som er nyttige i ulike situasjoner:
 
-- **`stdout`** — alt som er skrevet med `print()` eller bibliotek som logger til standard ut.
-- **`stderr`** — Python-stacktraces, advarsler og det meste fra `logging`-biblioteket havner her.
-- **`log4j`** — Spark sine egne meldinger om jobber, stages, tasks og executors.
+- **`stderr`** — start her. Python-stacktraces og `logging`-utdata.
+- **`stdout`** — `print()`-utdata.
+- **`log4j`** — Spark-meldinger om jobber, stages, tasks og executors.
 
 For notebook-tasks som returnerer en verdi via `dbutils.notebook.exit(...)` kan
 du også hente returverdien direkte:
@@ -73,17 +73,17 @@ databricks jobs get-run-output <RUN_ID>
 For dypere undersøkelser av Spark-jobben, klikk **Spark UI** fra compute-siden
 for å se stages, tasks, shuffle-statistikk og executor-logger per node.
 
-## Trinn 3: Tolk vanlige feilmeldinger
+## Trinn 3: Finn rotårsaken i stacktracen
 
 Lokaliser stacktracen i `stderr` og finn rotårsaken:
 
-- Den **innerste** `Caused by:`-linjen er som regel rotårsaken.
-- Spark-feil starter ofte med `Py4JJavaError` eller `SparkException` på toppen,
-  men den faktiske årsaken (f.eks. `AnalysisException`, `FileNotFoundException`,
-  `OutOfMemoryError`) ligger lenger ned.
-- For tasks som feilet under utførelse av en Spark-jobb, søk etter
-  `Job aborted due to stage failure` i `log4j` og bla oppover til den første
-  failed task — den inneholder ofte mer kontekst enn drivermeldingen.
+- Les fra bunnen av stacktracen — den **innerste** `Caused by:`-linjen er som
+  regel rotårsaken.
+- Hopp over `Py4JJavaError` og `SparkException` på toppen og let etter konkrete
+  unntak som `AnalysisException`, `FileNotFoundException` eller
+  `OutOfMemoryError`.
+- Ved `Job aborted due to stage failure`, åpne `log4j` og bla opp til den
+  første failed task — den har ofte mer kontekst enn drivermeldingen.
 
 !!! tip
 

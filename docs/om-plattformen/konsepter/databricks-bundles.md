@@ -131,8 +131,8 @@ Catalog Volume eller som en del av bundle-deployen.
 ### Hvor kommer wheelet fra?
 
 Bundles laster alltid opp wheels under `dist/` til workspacet som en del av en
-deploy.  Det som varierer er hvordan wheelet havner der i utgangspunktet — om
-det bare *samles inn* som en ferdig fil eller om det må *bygges* fra kildekode.
+deploy. Det som varierer er hvordan wheelet havner der i utgangspunktet — om det
+bare *samles inn* som en ferdig fil eller om det må *bygges* fra kildekode.
 
 **Tredjepartsbiblioteker**, som for eksempel `openpyxl`, har ikke noe byggesteg,
 wheelet er allerede tilgjengelig på PyPI. Du *vendorer* det: kjører `pip

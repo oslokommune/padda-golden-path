@@ -1,6 +1,6 @@
 ---
 title: Skrive transformasjoner
-description: Hvordan skrive og kjore datatransformasjoner i en notebook eller pipeline.
+description: Hvordan skrive og kjøre datatransformasjoner i en notebook eller pipeline.
 diataxis: how-to
 icon: lucide/construction
 ---

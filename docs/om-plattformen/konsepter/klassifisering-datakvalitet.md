@@ -65,7 +65,7 @@ Typiske transformasjoner:
 - Primærnøkler og sekundærnøkler defineres
 - Data normaliseres til [tredje normalform](https://en.wikipedia.org/wiki/Third_normal_form)
 
-Silver-data er rensket. Dette nivået representerer en sannferdig, standardisert, og ryddig versjon av dataen, uten hensyn til hvordan den skal brukes.
+Silver-data er rensket. Dette nivået representerer en sannferdig, standardisert og ryddig versjon av dataen, uten hensyn til hvordan den skal brukes.
 
 ### Gold — forretningsklare data
 

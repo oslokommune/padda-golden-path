@@ -22,7 +22,7 @@ Denne guiden viser hvordan du legger en wheel-fil (f.eks. `openpyxl`) på en UC 
 !!! info "ARM vs. x86_64"
     Databricks-klustre forventer vanligvis Linux `x86_64`-wheels, mens mange utviklere jobber på Mac med ARM64. Dette er uproblematisk for universelle wheels som `py3-none-any`, men pakker med "native" kode må matches mot riktig plattform og Python-versjon.
 
-    Hvis du trenger en plattformspesifikk wheel, last den ned eksplisitt for Linux `x86_64` i stedet for a bruke det maskinen din foreslår:
+    Hvis du trenger en plattformspesifikk wheel, last den ned eksplisitt for Linux `x86_64` i stedet for å bruke det maskinen din foreslår:
 
     ```bash
     pip download \

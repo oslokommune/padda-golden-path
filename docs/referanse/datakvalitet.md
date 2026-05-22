@@ -21,7 +21,7 @@ Databricks tilbyr en [oversikt](https://www.databricks.com/discover/pages/data-q
 
 ### Constraints og Expectations
 
-Databricks har to relaterte mekanismer for å sjekke at rader er gyldige. Expectations er for Declarative Pipelines, og Constraints er for normale delta-tabeller.
+Databricks har to relaterte mekanismer for å sjekke at rader er gyldige. Expectations er for Declarative Pipelines, og Constraints er for normale Delta-tabeller.
 
 [Constraints](https://docs.databricks.com/aws/en/tables/constraints) ser sånn ut:
 
@@ -41,7 +41,7 @@ CREATE TABLE people10m (
 
 Her er `NOT NULL` og `dateWithinRange` constraints. Disse håndheves strengt, og et forsøk på å sette inn rader som ikke oppfyller kravene vil feile. `PRIMARY KEY` og `FOREIGN KEY` er strengt tatt også constraints, men håndheves ikke. De har [andre](https://www.databricks.com/blog/primary-key-and-foreign-key-constraints-are-ga-and-now-enable-faster-queries) [funksjoner](https://docs.databricks.com/aws/en/partners/bi/power-bi-service#features-and-notes).
 
-Declarative Pipelines har `NOT NULL` på lik linje med normale delta-tabeller, men `CONSTRAINT`-ordet fungerer litt annerledes. `CHECK` støttes ikke, men i stedet brukes `EXPECT`. Her er `valid_customer_age` ikke en constraint men en [expectation](https://docs.databricks.com/aws/en/ldp/expectations):
+Declarative Pipelines har `NOT NULL` på lik linje med normale Delta-tabeller, men `CONSTRAINT`-ordet fungerer litt annerledes. `CHECK` støttes ikke, men i stedet brukes `EXPECT`. Her er `valid_customer_age` ikke en constraint men en [expectation](https://docs.databricks.com/aws/en/ldp/expectations):
 
 ```sql
 CREATE OR REFRESH STREAMING TABLE customers(
@@ -65,14 +65,14 @@ De tre håndhevingsmodiene for expectations:
 
 ## Verktøy i DQX
 
-DQX er et Python-rammeverk for datakvalitet med et sett av ferdiglagde sjekkfunksjoner og regelobjekter. Det er installert som et eksternt bibliotek og krever manuell oppsett i lukkede nettverksmiljøer.
+DQX er et Python-rammeverk for datakvalitet med et sett av ferdiglagde sjekkfunksjoner og regelobjekter. Det er installert som et eksternt bibliotek og krever manuelt oppsett i lukkede nettverksmiljøer.
 
 ### Funksjoner
 
 `databricks.labs.dqx.check_funcs` inneholder alle innebygde sjekkfunksjoner. Eksempler på funksjoner som ikke har direkte ekvivalent i Constraints eller Expectations:
 
 - `is_unique` — validerer at en kolonne eller sammensatt nøkkel er unik
-- `is_aggr_equal` — validerer at et aggregat er lik en forventet verdi
+- `is_aggr_equal` — validerer at et aggregat er likt en forventet verdi
 - `is_data_fresh` — validerer at data ikke er eldre enn en gitt tidsgrense
 
 ### Regler

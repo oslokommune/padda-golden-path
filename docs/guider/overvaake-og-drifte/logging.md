@@ -153,9 +153,7 @@ except Exception:
 
 !!! warning
 
-    Ikke logg hemmeligheter, persondata eller hele rader fra datasett. Logger fra
-    driveren kan ende opp i langtidslagring (se Trinn 6) og være tilgjengelige for
-    flere enn de som har tilgang til selve dataene.
+    Ikke logg hemmeligheter, persondata eller hele rader fra datasett.
 
 ## Bekreft resultatet
 

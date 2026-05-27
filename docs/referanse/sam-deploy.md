@@ -56,7 +56,7 @@ Alle ressursnavn må starte med workspace-navnet ditt som prefiks. Permission bo
 | IAM-rollenavn | `<workspace-name>-sam-` eller `<workspace-name>_sam-` | `<workspace-name>-sam-my-api-collector-role` |
 | CloudFormation-stack | `<workspace-name>-` | `<workspace-name>-my-api-collector` |
 | ECS-cluster | `<workspace-name>-` | `<workspace-name>-fargate-cluster` |
-| CloudWatch-logggruppe | `/aws/lambda/<workspace-name>_` eller `<workspace-name>-` | `/aws/lambda/<workspace-name>_my-func` |
+| CloudWatch-loggruppe | `/aws/lambda/<workspace-name>_` eller `<workspace-name>-` | `/aws/lambda/<workspace-name>_my-func` |
 
 !!! warning "Deploy feiler uten riktige prefikser"
     Permission boundary blokkerer opprettelse av ressurser som ikke matcher disse prefiksmønstrene. Navnene må starte med riktig prefiks.

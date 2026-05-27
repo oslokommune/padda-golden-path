@@ -6,11 +6,11 @@ diataxis: tutorial
 
 # Start her
 
-Denne guiden beskriver hvordan du setter opp devmiljø og avhengigheter. Per idag er det Mac og Linux som er støttet, dersom du er på Windows så er WSL en mulighet.
+Denne guiden beskriver hvordan du setter opp utviklingsmiljø og avhengigheter. Per i dag er det Mac og Linux som er støttet, dersom du er på Windows så er WSL en mulighet.
 
 Guiden forutsetter at du har [Homebrew](https://brew.sh/) installert.
 
-# Installere uv
+## Installere uv
 ```bash
 curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
@@ -22,14 +22,14 @@ uv --version
 ```
 ![uv-version](uv-version.png)
 
-# Git config
+## Git config
 Det er satt opp en pre-commit-hook i `padda-golden-path/.pre-commit-config.yaml` som kjører ruff.
 
 ```bash
 uvx pre-commit install
 ```
 
-# Installere databricks-cli
+## Installere databricks-cli
 ```bash
 brew tap databricks/tap
 brew install databricks
@@ -51,7 +51,7 @@ databricks -v
 ```
 ![databricks version](databricks-version.png)
 
-## Konfigurere databricks-cli
+### Konfigurere databricks-cli
 
 Kjør igjennom guiden for konfigurasjon:
 ```bash
@@ -59,5 +59,5 @@ databricks configure
 ```
 Verdier ligger i 1Password, [ta kontakt med Dataspeilet](../hjelp/index.md#kontakt-plattformteamet) dersom du ikke har tilgang.
 
-# vscode spesifikke ting
+## VS Code-spesifikke ting
 Det er satt opp en `settings.json` og anbefalte extensions i `.vscode`.

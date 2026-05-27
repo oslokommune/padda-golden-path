@@ -47,8 +47,8 @@ Manuelt planlagte vedlikeholdsoperasjoner:
 - Liquid Clustering krever Databricks Runtime 13.3 eller nyere.
 
 !!! warning "Partisjonering er vanskelig å reversere"
-En partisjonert tabell kan ikke enkelt ompartisjoneres eller avpartisjoneres — det krever
-full omskriving av tabellen. Valget bør gjøres med omhu før tabellen tas i produksjon.
+    En partisjonert tabell kan ikke enkelt ompartisjoneres eller avpartisjoneres — det krever
+    full omskriving av tabellen. Valget bør gjøres med omhu før tabellen tas i produksjon.
 
 ## Eksempel
 

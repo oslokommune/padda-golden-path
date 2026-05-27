@@ -107,8 +107,8 @@ flowchart TD
 
 Hvert workspace får dedikerte subnett:
 
-- **Lambda-subnett** — to private subnett (én per tilgjengelighetssone) for Lambda-funksjoner
-- **ECS-subnett** — to private subnett (én per tilgjengelighetssone) for Fargate-tasks
+- **Lambda-subnett** — to private subnett (ett per tilgjengelighetssone) for Lambda-funksjoner
+- **ECS-subnett** — to private subnett (ett per tilgjengelighetssone) for Fargate-tasks
 
 Subnett-IDer og sikkerhetsgruppe lagres i SSM Parameter Store og kan refereres direkte i SAM-templater.
 

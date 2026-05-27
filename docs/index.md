@@ -4,7 +4,8 @@ description: Dokumentasjon for Oslo kommunes Databricks-baserte dataplattform.
 ---
 
 # Databricks-plattformen Padda
-##Lar kodere bygge dataprodukter##
+
+## Lar kodere bygge dataprodukter
 
 *Padda* lar deg bygge dataprodukter med kode — med full kontroll, versjonering og automatisering fra rådata til produksjon. Den er bygget på [Databricks](https://databricks.com) og driftes av Digitaliseringsetaten.
 

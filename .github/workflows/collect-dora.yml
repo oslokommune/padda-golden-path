@@ -57,6 +57,11 @@ jobs:
           echo "::add-mask::$TOKEN"
           echo "token=$TOKEN" >> "$GITHUB_OUTPUT"
 
+      - name: Debug OIDC token claims
+        run: |
+          echo "${{ steps.dbx.outputs.token }}" | cut -d. -f2 | tr '_-' '/+' | base64 -d 2>/dev/null | jq '{iss, aud, sub, ref, environment, repository}' || echo "Failed to decode"
+          echo "Expected sub: repo:oslokommune/padda-golden-path:environment:dev"
+
       - name: Collect DORA events
         env:
           GITHUB_TOKEN: ${{ github.token }}

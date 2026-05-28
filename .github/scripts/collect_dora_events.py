@@ -27,7 +27,6 @@ Required environment variables:
   VOLUME_PATH               /Volumes/<catalog>/<schema>/<volume>/<subdir>/
 """
 
-import base64
 import json
 import os
 import sys
@@ -49,16 +48,20 @@ DEFAULT_LOOKBACK_DAYS = 7
 
 def get_databricks_token(account_id: str, client_id: str, client_secret: str) -> str:
     """Exchange SP client_id + client_secret for an account-level OAuth token."""
+    import urllib.parse
+
     url = f"{ACCOUNTS_HOST}/oidc/accounts/{account_id}/v1/token"
-    basic = base64.b64encode(f"{client_id}:{client_secret}".encode()).decode()
+    body = urllib.parse.urlencode({
+        "grant_type": "client_credentials",
+        "scope": "all-apis",
+        "client_id": client_id,
+        "client_secret": client_secret,
+    })
     resp = http.request(
         "POST",
         url,
-        headers={
-            "Content-Type": "application/x-www-form-urlencoded",
-            "Authorization": f"Basic {basic}",
-        },
-        body="grant_type=client_credentials&scope=all-apis",
+        headers={"Content-Type": "application/x-www-form-urlencoded"},
+        body=body,
         timeout=30,
     )
     if resp.status != 200:

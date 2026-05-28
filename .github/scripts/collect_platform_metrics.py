@@ -6,21 +6,27 @@ pipelines, and tables by medallion layer (bronze / silver / gold).
 Results are uploaded as JSONL to a Unity Catalog volume so the Databricks
 Auto Loader in the platform_metrics bundle can ingest them.
 
-No AWS hop — auth to storage is GitHub → Databricks OIDC federation.
+No AWS hop — auth to storage is Databricks M2M client_credentials.
+
+Auth: OIDC federation is wired in padda-iac but token exchange currently
+returns TOKEN_INVALID — using M2M as workaround until that's fixed.
 
 Required environment variables:
-  DEV_OIDC_TOKEN          GitHub OIDC JWT with audience = dev account ID
-  PROD_OIDC_TOKEN         GitHub OIDC JWT with audience = prod account ID
-  DATABRICKS_HOST         Workspace host the volume lives in
-  VOLUME_PATH             /Volumes/<catalog>/<schema>/<volume>/<subdir>/
+  DEV_CLIENT_ID         Application ID of the dev account SP
+  DEV_CLIENT_SECRET     OAuth secret for the dev account SP
+  PROD_CLIENT_ID        Application ID of the prod account SP
+  PROD_CLIENT_SECRET    OAuth secret for the prod account SP
+  DATABRICKS_HOST       Workspace host the volume lives in
+  VOLUME_PATH           /Volumes/<catalog>/<schema>/<volume>/<subdir>/
 
-The DEV OIDC token doubles as the upload credential — the catalog the
-volume sits in is owned by the dev account.
+The DEV token is used for the upload — the catalog hosting the volume
+is in the dev account.
 """
 
 import json
 import os
 import sys
+import urllib.parse
 from datetime import datetime, timezone
 
 import urllib3
@@ -35,25 +41,27 @@ PROD_ACCOUNT_ID = "00000000-0000-0000-0000-000000000002"
 
 
 # ---------------------------------------------------------------------------
-# Databricks OIDC token exchange
+# Databricks M2M client_credentials token exchange
 # ---------------------------------------------------------------------------
 
-def get_account_token(account_id: str, github_oidc_token: str) -> str:
-    """Exchange a GitHub OIDC JWT for a Databricks account-level token."""
+def get_account_token(account_id: str, client_id: str, client_secret: str) -> str:
+    """Exchange SP client_id + client_secret for an account-level token."""
     url = f"{ACCOUNTS_HOST}/oidc/accounts/{account_id}/v1/token"
+    body = urllib.parse.urlencode({
+        "grant_type": "client_credentials",
+        "scope": "all-apis",
+        "client_id": client_id,
+        "client_secret": client_secret,
+    })
     resp = http.request(
         "POST",
         url,
         headers={"Content-Type": "application/x-www-form-urlencoded"},
-        body=(
-            "grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer"
-            f"&assertion={github_oidc_token}"
-            "&scope=all-apis"
-        ),
+        body=body,
         timeout=30,
     )
     if resp.status != 200:
-        raise RuntimeError(f"OIDC token exchange failed ({resp.status}): {resp.data.decode()}")
+        raise RuntimeError(f"Token exchange failed ({resp.status}): {resp.data.decode()}")
     return json.loads(resp.data.decode())["access_token"]
 
 
@@ -224,16 +232,18 @@ def upload_to_volume(
 
 
 def main() -> int:
-    dev_oidc_token = os.environ.get("DEV_OIDC_TOKEN")
-    prod_oidc_token = os.environ.get("PROD_OIDC_TOKEN")
+    dev_client_id = os.environ.get("DEV_CLIENT_ID")
+    dev_client_secret = os.environ.get("DEV_CLIENT_SECRET")
+    prod_client_id = os.environ.get("PROD_CLIENT_ID")
+    prod_client_secret = os.environ.get("PROD_CLIENT_SECRET")
     workspace_host = os.environ.get("DATABRICKS_HOST")
     volume_path = os.environ.get("VOLUME_PATH")
 
     missing = [
         name
         for name, val in [
-            ("DEV_OIDC_TOKEN", dev_oidc_token),
-            ("PROD_OIDC_TOKEN", prod_oidc_token),
+            ("DEV_CLIENT_ID", dev_client_id),
+            ("DEV_CLIENT_SECRET", dev_client_secret),
             ("DATABRICKS_HOST", workspace_host),
             ("VOLUME_PATH", volume_path),
         ]
@@ -245,24 +255,28 @@ def main() -> int:
 
     timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
-    print(f"Authenticating to dev account ({DEV_ACCOUNT_ID}) via OIDC")
-    dev_token = get_account_token(DEV_ACCOUNT_ID, dev_oidc_token)
-    print(f"Authenticating to prod account ({PROD_ACCOUNT_ID}) via OIDC")
-    prod_token = get_account_token(PROD_ACCOUNT_ID, prod_oidc_token)
+    accounts = [(DEV_ACCOUNT_ID, "dev", dev_client_id, dev_client_secret)]
+    if prod_client_id and prod_client_secret:
+        accounts.append((PROD_ACCOUNT_ID, "prod", prod_client_id, prod_client_secret))
+    else:
+        print("PROD_CLIENT_ID/PROD_CLIENT_SECRET not set — skipping prod account")
+
+    dev_token = None  # captured for upload
 
     all_records: list[dict] = []
-    for account_id, label, token in [
-        (DEV_ACCOUNT_ID, "dev", dev_token),
-        (PROD_ACCOUNT_ID, "prod", prod_token),
-    ]:
+    for account_id, label, cid, csecret in accounts:
         try:
+            print(f"Authenticating to {label} account ({account_id})")
+            token = get_account_token(account_id, cid, csecret)
+            if label == "dev":
+                dev_token = token
             records = collect_account_metrics(account_id, label, token, timestamp)
             all_records.extend(records)
         except Exception as exc:
             print(f"Error collecting from {label} account: {exc}")
 
-    if not all_records:
-        print("No records collected")
+    if not all_records or dev_token is None:
+        print("No records collected or dev token missing")
         return 0
 
     now = datetime.now(timezone.utc)

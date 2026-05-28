@@ -29,6 +29,7 @@ concurrency:
 
 env:
   DATABRICKS_ACCOUNT_ID: "00000000-0000-0000-0000-000000000001"
+  DATABRICKS_CLIENT_ID: "00000000-0000-0000-0000-000000000003"
   DATABRICKS_HOST: "https://dbc-00000000-0001.cloud.databricks.com"
   VOLUME_PATH: "/Volumes/padda_dev_green/landing_default/platform_events/dora"
 
@@ -66,4 +67,5 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
           DATABRICKS_OIDC_TOKEN: ${{ steps.dbx.outputs.token }}
+          DATABRICKS_CLIENT_ID: ${{ env.DATABRICKS_CLIENT_ID }}
         run: python .github/scripts/collect_dora_events.py

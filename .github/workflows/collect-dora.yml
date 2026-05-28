@@ -1,0 +1,64 @@
+name: Collect DORA Events
+
+# Captures this repo's merged PRs, computes per-PR lead time, and uploads
+# JSONL to the shared Unity Catalog volume. The platform_metrics DLT
+# pipeline (in padda-databrikker) reads the volume via Auto Loader.
+#
+# Single-repo by design — copy this file (and the script under
+# .github/scripts/) to padda-iac and padda-databrikker so each repo
+# emits its own events. No cross-repo tokens needed.
+
+on:
+  schedule:
+    - cron: "30 6 * * *"
+  workflow_dispatch:
+    inputs:
+      lookback_days:
+        description: "Lookback window in days (default 7)."
+        required: false
+        default: "7"
+
+permissions:
+  id-token: write
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: collect-dora
+  cancel-in-progress: false
+
+env:
+  DATABRICKS_ACCOUNT_ID: "69d82905-dc92-4349-89b2-c4bf6501cb82"
+  DATABRICKS_HOST: "https://dbc-d17b7ed1-eac0.cloud.databricks.com"
+  VOLUME_PATH: "/Volumes/padda_dev_green/landing_default/platform_events/dora"
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    environment:
+      name: dev
+    env:
+      LOOKBACK_DAYS: ${{ inputs.lookback_days || '7' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install urllib3
+
+      - name: Get Databricks OIDC token
+        id: dbx
+        run: |
+          TOKEN=$(curl -sS -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=$DATABRICKS_ACCOUNT_ID" | jq -r '.value')
+          echo "::add-mask::$TOKEN"
+          echo "token=$TOKEN" >> "$GITHUB_OUTPUT"
+
+      - name: Collect DORA events
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          DATABRICKS_OIDC_TOKEN: ${{ steps.dbx.outputs.token }}
+        run: python .github/scripts/collect_dora_events.py

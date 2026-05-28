@@ -7,6 +7,10 @@ name: Collect DORA Events
 # Single-repo by design — copy this file (and the script under
 # .github/scripts/) to padda-iac and padda-databrikker so each repo
 # emits its own events. No cross-repo tokens needed.
+#
+# Auth: Databricks M2M client_credentials with SP OAuth secret. OIDC
+# federation is wired in padda-iac but the exchange currently returns
+# TOKEN_INVALID — to be revisited.
 
 on:
   schedule:
@@ -19,7 +23,6 @@ on:
         default: "7"
 
 permissions:
-  id-token: write
   contents: read
   pull-requests: read
 
@@ -29,6 +32,7 @@ concurrency:
 
 env:
   DATABRICKS_ACCOUNT_ID: "69d82905-dc92-4349-89b2-c4bf6501cb82"
+  DATABRICKS_CLIENT_ID: "9c6d2c5e-142b-4d53-a214-f8977f57ab84"
   DATABRICKS_HOST: "https://dbc-d17b7ed1-eac0.cloud.databricks.com"
   VOLUME_PATH: "/Volumes/padda_dev_green/landing_default/platform_events/dora"
 
@@ -49,21 +53,8 @@ jobs:
       - name: Install dependencies
         run: pip install urllib3
 
-      - name: Get Databricks OIDC token
-        id: dbx
-        run: |
-          TOKEN=$(curl -sS -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
-            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=$DATABRICKS_ACCOUNT_ID" | jq -r '.value')
-          echo "::add-mask::$TOKEN"
-          echo "token=$TOKEN" >> "$GITHUB_OUTPUT"
-
-      - name: Debug OIDC token claims
-        run: |
-          echo "${{ steps.dbx.outputs.token }}" | cut -d. -f2 | tr '_-' '/+' | base64 -d 2>/dev/null | jq '{iss, aud, sub, ref, environment, repository}' || echo "Failed to decode"
-          echo "Expected sub: repo:oslokommune/padda-golden-path:environment:dev"
-
       - name: Collect DORA events
         env:
           GITHUB_TOKEN: ${{ github.token }}
-          DATABRICKS_OIDC_TOKEN: ${{ steps.dbx.outputs.token }}
+          DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_CLIENT_SECRET }}
         run: python .github/scripts/collect_dora_events.py

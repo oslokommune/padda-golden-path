@@ -17,7 +17,7 @@ Required environment variables:
   GITHUB_TOKEN            Workflow's built-in token (default in GH Actions)
   GITHUB_REPOSITORY       Set automatically by GitHub Actions, e.g. "oslokommune/padda-iac"
   DATABRICKS_OIDC_TOKEN   GitHub OIDC JWT with audience = Databricks account ID
-  DATABRICKS_CLIENT_ID    Application ID of the federated service principal
+  DATABRICKS_ACCOUNT_ID   Account ID used in the OIDC token-exchange URL
   DATABRICKS_HOST         Workspace host of the target catalog
   VOLUME_PATH             /Volumes/<catalog>/<schema>/<volume>/<subdir>/ destination
 """
@@ -43,23 +43,17 @@ DEFAULT_LOOKBACK_DAYS = 7
 
 def exchange_oidc_for_databricks_token(
     account_id: str,
-    client_id: str,
     github_oidc_token: str,
 ) -> str:
-    """Exchange a GitHub OIDC JWT for a Databricks SP token via the OAuth
-    client_credentials + JWT client-assertion flow.
-
-    The federation policy must be registered on the service principal
-    identified by client_id (its application ID), with subject matching the
-    JWT's `sub` claim.
+    """Exchange a GitHub OIDC JWT for a Databricks account-level token via
+    the JWT-bearer grant. Databricks resolves the matching per-SP
+    federation policy automatically based on the JWT's (iss, aud, sub).
     """
     url = f"{ACCOUNTS_HOST}/oidc/accounts/{account_id}/v1/token"
     body = (
-        "grant_type=client_credentials"
+        "grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Ajwt-bearer"
+        f"&assertion={github_oidc_token}"
         "&scope=all-apis"
-        f"&client_id={client_id}"
-        "&client_assertion_type=urn%3Aietf%3Aparams%3Aoauth%3Aclient-assertion-type%3Ajwt-bearer"
-        f"&client_assertion={github_oidc_token}"
     )
     resp = http.request(
         "POST",
@@ -185,7 +179,6 @@ def main() -> int:
     github_token = os.environ.get("GITHUB_TOKEN")
     oidc_token = os.environ.get("DATABRICKS_OIDC_TOKEN")
     account_id = os.environ.get("DATABRICKS_ACCOUNT_ID")
-    client_id = os.environ.get("DATABRICKS_CLIENT_ID")
     workspace_host = os.environ.get("DATABRICKS_HOST")
     volume_path = os.environ.get("VOLUME_PATH")
 
@@ -196,7 +189,6 @@ def main() -> int:
             ("GITHUB_TOKEN", github_token),
             ("DATABRICKS_OIDC_TOKEN", oidc_token),
             ("DATABRICKS_ACCOUNT_ID", account_id),
-            ("DATABRICKS_CLIENT_ID", client_id),
             ("DATABRICKS_HOST", workspace_host),
             ("VOLUME_PATH", volume_path),
         ]
@@ -219,8 +211,8 @@ def main() -> int:
         print("Nothing to upload.")
         return 0
 
-    print(f"Exchanging GitHub OIDC for Databricks token (account {account_id}, SP {client_id})", flush=True)
-    dbx_token = exchange_oidc_for_databricks_token(account_id, client_id, oidc_token)
+    print(f"Exchanging GitHub OIDC for Databricks token (account {account_id})", flush=True)
+    dbx_token = exchange_oidc_for_databricks_token(account_id, oidc_token)
 
     body = ("\n".join(json.dumps(e, ensure_ascii=False) for e in events) + "\n").encode("utf-8")
     repo_slug = repo.replace("/", "_")

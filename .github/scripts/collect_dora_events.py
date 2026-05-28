@@ -41,14 +41,19 @@ DEFAULT_LOOKBACK_DAYS = 7
 # Databricks OIDC token exchange (per-SP federation flow)
 # ---------------------------------------------------------------------------
 
-def exchange_oidc_for_databricks_token(client_id: str, github_oidc_token: str) -> str:
+def exchange_oidc_for_databricks_token(
+    account_id: str,
+    client_id: str,
+    github_oidc_token: str,
+) -> str:
     """Exchange a GitHub OIDC JWT for a Databricks SP token via the OAuth
     client_credentials + JWT client-assertion flow.
 
-    The OIDC federation policy must be registered on the service principal
-    identified by client_id (its application ID).
+    The federation policy must be registered on the service principal
+    identified by client_id (its application ID), with subject matching the
+    JWT's `sub` claim.
     """
-    url = f"{ACCOUNTS_HOST}/oidc/v1/token"
+    url = f"{ACCOUNTS_HOST}/oidc/accounts/{account_id}/v1/token"
     body = (
         "grant_type=client_credentials"
         "&scope=all-apis"
@@ -179,6 +184,7 @@ def main() -> int:
     repo = os.environ.get("GITHUB_REPOSITORY")
     github_token = os.environ.get("GITHUB_TOKEN")
     oidc_token = os.environ.get("DATABRICKS_OIDC_TOKEN")
+    account_id = os.environ.get("DATABRICKS_ACCOUNT_ID")
     client_id = os.environ.get("DATABRICKS_CLIENT_ID")
     workspace_host = os.environ.get("DATABRICKS_HOST")
     volume_path = os.environ.get("VOLUME_PATH")
@@ -189,6 +195,7 @@ def main() -> int:
             ("GITHUB_REPOSITORY", repo),
             ("GITHUB_TOKEN", github_token),
             ("DATABRICKS_OIDC_TOKEN", oidc_token),
+            ("DATABRICKS_ACCOUNT_ID", account_id),
             ("DATABRICKS_CLIENT_ID", client_id),
             ("DATABRICKS_HOST", workspace_host),
             ("VOLUME_PATH", volume_path),
@@ -212,8 +219,8 @@ def main() -> int:
         print("Nothing to upload.")
         return 0
 
-    print(f"Exchanging GitHub OIDC for Databricks token (SP {client_id})", flush=True)
-    dbx_token = exchange_oidc_for_databricks_token(client_id, oidc_token)
+    print(f"Exchanging GitHub OIDC for Databricks token (account {account_id}, SP {client_id})", flush=True)
+    dbx_token = exchange_oidc_for_databricks_token(account_id, client_id, oidc_token)
 
     body = ("\n".join(json.dumps(e, ensure_ascii=False) for e in events) + "\n").encode("utf-8")
     repo_slug = repo.replace("/", "_")

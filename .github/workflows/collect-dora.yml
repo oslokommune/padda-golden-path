@@ -67,5 +67,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
           DATABRICKS_OIDC_TOKEN: ${{ steps.dbx.outputs.token }}
-          DATABRICKS_CLIENT_ID: ${{ env.DATABRICKS_CLIENT_ID }}
         run: python .github/scripts/collect_dora_events.py

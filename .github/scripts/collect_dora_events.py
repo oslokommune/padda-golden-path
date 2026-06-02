@@ -30,7 +30,7 @@ Required environment variables:
 import json
 import os
 import sys
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import urllib3
 
@@ -45,6 +45,7 @@ DEFAULT_LOOKBACK_DAYS = 7
 # ---------------------------------------------------------------------------
 # Databricks M2M client_credentials token exchange
 # ---------------------------------------------------------------------------
+
 
 def get_databricks_token(account_id: str, client_id: str, client_secret: str) -> str:
     """Exchange SP client_id + client_secret for an account-level OAuth token."""
@@ -65,13 +66,16 @@ def get_databricks_token(account_id: str, client_id: str, client_secret: str) ->
         timeout=30,
     )
     if resp.status != 200:
-        raise RuntimeError(f"Token exchange failed ({resp.status}): {resp.data.decode()}")
+        raise RuntimeError(
+            f"Token exchange failed ({resp.status}): {resp.data.decode()}"
+        )
     return json.loads(resp.data.decode())["access_token"]
 
 
 # ---------------------------------------------------------------------------
 # GitHub helpers
 # ---------------------------------------------------------------------------
+
 
 def _gh_get(url: str, token: str, params: dict | None = None) -> dict | list:
     headers = {
@@ -115,7 +119,9 @@ def fetch_pr_first_commit_at(repo: str, number: int, token: str) -> str | None:
     return min(timestamps) if timestamps else None
 
 
-def build_event(repo: str, pr: dict, first_commit_at: str | None, collection_ts: str) -> dict:
+def build_event(
+    repo: str, pr: dict, first_commit_at: str | None, collection_ts: str
+) -> dict:
     merged_at = pr.get("merged_at")
     lead_time_seconds = None
     if merged_at and first_commit_at:
@@ -136,7 +142,9 @@ def build_event(repo: str, pr: dict, first_commit_at: str | None, collection_ts:
     }
 
 
-def collect_repo(repo: str, since_iso: str, collection_ts: str, token: str) -> list[dict]:
+def collect_repo(
+    repo: str, since_iso: str, collection_ts: str, token: str
+) -> list[dict]:
     prs = fetch_merged_prs(repo, since_iso, token)
     events: list[dict] = []
     for pr in prs:
@@ -151,6 +159,7 @@ def collect_repo(repo: str, since_iso: str, collection_ts: str, token: str) -> l
 # ---------------------------------------------------------------------------
 # Databricks Files API upload
 # ---------------------------------------------------------------------------
+
 
 def upload_to_volume(
     workspace_host: str,
@@ -172,7 +181,9 @@ def upload_to_volume(
         timeout=60,
     )
     if resp.status not in (200, 204):
-        raise RuntimeError(f"Files API PUT {full_path} failed ({resp.status}): {resp.data.decode()}")
+        raise RuntimeError(
+            f"Files API PUT {full_path} failed ({resp.status}): {resp.data.decode()}"
+        )
     return f"{workspace_host}{full_path}"
 
 
@@ -203,7 +214,7 @@ def main() -> int:
         return 1
 
     lookback_days = int(os.environ.get("LOOKBACK_DAYS", DEFAULT_LOOKBACK_DAYS))
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     since_iso = (now - timedelta(days=lookback_days)).date().isoformat()
     collection_ts = now.strftime("%Y%m%dT%H%M%SZ")
 
@@ -215,10 +226,15 @@ def main() -> int:
         print("Nothing to upload.")
         return 0
 
-    print(f"Authenticating to Databricks (account {account_id}, SP {client_id})", flush=True)
+    print(
+        f"Authenticating to Databricks (account {account_id}, SP {client_id})",
+        flush=True,
+    )
     dbx_token = get_databricks_token(account_id, client_id, client_secret)
 
-    body = ("\n".join(json.dumps(e, ensure_ascii=False) for e in events) + "\n").encode("utf-8")
+    body = ("\n".join(json.dumps(e, ensure_ascii=False) for e in events) + "\n").encode(
+        "utf-8"
+    )
     repo_slug = repo.replace("/", "_")
     filename = f"dora-{repo_slug}-{collection_ts}.jsonl"
     uri = upload_to_volume(workspace_host, dbx_token, volume_path, filename, body)

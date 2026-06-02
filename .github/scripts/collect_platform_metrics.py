@@ -27,7 +27,7 @@ import json
 import os
 import sys
 import urllib.parse
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import urllib3
 
@@ -43,6 +43,7 @@ PROD_ACCOUNT_ID = "00000000-0000-0000-0000-000000000002"
 # ---------------------------------------------------------------------------
 # Databricks M2M client_credentials token exchange
 # ---------------------------------------------------------------------------
+
 
 def get_account_token(account_id: str, client_id: str, client_secret: str) -> str:
     """Exchange SP client_id + client_secret for an account-level token."""
@@ -61,13 +62,16 @@ def get_account_token(account_id: str, client_id: str, client_secret: str) -> st
         timeout=30,
     )
     if resp.status != 200:
-        raise RuntimeError(f"Token exchange failed ({resp.status}): {resp.data.decode()}")
+        raise RuntimeError(
+            f"Token exchange failed ({resp.status}): {resp.data.decode()}"
+        )
     return json.loads(resp.data.decode())["access_token"]
 
 
 # ---------------------------------------------------------------------------
 # Databricks REST API helpers
 # ---------------------------------------------------------------------------
+
 
 def _get(url: str, token: str, params: dict | None = None) -> dict:
     """Authenticated GET against a Databricks REST endpoint."""
@@ -114,7 +118,9 @@ def count_jobs(workspace_url: str, token: str) -> int:
 def count_pipelines(workspace_url: str, token: str) -> int:
     """Count all DLT pipelines in a workspace."""
     try:
-        pipelines = _get_paginated(f"{workspace_url}/api/2.0/pipelines", token, "statuses")
+        pipelines = _get_paginated(
+            f"{workspace_url}/api/2.0/pipelines", token, "statuses"
+        )
         return len(pipelines)
     except RuntimeError as exc:
         print(f"  Warning: could not list pipelines for {workspace_url}: {exc}")
@@ -125,7 +131,9 @@ def count_tables_by_medallion(workspace_url: str, token: str) -> dict[str, int]:
     """Count tables grouped by medallion layer (bronze/silver/gold)."""
     counts = {layer: 0 for layer in MEDALLION_KEYWORDS}
     try:
-        catalogs = _get(f"{workspace_url}/api/2.1/unity-catalog/catalogs", token).get("catalogs", [])
+        catalogs = _get(f"{workspace_url}/api/2.1/unity-catalog/catalogs", token).get(
+            "catalogs", []
+        )
     except RuntimeError as exc:
         print(f"  Warning: could not list catalogs for {workspace_url}: {exc}")
         return counts
@@ -163,6 +171,7 @@ def count_tables_by_medallion(workspace_url: str, token: str) -> dict[str, int]:
 # ---------------------------------------------------------------------------
 # Main collection logic
 # ---------------------------------------------------------------------------
+
 
 def collect_account_metrics(
     account_id: str,
@@ -206,6 +215,7 @@ def collect_account_metrics(
 # Databricks Files API upload
 # ---------------------------------------------------------------------------
 
+
 def upload_to_volume(
     workspace_host: str,
     token: str,
@@ -227,7 +237,9 @@ def upload_to_volume(
         timeout=60,
     )
     if resp.status not in (200, 204):
-        raise RuntimeError(f"Files API PUT {full_path} failed ({resp.status}): {resp.data.decode()}")
+        raise RuntimeError(
+            f"Files API PUT {full_path} failed ({resp.status}): {resp.data.decode()}"
+        )
     return f"{workspace_host}{full_path}"
 
 
@@ -253,7 +265,7 @@ def main() -> int:
         print(f"Missing required env vars: {', '.join(missing)}", file=sys.stderr)
         return 1
 
-    timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    timestamp = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
 
     accounts = [(DEV_ACCOUNT_ID, "dev", dev_client_id, dev_client_secret)]
     if prod_client_id and prod_client_secret:
@@ -279,9 +291,11 @@ def main() -> int:
         print("No records collected or dev token missing")
         return 0
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     filename = f"metrics-{now.strftime('%Y%m%dT%H%M%SZ')}.jsonl"
-    body = "\n".join(json.dumps(r, ensure_ascii=False) for r in all_records).encode("utf-8")
+    body = "\n".join(json.dumps(r, ensure_ascii=False) for r in all_records).encode(
+        "utf-8"
+    )
 
     # Volume lives in the dev catalog — use the dev token for upload.
     uri = upload_to_volume(workspace_host, dev_token, volume_path, filename, body)

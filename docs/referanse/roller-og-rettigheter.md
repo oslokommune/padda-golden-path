@@ -2,82 +2,116 @@
 title: Roller og rettigheter
 description: Plattformens roller, rettigheter, ansvarsområder og tilgangsmodell.
 diataxis: reference
-icon: lucide/merge
 ---
 
 # Roller og rettigheter
 
-!!! info "Opprinnelse"
-    Denne siden er sammenslått fra `docs/guides/roller/*.md` og `docs/notion/tilgangsstyring-og-roller.md`. Tutorial-delen (innlogging, SSO, flyt) ligger under [Slik får du tilgang](../kom-i-gang/slik-faar-du-tilgang.md).
+Denne siden gir en oversikt over rollene (gruppene) og tilgangene på
+plattformen. For *hvorfor* plattformen bruker rollebasert tilgangsstyring, se
+konseptsiden [Roller og
+tilgangsstyring](../om-plattformen/konsepter/roller-og-tilgangsstyring.md).
 
-Denne siden gir en samlet oversikt over rollene i dataplattformen, deres rettigheter og ansvarsområder.
+## Grupper
 
-## Roller
+Hvert workspace har tre faste grupper — én for hver av rollene workspace-admin,
+dataanalytiker og dataansvarlig. I tillegg finnes to plattformovergripende
+grupper som foreløpig bare er opprettet for DIG. Det er gruppen du er medlem av
+som avgjør hva du kan gjøre. Medlemskap forvaltes gjennom Entra ID — se [Slik
+får du tilgang](../kom-i-gang/slik-faar-du-tilgang.md).
 
-| Rolle | Unity Catalog-rettigheter | Ansvar |
-|-------|--------------------------|--------|
-| **Ansatt / datautforsker** | `USE_CATALOG` i felleskatalogen | Utforske data der eksplisitt tilgang er gitt |
-| **Dataanalytiker** | `USE_CATALOG`, `USE SCHEMA`, `CREATE TABLE` | Analyse og prototyping |
-| **Dataansvarlig (data owner)** | Schema Owner | Tilgang, datakvalitet og dokumentasjon i sitt domene |
-| **Workspace-admin** | Catalog Owner | Workspace-ressurser og job-ACL-er |
-| **Dataplattform-admin** | Account-nivå | Plattformdrift, SCIM, nettverk |
+!!! note "Under arbeid"
+    Entra-gruppene er foreløpig ikke opprettet for alle workspaces. Dette er
+    under utrulling, så oppsettet kan se annerledes ut for ditt workspace enn det
+    som er beskrevet her. Ta kontakt med plattformteamet hvis du er usikker på
+    hva som gjelder for deg.
 
-## Ansatt / datautforsker (grunnleggende tilgang)
+Alle gruppene følger samme mønster med `DS-`-prefiks og organisasjonskode, der
+`{ORG}` byttes ut med organisasjonskoden din.
 
-Denne rollen har `USE_CATALOG` i felleskatalogen. Du kan lese data der du har fått eksplisitte rettigheter (f.eks. via gruppe/AD-gruppe), men du kan ikke opprette nye tabeller eller endre eksisterende.
+De tre faste gruppene per workspace er:
 
-## Dataanalytiker
+| Gruppe                      | Rolle                               |
+|-----------------------------|-------------------------------------|
+| `DS-{ORG}_WORKSPACE_ADMINS` | Administratorer for ett workspace   |
+| `DS-{ORG}_DATAANALYTIKERE`  | Analyse og prototyping i workspacet |
+| `DS-{ORG}_DATAANSVARLIGE`   | Dataansvarlige i sitt domene        |
 
-Rollen har `USE_CATALOG`, `USE SCHEMA` og `CREATE TABLE`. Du kan lese, lage egne tabeller og prototyper, men endringer i produksjonsskjemaer må koordineres med dataeier.
+De to plattformovergripende gruppene, som foreløpig bare finnes for DIG:
 
-## Dataansvarlig (data owner)
+| Gruppe                        | Rolle                                      |
+|-------------------------------|--------------------------------------------|
+| `DS-DIG_DATAPLATTFORM_ADMINS` | Plattformforvaltere på tvers av workspaces |
+| `DS-DIG_KATALOGBRUKERE`       | Lesetilgang til katalogmetadata            |
+
+### Workspace-admin
+
+Workspace-admin har Catalog Owner-rettigheter og administrerer
+workspace-ressurser, Access Control Lists (ACL-er) for jobber og brukergrupper
+på workspace-nivå.
+
+### Dataanalytiker
+
+Rollen har `USE_CATALOG`, `USE SCHEMA` og `CREATE TABLE`, og kan lese data og
+lage egne tabeller og prototyper. Den har ikke skrivetilgang til
+produksjonsskjemaer.
+
+### Dataansvarlig
 
 Rollen er ansvarlig for struktur, tilgang og datakvalitet i sitt domene.
 
-### Løpende ansvar
+Løpende ansvar:
+
 - Forvalte tilgang og følge sikkerhetskrav (sensitivitet, persondata).
 - Godkjenne nye tabeller og bryte ned eierskap til schema-nivå.
 - Sikre dokumentasjon (datakatalog, README, feltbeskrivelser) og kontaktpunkt.
-- Følge naming- og governance-prinsipper fra plattformteamet.
+- Følge navngivnings- og forvaltningsprinsipper fra plattformteamet.
 
-## Workspace-admin
+### Dataplattform-admin
 
-Workspace-admin har Catalog Owner-rettigheter og administrerer workspace-ressurser, job-ACL-er og brukergrupper på workspace-nivå.
+Dataplattform-admin opererer på kontonivå og har ansvar for plattformdrift,
+konfigurasjon av SCIM (System for Cross-domain Identity Management),
+nettverksoppsett og administrasjon av workspaces.
 
-## Dataplattform-admin
+### Katalogbruker
 
-Dataplattform-admin opererer på account-nivå og har ansvar for plattformdrift, SCIM-konfigurasjon, nettverksoppsett og administrasjon av workspaces.
-
-## Grupper i Entra ID
-
-Grupper defineres i Entra ID, og synkroniseres til Databricks som både workspace-grupper og Unity Catalog-grupper. Følgende grupper er de viktigste:
-
-SYE, 5 roller, workspace admin, data analyst, dataprodukt utvikler, ansatt/browse
-
-For Power BI er det behov for en servicebruker.
+Rollen har lesetilgang til katalogmetadata: den kan se hvilke kataloger,
+schemaer og tabeller som finnes, men ikke innholdet i dem. Tilgang til selve
+dataene gis eksplisitt per katalog eller schema.
 
 ## Tilgangsstyring i Unity Catalog
 
-Unity Catalog benytter RBAC. Følgende prinsipper gjelder:
+Unity Catalog benytter rollebasert tilgangskontroll (RBAC). Følgende prinsipper
+gjelder:
 
-- **Catalog Owner** tildeles Databricks-Workspace-admin
-- **Schema Owner**: Databricks-Dataansvarlig får eierskap i sine schemas for å administrere tabeller og views.
-- **Table/Volume Grants**: Analytikere får `SELECT`, mens skrive-rettigheter kun gis til pipelines.
-- **Data Explorer**: `Ansatt-Browse` får `USE CATALOG/USE SCHEMA` + `SHOW TABLES` slik at metadata er synlig, men ikke data.
+- **Catalog Owner**: Tildeles workspace-admin.
+- **Schema Owner**: Dataansvarlig får eierskap i sine schemaer for å
+  administrere tabeller og views.
+- **Table/Volume Grants**: Analytikere får `SELECT`, mens skrive-rettigheter kun
+  gis til pipelines.
+- **Data Explorer**: `KATALOGBRUKERE` får `USE CATALOG/USE SCHEMA` + `SHOW
+  TABLES` slik at metadata er synlig, men ikke data.
 
 ## Oversikt over tilgangsnivåer
 
 - **Identiteter og grupper**: Alltid i Entra ID; Databricks leser dem via SCIM.
-- **Account level access**: Styres av `Dataplattform-Utvikler-Account`. Her ligger informasjon om workspaces, SCIM-klienter og nettverk.
-- **Workspace level access**: Ligger i Databricks workspace (Jobs, Repos). Git/Bundle beskriver hvilke grupper som skal ha hvilke rettigheter.
-- **Unity Catalog / metadata**: Beskrives via grants i IaC og håndheves av UC. Alle brukere med `Ansatt-Browse` kan lese metadata, men ikke innhold.
-- **Flyt**: Entra ID → SCIM → Databricks Account → Workspace → Unity Catalog. Når vi dokumenterer en ny tilgang bør vi alltid angi hvilket nivå (account, workspace, catalog/schema/table) som påvirkes.
+- **Tilgang på kontonivå**: Styres av `Dataplattform-Utvikler-Account`. Her
+  ligger informasjon om workspaces, SCIM-klienter og nettverk.
+- **Tilgang på workspace-nivå**: Ligger i Databricks-workspacet (Jobs,
+  Repos). Git/Bundle beskriver hvilke grupper som skal ha hvilke rettigheter.
+- **Unity Catalog / metadata**: Beskrives via grants i infrastruktur som kode
+  (IaC) og håndheves av Unity Catalog. Alle brukere med `KATALOGBRUKERE` kan
+  lese metadata, men ikke innhold.
+- **Flyt**: Entra ID → SCIM → Databricks Account → Workspace → Unity Catalog.
 
-## GitHub Actions service principal
+## GitHub Actions service principals
 
-Hvert team har en dedikert service-principal i Entra ID (f.eks. `spn-github-{team}`). Denne:
+Deploy fra GitHub Actions skjer med egne service principals i Databricks, ikke
+med personlige brukere. Hvert workspace har to:
 
-- har app-registrering med klienthemmelighet
-- brukes av GitHub Actions-workflows til deploy (bundle deploy, uc grants, etc.)
+- `{workspace}-gha-prs` med `USER`-tilgang, som validerer endringer på pull
+  requests
+- `{workspace}-gha-deploy` med `ADMIN`-tilgang, som deployer til workspacet
+  (bundle deploy, Unity Catalog-grants, etc.)
 
-På den måten opptrer CI/CD som en "vanlig" bruker.
+Begge autentiserer med GitHub-føderasjon basert på OIDC, uten lagrede
+klienthemmeligheter. På den måten opptrer CI/CD som en "vanlig" bruker.

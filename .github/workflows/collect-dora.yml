@@ -31,10 +31,15 @@ concurrency:
   cancel-in-progress: false
 
 env:
+  # Dev landing volume (padda_dev_green, dev account)
   DATABRICKS_ACCOUNT_ID: "69d82905-dc92-4349-89b2-c4bf6501cb82"
   DATABRICKS_CLIENT_ID: "9c6d2c5e-142b-4d53-a214-f8977f57ab84"
   DATABRICKS_HOST: "https://dbc-d17b7ed1-eac0.cloud.databricks.com"
   VOLUME_PATH: "/Volumes/padda_dev_green/landing_default/platform_events/dora"
+  # Prod landing volume (dig_databrikker_stage_green, dig-databrikker-stage)
+  PROD_DATABRICKS_ACCOUNT_ID: "5a3d7d58-a44f-4baa-b0df-5648148988d5"
+  PROD_DATABRICKS_HOST: "https://dbc-06d235d6-54a0.cloud.databricks.com"
+  PROD_VOLUME_PATH: "/Volumes/dig_databrikker_stage_green/landing_default/platform_events/dora"
 
 jobs:
   collect:
@@ -57,4 +62,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
           DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_CLIENT_SECRET }}
+          PROD_DATABRICKS_CLIENT_ID: ${{ secrets.PROD_CLIENT_ID }}
+          PROD_DATABRICKS_CLIENT_SECRET: ${{ secrets.PROD_CLIENT_SECRET }}
         run: python .github/scripts/collect_dora_events.py

@@ -226,19 +226,48 @@ def main() -> int:
         print("Nothing to upload.")
         return 0
 
-    print(
-        f"Authenticating to Databricks (account {account_id}, SP {client_id})",
-        flush=True,
-    )
-    dbx_token = get_databricks_token(account_id, client_id, client_secret)
-
     body = ("\n".join(json.dumps(e, ensure_ascii=False) for e in events) + "\n").encode(
         "utf-8"
     )
     repo_slug = repo.replace("/", "_")
     filename = f"dora-{repo_slug}-{collection_ts}.jsonl"
-    uri = upload_to_volume(workspace_host, dbx_token, volume_path, filename, body)
-    print(f"Uploaded {len(events)} events to {uri}")
+
+    # Upload to each configured environment's landing volume, each written with
+    # that environment's own SP token. Dev is required; prod is optional and
+    # only runs when all PROD_DATABRICKS_* vars are set.
+    upload_targets = [
+        ("dev", account_id, client_id, client_secret, workspace_host, volume_path),
+    ]
+    prod_target = (
+        "prod",
+        os.environ.get("PROD_DATABRICKS_ACCOUNT_ID"),
+        os.environ.get("PROD_DATABRICKS_CLIENT_ID"),
+        os.environ.get("PROD_DATABRICKS_CLIENT_SECRET"),
+        os.environ.get("PROD_DATABRICKS_HOST"),
+        os.environ.get("PROD_VOLUME_PATH"),
+    )
+    if all(prod_target[1:]):
+        upload_targets.append(prod_target)
+    else:
+        print("Prod upload env not fully set — skipping prod upload")
+
+    uploaded = 0
+    for label, acct, cid, csecret, host, vpath in upload_targets:
+        try:
+            print(
+                f"Authenticating to Databricks {label} (account {acct}, SP {cid})",
+                flush=True,
+            )
+            token = get_databricks_token(acct, cid, csecret)
+            uri = upload_to_volume(host, token, vpath, filename, body)
+            print(f"Uploaded {len(events)} events to {uri}")
+            uploaded += 1
+        except Exception as exc:
+            print(f"Error uploading to {label} ({host}): {exc}")
+
+    if uploaded == 0:
+        print("No uploads succeeded", file=sys.stderr)
+        return 1
     return 0
 
 

@@ -11,16 +11,24 @@ No AWS hop — auth to storage is Databricks M2M client_credentials.
 Auth: OIDC federation is wired in padda-iac but token exchange currently
 returns TOKEN_INVALID — using M2M as workaround until that's fixed.
 
-Required environment variables:
-  DEV_CLIENT_ID         Application ID of the dev account SP
-  DEV_CLIENT_SECRET     OAuth secret for the dev account SP
-  PROD_CLIENT_ID        Application ID of the prod account SP
-  PROD_CLIENT_SECRET    OAuth secret for the prod account SP
-  DATABRICKS_HOST       Workspace host the volume lives in
-  VOLUME_PATH           /Volumes/<catalog>/<schema>/<volume>/<subdir>/
+The same snapshot is uploaded to each environment's landing volume, written
+with that environment's own account token. Configure one or both targets:
 
-The DEV token is used for the upload — the catalog hosting the volume
-is in the dev account.
+Required environment variables:
+  DEV_CLIENT_ID          Application ID of the dev account SP
+  DEV_CLIENT_SECRET      OAuth secret for the dev account SP
+
+Optional (enable prod-account collection and/or per-environment uploads):
+  PROD_CLIENT_ID         Application ID of the prod account SP
+  PROD_CLIENT_SECRET     OAuth secret for the prod account SP
+  DATABRICKS_HOST        Dev workspace host hosting the dev landing volume
+  VOLUME_PATH            /Volumes/<dev_catalog>/<schema>/<volume>/<subdir>/
+  PROD_DATABRICKS_HOST   Prod workspace host hosting the prod landing volume
+  PROD_VOLUME_PATH       /Volumes/<prod_catalog>/<schema>/<volume>/<subdir>/
+
+The dev volume is written with the dev token, the prod volume with the prod
+token. A target is skipped when its host/volume vars (or token) are unset; the
+run fails only if no upload succeeds.
 """
 
 import json
@@ -286,16 +294,20 @@ def main() -> int:
     dev_client_secret = os.environ.get("DEV_CLIENT_SECRET")
     prod_client_id = os.environ.get("PROD_CLIENT_ID")
     prod_client_secret = os.environ.get("PROD_CLIENT_SECRET")
-    workspace_host = os.environ.get("DATABRICKS_HOST")
-    volume_path = os.environ.get("VOLUME_PATH")
+
+    # Upload destinations — the same snapshot is written to each environment's
+    # landing volume using that environment's own account token. A target is
+    # skipped if its host/volume env vars are unset.
+    dev_host = os.environ.get("DATABRICKS_HOST")
+    dev_volume_path = os.environ.get("VOLUME_PATH")
+    prod_host = os.environ.get("PROD_DATABRICKS_HOST")
+    prod_volume_path = os.environ.get("PROD_VOLUME_PATH")
 
     missing = [
         name
         for name, val in [
             ("DEV_CLIENT_ID", dev_client_id),
             ("DEV_CLIENT_SECRET", dev_client_secret),
-            ("DATABRICKS_HOST", workspace_host),
-            ("VOLUME_PATH", volume_path),
         ]
         if not val
     ]
@@ -311,22 +323,21 @@ def main() -> int:
     else:
         print("PROD_CLIENT_ID/PROD_CLIENT_SECRET not set — skipping prod account")
 
-    dev_token = None  # captured for upload
+    tokens: dict[str, str] = {}  # account label -> token, reused for upload
 
     all_records: list[dict] = []
     for account_id, label, cid, csecret in accounts:
         try:
             print(f"Authenticating to {label} account ({account_id})")
             token = get_account_token(account_id, cid, csecret)
-            if label == "dev":
-                dev_token = token
+            tokens[label] = token
             records = collect_account_metrics(account_id, label, token, timestamp)
             all_records.extend(records)
         except Exception as exc:
             print(f"Error collecting from {label} account: {exc}")
 
-    if not all_records or dev_token is None:
-        print("No records collected or dev token missing")
+    if not all_records:
+        print("No records collected")
         return 0
 
     now = datetime.now(UTC)
@@ -335,9 +346,34 @@ def main() -> int:
         "utf-8"
     )
 
-    # Volume lives in the dev catalog — use the dev token for upload.
-    uri = upload_to_volume(workspace_host, dev_token, volume_path, filename, body)
-    print(f"Uploaded {len(all_records)} workspace records to {uri}")
+    # Each landing volume lives in its own account/catalog, so it is written
+    # with that account's token. Both environments receive the same snapshot.
+    upload_targets = [
+        ("dev", dev_host, dev_volume_path),
+        ("prod", prod_host, prod_volume_path),
+    ]
+    uploaded = 0
+    for label, host, vpath in upload_targets:
+        if not host or not vpath:
+            continue
+        token = tokens.get(label)
+        if not token:
+            print(f"Skipping {label} upload — no {label} account token available")
+            continue
+        try:
+            uri = upload_to_volume(host, token, vpath, filename, body)
+            print(f"Uploaded {len(all_records)} workspace records to {uri}")
+            uploaded += 1
+        except Exception as exc:
+            print(f"Error uploading to {label} ({host}): {exc}")
+
+    if uploaded == 0:
+        print(
+            "No uploads succeeded — set DATABRICKS_HOST/VOLUME_PATH and/or "
+            "PROD_DATABRICKS_HOST/PROD_VOLUME_PATH",
+            file=sys.stderr,
+        )
+        return 1
     return 0
 
 

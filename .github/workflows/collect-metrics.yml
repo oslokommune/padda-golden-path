@@ -19,9 +19,13 @@ permissions:
   contents: read
 
 env:
+  # Dev landing volume (padda_dev_green, dev account)
   DATABRICKS_HOST: "https://dbc-00000000-0001.cloud.databricks.com"
   VOLUME_PATH: "/Volumes/padda_dev_green/landing_default/platform_events/metrics"
   DEV_CLIENT_ID: "00000000-0000-0000-0000-000000000003"
+  # Prod landing volume (dig_eksempelteam_stage_green, dig-eksempelteam-stage)
+  PROD_DATABRICKS_HOST: "https://dbc-00000000-0005.cloud.databricks.com"
+  PROD_VOLUME_PATH: "/Volumes/dig_eksempelteam_stage_green/landing_default/platform_events/metrics"
 
 jobs:
   collect:

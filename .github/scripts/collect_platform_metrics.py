@@ -105,18 +105,27 @@ def list_workspaces(account_id: str, token: str) -> list[dict]:
     return raw if isinstance(raw, list) else raw.get("workspaces", [])
 
 
-def count_jobs(workspace_url: str, token: str) -> int:
-    """Count all jobs in a workspace."""
+def count_jobs(workspace_url: str, token: str, errors: list[str]) -> int | None:
+    """Count all jobs in a workspace.
+
+    Returns None (not -1) when the API call fails, so an unreachable workspace
+    is recorded as "unknown" rather than a value that looks like real data.
+    The failure is appended to ``errors`` for observability.
+    """
     try:
         jobs = _get_paginated(f"{workspace_url}/api/2.1/jobs/list", token, "jobs")
         return len(jobs)
     except RuntimeError as exc:
         print(f"  Warning: could not list jobs for {workspace_url}: {exc}")
-        return -1
+        errors.append(f"jobs: {exc}")
+        return None
 
 
-def count_pipelines(workspace_url: str, token: str) -> int:
-    """Count all DLT pipelines in a workspace."""
+def count_pipelines(workspace_url: str, token: str, errors: list[str]) -> int | None:
+    """Count all DLT pipelines in a workspace.
+
+    Returns None on failure (see :func:`count_jobs`).
+    """
     try:
         pipelines = _get_paginated(
             f"{workspace_url}/api/2.0/pipelines", token, "statuses"
@@ -124,19 +133,32 @@ def count_pipelines(workspace_url: str, token: str) -> int:
         return len(pipelines)
     except RuntimeError as exc:
         print(f"  Warning: could not list pipelines for {workspace_url}: {exc}")
-        return -1
+        errors.append(f"pipelines: {exc}")
+        return None
 
 
-def count_tables_by_medallion(workspace_url: str, token: str) -> dict[str, int]:
-    """Count tables grouped by medallion layer (bronze/silver/gold)."""
-    counts = {layer: 0 for layer in MEDALLION_KEYWORDS}
+def count_tables_by_medallion(
+    workspace_url: str, token: str, errors: list[str]
+) -> dict[str, int | None]:
+    """Count tables grouped by medallion layer (bronze/silver/gold).
+
+    A layer count is None when it could not be collected, so a transient
+    failure is not silently reported as zero tables:
+    - catalog listing fails  -> all three layers are unknown (None)
+    - schema listing fails    -> all layers for that catalog are unknown
+    - table listing fails     -> only that schema's layer is unknown
+    Failures are appended to ``errors``.
+    """
+    counts: dict[str, int] = {layer: 0 for layer in MEDALLION_KEYWORDS}
+    unknown: set[str] = set()
     try:
         catalogs = _get(f"{workspace_url}/api/2.1/unity-catalog/catalogs", token).get(
             "catalogs", []
         )
     except RuntimeError as exc:
         print(f"  Warning: could not list catalogs for {workspace_url}: {exc}")
-        return counts
+        errors.append(f"catalogs: {exc}")
+        return {layer: None for layer in MEDALLION_KEYWORDS}
 
     for catalog in catalogs:
         catalog_name = catalog["name"]
@@ -148,7 +170,11 @@ def count_tables_by_medallion(workspace_url: str, token: str) -> dict[str, int]:
                 token,
                 {"catalog_name": catalog_name},
             ).get("schemas", [])
-        except RuntimeError:
+        except RuntimeError as exc:
+            # We can't tell which medallion layers this catalog held, so every
+            # layer count is now incomplete — mark them all unknown.
+            errors.append(f"schemas[{catalog_name}]: {exc}")
+            unknown.update(MEDALLION_KEYWORDS)
             continue
 
         for schema in schemas:
@@ -163,9 +189,15 @@ def count_tables_by_medallion(workspace_url: str, token: str) -> dict[str, int]:
                     {"catalog_name": catalog_name, "schema_name": schema["name"]},
                 ).get("tables", [])
                 counts[layer] += len(tables)
-            except RuntimeError:
+            except RuntimeError as exc:
+                errors.append(f"tables[{catalog_name}.{schema['name']}]: {exc}")
+                unknown.add(layer)
                 continue
-    return counts
+
+    return {
+        layer: (None if layer in unknown else counts[layer])
+        for layer in MEDALLION_KEYWORDS
+    }
 
 
 # ---------------------------------------------------------------------------
@@ -192,9 +224,10 @@ def collect_account_metrics(
         workspace_url = f"https://{deployment}.cloud.databricks.com"
 
         print(f"  Collecting metrics for {ws_name} ({workspace_url})")
-        num_jobs = count_jobs(workspace_url, account_token)
-        num_pipelines = count_pipelines(workspace_url, account_token)
-        table_counts = count_tables_by_medallion(workspace_url, account_token)
+        errors: list[str] = []
+        num_jobs = count_jobs(workspace_url, account_token, errors)
+        num_pipelines = count_pipelines(workspace_url, account_token, errors)
+        table_counts = count_tables_by_medallion(workspace_url, account_token, errors)
 
         records.append({
             "collection_timestamp": timestamp,
@@ -207,6 +240,11 @@ def collect_account_metrics(
             "num_bronze_tables": table_counts["bronze"],
             "num_silver_tables": table_counts["silver"],
             "num_gold_tables": table_counts["gold"],
+            # Failure metadata: distinguishes "could not collect" (NULL counts)
+            # from a genuine zero, so partial failures stay visible downstream
+            # instead of dropping the workspace or faking a count.
+            "partial_failure": bool(errors),
+            "collection_errors": "; ".join(errors),
         })
     return records
 

@@ -1,14 +1,18 @@
 name: Collect Databricks Metrics
 
-# Weekly workspace inventory snapshot — counts jobs, DLT pipelines, and
-# tables per medallion layer across all workspaces in the dev (and
-# optionally prod) Databricks accounts. Uploads JSONL to a Unity Catalog
-# volume; the platform_metrics DLT pipeline (in padda-databrikker) reads
-# from there via Auto Loader.
+# Weekly workspace inventory snapshot — counts jobs, DLT pipelines, and tables
+# per medallion layer across the workspaces in one Databricks account, uploaded
+# as JSONL to that environment's Unity Catalog landing volume. The
+# platform_metrics DLT pipeline (in padda-databrikker) reads it via Auto Loader.
 #
-# Auth: Databricks M2M client_credentials. OIDC federation is wired in
-# padda-iac but the exchange currently returns TOKEN_INVALID — to be
-# revisited.
+# Runs once per GitHub environment (dev, prod) via the matrix below. Each
+# environment supplies its own config; only the catalog varies the upload path
+# (the collector derives landing_default/platform_events/workspace_inventory).
+#   vars:    DATABRICKS_ACCOUNT_ID, DATABRICKS_CLIENT_ID, DATABRICKS_HOST,
+#            DATABRICKS_METRICS_CATALOG
+#   secrets: DATABRICKS_CLIENT_SECRET
+#
+# Auth: Databricks M2M client_credentials.
 
 on:
   schedule:
@@ -18,20 +22,15 @@ on:
 permissions:
   contents: read
 
-env:
-  # Dev landing volume (padda_dev_green, dev account)
-  DATABRICKS_HOST: "https://dbc-d17b7ed1-eac0.cloud.databricks.com"
-  VOLUME_PATH: "/Volumes/padda_dev_green/landing_default/platform_events/metrics"
-  DEV_CLIENT_ID: "9c6d2c5e-142b-4d53-a214-f8977f57ab84"
-  # Prod landing volume (dig_databrikker_stage_green, dig-databrikker-stage)
-  PROD_DATABRICKS_HOST: "https://dbc-06d235d6-54a0.cloud.databricks.com"
-  PROD_VOLUME_PATH: "/Volumes/dig_databrikker_stage_green/landing_default/platform_events/metrics"
-
 jobs:
   collect:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        environment: [dev, prod]
     environment:
-      name: dev
+      name: ${{ matrix.environment }}
     steps:
       - uses: actions/checkout@v4
 
@@ -44,7 +43,10 @@ jobs:
 
       - name: Collect metrics
         env:
-          DEV_CLIENT_SECRET: ${{ secrets.DATABRICKS_CLIENT_SECRET }}
-          PROD_CLIENT_ID: ${{ secrets.PROD_CLIENT_ID }}
-          PROD_CLIENT_SECRET: ${{ secrets.PROD_CLIENT_SECRET }}
+          DATABRICKS_ACCOUNT_ID: ${{ vars.DATABRICKS_ACCOUNT_ID }}
+          DATABRICKS_CLIENT_ID: ${{ vars.DATABRICKS_CLIENT_ID }}
+          DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_CLIENT_SECRET }}
+          DATABRICKS_HOST: ${{ vars.DATABRICKS_HOST }}
+          DATABRICKS_METRICS_CATALOG: ${{ vars.DATABRICKS_METRICS_CATALOG }}
+          ACCOUNT_LABEL: ${{ matrix.environment }}
         run: python .github/scripts/collect_platform_metrics.py

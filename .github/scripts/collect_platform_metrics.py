@@ -8,9 +8,10 @@ Auto Loader in the platform_metrics bundle can ingest them.
 
 No AWS hop — auth to storage is the federated Databricks token.
 
-Auth: GitHub OIDC federation (jwt-bearer). The workflow mints an OIDC token
-with the Databricks account as audience and passes it in; a service-principal
-federation policy in padda-iac maps it to the collector SP. No stored secret.
+Auth: GitHub OIDC federation (RFC 8693 token-exchange). The workflow mints an
+OIDC token with the Databricks account as audience and passes it in; client_id
+selects the collector SP, whose federation policy in padda-iac authorizes the
+exchange. No stored secret.
 
 Single environment per run. The workflow runs this once per GitHub environment
 (dev, prod); each run inventories that environment's own Databricks account and
@@ -20,6 +21,7 @@ LANDING_VOLUME / COLLECTION convention below.
 
 Required environment variables:
   DATABRICKS_ACCOUNT_ID       Databricks account ID for this environment
+  DATABRICKS_CLIENT_ID        Collector SP application id (selects the SP; not secret)
   DATABRICKS_OIDC_TOKEN       GitHub OIDC JWT (audience = the account ID)
   DATABRICKS_HOST             Workspace host hosting this environment's volume
   DATABRICKS_METRICS_CATALOG  Catalog (padda_dev_green / dig_eksempelteam_stage_green)
@@ -55,21 +57,24 @@ def collection_path(catalog: str) -> str:
 
 
 # ---------------------------------------------------------------------------
-# GitHub OIDC -> Databricks token federation (jwt-bearer)
+# GitHub OIDC -> Databricks token federation (RFC 8693 token-exchange)
 # ---------------------------------------------------------------------------
 
 
-def get_account_token(account_id: str, oidc_token: str) -> str:
+def get_account_token(account_id: str, client_id: str, oidc_token: str) -> str:
     """Federate a GitHub OIDC token into a Databricks account-level token.
 
-    Uses the jwt-bearer grant: the GitHub Actions OIDC JWT is the assertion,
-    and a Databricks service-principal federation policy (configured in
-    padda-iac) maps it to the collector SP. No stored client secret.
+    RFC 8693 token exchange against the account OIDC endpoint. The GitHub
+    Actions OIDC JWT is the subject_token; client_id selects the collector SP,
+    whose service-principal federation policy (in padda-iac) authorizes the
+    exchange. No stored client secret.
     """
     url = f"{ACCOUNTS_HOST}/oidc/accounts/{account_id}/v1/token"
     body = urllib.parse.urlencode({
-        "grant_type": "urn:ietf:params:oauth:grant-type:jwt-bearer",
-        "assertion": oidc_token,
+        "grant_type": "urn:ietf:params:oauth:grant-type:token-exchange",
+        "subject_token": oidc_token,
+        "subject_token_type": "urn:ietf:params:oauth:token-type:jwt",
+        "client_id": client_id,
         "scope": "all-apis",
     })
     resp = http.request(
@@ -305,6 +310,7 @@ def main() -> int:
     # account, workspace, and catalog. Auth is GitHub OIDC federation — the
     # workflow passes a Databricks-audience OIDC token, no stored secret.
     account_id = os.environ.get("DATABRICKS_ACCOUNT_ID")
+    client_id = os.environ.get("DATABRICKS_CLIENT_ID")
     oidc_token = os.environ.get("DATABRICKS_OIDC_TOKEN")
     workspace_host = os.environ.get("DATABRICKS_HOST")
     catalog = os.environ.get("DATABRICKS_METRICS_CATALOG")
@@ -314,6 +320,7 @@ def main() -> int:
         name
         for name, val in [
             ("DATABRICKS_ACCOUNT_ID", account_id),
+            ("DATABRICKS_CLIENT_ID", client_id),
             ("DATABRICKS_OIDC_TOKEN", oidc_token),
             ("DATABRICKS_HOST", workspace_host),
             ("DATABRICKS_METRICS_CATALOG", catalog),
@@ -327,7 +334,7 @@ def main() -> int:
     timestamp = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
 
     print(f"Authenticating to {account_label} account ({account_id}) via GitHub OIDC")
-    token = get_account_token(account_id, oidc_token)
+    token = get_account_token(account_id, client_id, oidc_token)
     records = collect_account_metrics(account_id, account_label, token, timestamp)
 
     if not records:

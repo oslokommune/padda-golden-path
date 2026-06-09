@@ -17,14 +17,19 @@ Auth: Databricks M2M client_credentials (OIDC federation is broken on
 this account — see plan/notes). Once federation is fixed, swap the
 exchange function back to JWT-bearer.
 
+Single environment per run. The workflow runs this once per GitHub environment
+(dev, prod); each run uploads the repo's events to that environment's own
+landing volume with that environment's SP token. Only the catalog varies the
+path — the rest follows LANDING_SCHEMA / LANDING_VOLUME / COLLECTION below.
+
 Required environment variables:
   GITHUB_TOKEN              Workflow's built-in token (default in GH Actions)
   GITHUB_REPOSITORY         Set automatically by GitHub Actions
-  DATABRICKS_ACCOUNT_ID     Account ID used in the token-exchange URL
-  DATABRICKS_CLIENT_ID      Application ID of the federated service principal
-  DATABRICKS_CLIENT_SECRET  OAuth secret for the service principal
-  DATABRICKS_HOST           Workspace host of the target catalog
-  VOLUME_PATH               /Volumes/<catalog>/<schema>/<volume>/<subdir>/
+  DATABRICKS_ACCOUNT_ID     Databricks account ID for this environment
+  DATABRICKS_CLIENT_ID      Application ID of this environment's SP
+  DATABRICKS_CLIENT_SECRET  OAuth secret for this environment's SP
+  DATABRICKS_HOST           Workspace host hosting this environment's volume
+  DATABRICKS_METRICS_CATALOG  Catalog (padda_dev_green / dig_eksempelteam_stage_green)
 """
 
 import json
@@ -40,6 +45,19 @@ GITHUB_API = "https://api.github.com"
 ACCOUNTS_HOST = "https://accounts.cloud.databricks.com"
 
 DEFAULT_LOOKBACK_DAYS = 7
+
+# Landing-zone layout (same convention as collect_platform_metrics.py). One
+# volume per environment, one subdirectory per collection. Only the catalog
+# varies per environment.
+#   /Volumes/<catalog>/<LANDING_SCHEMA>/<LANDING_VOLUME>/<COLLECTION>/
+LANDING_SCHEMA = "landing_default"
+LANDING_VOLUME = "platform_events"
+COLLECTION = "dora"  # this collector's subdirectory
+
+
+def collection_path(catalog: str) -> str:
+    """Landing-volume path for this collection in the given catalog."""
+    return f"/Volumes/{catalog}/{LANDING_SCHEMA}/{LANDING_VOLUME}/{COLLECTION}"
 
 
 # ---------------------------------------------------------------------------
@@ -194,7 +212,7 @@ def main() -> int:
     client_id = os.environ.get("DATABRICKS_CLIENT_ID")
     client_secret = os.environ.get("DATABRICKS_CLIENT_SECRET")
     workspace_host = os.environ.get("DATABRICKS_HOST")
-    volume_path = os.environ.get("VOLUME_PATH")
+    catalog = os.environ.get("DATABRICKS_METRICS_CATALOG")
 
     missing = [
         name
@@ -205,7 +223,7 @@ def main() -> int:
             ("DATABRICKS_CLIENT_ID", client_id),
             ("DATABRICKS_CLIENT_SECRET", client_secret),
             ("DATABRICKS_HOST", workspace_host),
-            ("VOLUME_PATH", volume_path),
+            ("DATABRICKS_METRICS_CATALOG", catalog),
         ]
         if not val
     ]
@@ -232,42 +250,15 @@ def main() -> int:
     repo_slug = repo.replace("/", "_")
     filename = f"dora-{repo_slug}-{collection_ts}.jsonl"
 
-    # Upload to each configured environment's landing volume, each written with
-    # that environment's own SP token. Dev is required; prod is optional and
-    # only runs when all PROD_DATABRICKS_* vars are set.
-    upload_targets = [
-        ("dev", account_id, client_id, client_secret, workspace_host, volume_path),
-    ]
-    prod_target = (
-        "prod",
-        os.environ.get("PROD_DATABRICKS_ACCOUNT_ID"),
-        os.environ.get("PROD_DATABRICKS_CLIENT_ID"),
-        os.environ.get("PROD_DATABRICKS_CLIENT_SECRET"),
-        os.environ.get("PROD_DATABRICKS_HOST"),
-        os.environ.get("PROD_VOLUME_PATH"),
+    print(
+        f"Authenticating to Databricks (account {account_id}, SP {client_id})",
+        flush=True,
     )
-    if all(prod_target[1:]):
-        upload_targets.append(prod_target)
-    else:
-        print("Prod upload env not fully set — skipping prod upload")
-
-    uploaded = 0
-    for label, acct, cid, csecret, host, vpath in upload_targets:
-        try:
-            print(
-                f"Authenticating to Databricks {label} (account {acct}, SP {cid})",
-                flush=True,
-            )
-            token = get_databricks_token(acct, cid, csecret)
-            uri = upload_to_volume(host, token, vpath, filename, body)
-            print(f"Uploaded {len(events)} events to {uri}")
-            uploaded += 1
-        except Exception as exc:
-            print(f"Error uploading to {label} ({host}): {exc}")
-
-    if uploaded == 0:
-        print("No uploads succeeded", file=sys.stderr)
-        return 1
+    token = get_databricks_token(account_id, client_id, client_secret)
+    uri = upload_to_volume(
+        workspace_host, token, collection_path(catalog), filename, body
+    )
+    print(f"Uploaded {len(events)} events to {uri}")
     return 0
 
 

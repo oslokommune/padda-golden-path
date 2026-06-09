@@ -11,24 +11,20 @@ No AWS hop — auth to storage is Databricks M2M client_credentials.
 Auth: OIDC federation is wired in padda-iac but token exchange currently
 returns TOKEN_INVALID — using M2M as workaround until that's fixed.
 
-The same snapshot is uploaded to each environment's landing volume, written
-with that environment's own account token. Configure one or both targets:
+Single environment per run. The workflow runs this once per GitHub environment
+(dev, prod); each run uses that environment's own credentials and inventories
+that environment's own Databricks account, uploading to that environment's
+landing volume. Only the catalog varies the path — schema, volume, and
+collection subdir follow the LANDING_SCHEMA / LANDING_VOLUME / COLLECTION
+convention below.
 
 Required environment variables:
-  DEV_CLIENT_ID          Application ID of the dev account SP
-  DEV_CLIENT_SECRET      OAuth secret for the dev account SP
-
-Optional (enable prod-account collection and/or per-environment uploads):
-  PROD_CLIENT_ID         Application ID of the prod account SP
-  PROD_CLIENT_SECRET     OAuth secret for the prod account SP
-  DATABRICKS_HOST        Dev workspace host hosting the dev landing volume
-  VOLUME_PATH            /Volumes/<dev_catalog>/<schema>/<volume>/<subdir>/
-  PROD_DATABRICKS_HOST   Prod workspace host hosting the prod landing volume
-  PROD_VOLUME_PATH       /Volumes/<prod_catalog>/<schema>/<volume>/<subdir>/
-
-The dev volume is written with the dev token, the prod volume with the prod
-token. A target is skipped when its host/volume vars (or token) are unset; the
-run fails only if no upload succeeds.
+  DATABRICKS_ACCOUNT_ID     Databricks account ID for this environment
+  DATABRICKS_CLIENT_ID      Application ID of this environment's SP
+  DATABRICKS_CLIENT_SECRET  OAuth secret for this environment's SP
+  DATABRICKS_HOST           Workspace host hosting this environment's volume
+  DATABRICKS_METRICS_CATALOG  Catalog (padda_dev_green / dig_eksempelteam_stage_green)
+  ACCOUNT_LABEL             Label stored in the records, e.g. dev / prod
 """
 
 import json
@@ -44,8 +40,19 @@ http = urllib3.PoolManager(retries=urllib3.Retry(total=3, backoff_factor=0.5))
 ACCOUNTS_HOST = "https://accounts.cloud.databricks.com"
 MEDALLION_KEYWORDS = ("bronze", "silver", "gold")
 
-DEV_ACCOUNT_ID = "00000000-0000-0000-0000-000000000001"
-PROD_ACCOUNT_ID = "00000000-0000-0000-0000-000000000002"
+# Landing-zone layout. One volume per environment holds all collector output,
+# with one subdirectory per collection. The only part that varies per
+# environment is the catalog; schema, volume, and collection are fixed.
+#   /Volumes/<catalog>/<LANDING_SCHEMA>/<LANDING_VOLUME>/<COLLECTION>/
+# The platform_metrics DLT pipeline (padda-databrikker) reads the same path.
+LANDING_SCHEMA = "landing_default"
+LANDING_VOLUME = "platform_events"
+COLLECTION = "workspace_inventory"  # this collector's subdirectory
+
+
+def collection_path(catalog: str) -> str:
+    """Landing-volume path for this collection in the given catalog."""
+    return f"/Volumes/{catalog}/{LANDING_SCHEMA}/{LANDING_VOLUME}/{COLLECTION}"
 
 
 # ---------------------------------------------------------------------------
@@ -290,24 +297,24 @@ def upload_to_volume(
 
 
 def main() -> int:
-    dev_client_id = os.environ.get("DEV_CLIENT_ID")
-    dev_client_secret = os.environ.get("DEV_CLIENT_SECRET")
-    prod_client_id = os.environ.get("PROD_CLIENT_ID")
-    prod_client_secret = os.environ.get("PROD_CLIENT_SECRET")
-
-    # Upload destinations — the same snapshot is written to each environment's
-    # landing volume using that environment's own account token. A target is
-    # skipped if its host/volume env vars are unset.
-    dev_host = os.environ.get("DATABRICKS_HOST")
-    dev_volume_path = os.environ.get("VOLUME_PATH")
-    prod_host = os.environ.get("PROD_DATABRICKS_HOST")
-    prod_volume_path = os.environ.get("PROD_VOLUME_PATH")
+    # Single environment per run. The workflow invokes this once per GitHub
+    # environment (dev, prod); the secrets/vars resolve to that environment's
+    # own account, workspace, and catalog. No DEV_/PROD_ prefixing.
+    account_id = os.environ.get("DATABRICKS_ACCOUNT_ID")
+    client_id = os.environ.get("DATABRICKS_CLIENT_ID")
+    client_secret = os.environ.get("DATABRICKS_CLIENT_SECRET")
+    workspace_host = os.environ.get("DATABRICKS_HOST")
+    catalog = os.environ.get("DATABRICKS_METRICS_CATALOG")
+    account_label = os.environ.get("ACCOUNT_LABEL", "unknown")
 
     missing = [
         name
         for name, val in [
-            ("DEV_CLIENT_ID", dev_client_id),
-            ("DEV_CLIENT_SECRET", dev_client_secret),
+            ("DATABRICKS_ACCOUNT_ID", account_id),
+            ("DATABRICKS_CLIENT_ID", client_id),
+            ("DATABRICKS_CLIENT_SECRET", client_secret),
+            ("DATABRICKS_HOST", workspace_host),
+            ("DATABRICKS_METRICS_CATALOG", catalog),
         ]
         if not val
     ]
@@ -317,63 +324,22 @@ def main() -> int:
 
     timestamp = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
 
-    accounts = [(DEV_ACCOUNT_ID, "dev", dev_client_id, dev_client_secret)]
-    if prod_client_id and prod_client_secret:
-        accounts.append((PROD_ACCOUNT_ID, "prod", prod_client_id, prod_client_secret))
-    else:
-        print("PROD_CLIENT_ID/PROD_CLIENT_SECRET not set — skipping prod account")
+    print(f"Authenticating to {account_label} account ({account_id})")
+    token = get_account_token(account_id, client_id, client_secret)
+    records = collect_account_metrics(account_id, account_label, token, timestamp)
 
-    tokens: dict[str, str] = {}  # account label -> token, reused for upload
-
-    all_records: list[dict] = []
-    for account_id, label, cid, csecret in accounts:
-        try:
-            print(f"Authenticating to {label} account ({account_id})")
-            token = get_account_token(account_id, cid, csecret)
-            tokens[label] = token
-            records = collect_account_metrics(account_id, label, token, timestamp)
-            all_records.extend(records)
-        except Exception as exc:
-            print(f"Error collecting from {label} account: {exc}")
-
-    if not all_records:
+    if not records:
         print("No records collected")
         return 0
 
     now = datetime.now(UTC)
     filename = f"metrics-{now.strftime('%Y%m%dT%H%M%SZ')}.jsonl"
-    body = "\n".join(json.dumps(r, ensure_ascii=False) for r in all_records).encode(
-        "utf-8"
+    body = "\n".join(json.dumps(r, ensure_ascii=False) for r in records).encode("utf-8")
+
+    uri = upload_to_volume(
+        workspace_host, token, collection_path(catalog), filename, body
     )
-
-    # Each landing volume lives in its own account/catalog, so it is written
-    # with that account's token. Both environments receive the same snapshot.
-    upload_targets = [
-        ("dev", dev_host, dev_volume_path),
-        ("prod", prod_host, prod_volume_path),
-    ]
-    uploaded = 0
-    for label, host, vpath in upload_targets:
-        if not host or not vpath:
-            continue
-        token = tokens.get(label)
-        if not token:
-            print(f"Skipping {label} upload — no {label} account token available")
-            continue
-        try:
-            uri = upload_to_volume(host, token, vpath, filename, body)
-            print(f"Uploaded {len(all_records)} workspace records to {uri}")
-            uploaded += 1
-        except Exception as exc:
-            print(f"Error uploading to {label} ({host}): {exc}")
-
-    if uploaded == 0:
-        print(
-            "No uploads succeeded — set DATABRICKS_HOST/VOLUME_PATH and/or "
-            "PROD_DATABRICKS_HOST/PROD_VOLUME_PATH",
-            file=sys.stderr,
-        )
-        return 1
+    print(f"Uploaded {len(records)} workspace records to {uri}")
     return 0
 
 

@@ -13,9 +13,10 @@ Designed to be copied unchanged to each platform repo's
 .github/scripts/ directory. Each repo's workflow handles its own merged
 PRs — no cross-repo token plumbing.
 
-Auth: GitHub OIDC federation (jwt-bearer). The workflow mints an OIDC token
-with the Databricks account as audience and passes it in; a service-principal
-federation policy in padda-iac maps it to the collector SP. No stored secret.
+Auth: GitHub OIDC federation (RFC 8693 token-exchange). The workflow mints an
+OIDC token with the Databricks account as audience and passes it in; client_id
+selects the collector SP, whose federation policy in padda-iac authorizes the
+exchange. No stored secret.
 
 Single environment per run. The workflow runs this once per GitHub environment
 (dev, prod); each run uploads the repo's events to that environment's own
@@ -26,6 +27,7 @@ Required environment variables:
   GITHUB_TOKEN                Workflow's built-in token (default in GH Actions)
   GITHUB_REPOSITORY           Set automatically by GitHub Actions
   DATABRICKS_ACCOUNT_ID       Databricks account ID for this environment
+  DATABRICKS_CLIENT_ID        Collector SP application id (selects the SP; not secret)
   DATABRICKS_OIDC_TOKEN       GitHub OIDC JWT (audience = the account ID)
   DATABRICKS_HOST             Workspace host hosting this environment's volume
   DATABRICKS_METRICS_CATALOG  Catalog (padda_dev_green / dig_databrikker_stage_green)
@@ -60,22 +62,25 @@ def collection_path(catalog: str) -> str:
 
 
 # ---------------------------------------------------------------------------
-# GitHub OIDC -> Databricks token federation (jwt-bearer)
+# GitHub OIDC -> Databricks token federation (RFC 8693 token-exchange)
 # ---------------------------------------------------------------------------
 
 
-def get_databricks_token(account_id: str, oidc_token: str) -> str:
+def get_databricks_token(account_id: str, client_id: str, oidc_token: str) -> str:
     """Federate a GitHub OIDC token into a Databricks account-level token.
 
-    jwt-bearer grant: the GitHub Actions OIDC JWT is the assertion, mapped to
-    the collector SP by a federation policy in padda-iac. No stored secret.
+    RFC 8693 token exchange: the GitHub Actions OIDC JWT is the subject_token;
+    client_id selects the collector SP, whose federation policy in padda-iac
+    authorizes the exchange. No stored secret.
     """
     import urllib.parse
 
     url = f"{ACCOUNTS_HOST}/oidc/accounts/{account_id}/v1/token"
     body = urllib.parse.urlencode({
-        "grant_type": "urn:ietf:params:oauth:grant-type:jwt-bearer",
-        "assertion": oidc_token,
+        "grant_type": "urn:ietf:params:oauth:grant-type:token-exchange",
+        "subject_token": oidc_token,
+        "subject_token_type": "urn:ietf:params:oauth:token-type:jwt",
+        "client_id": client_id,
         "scope": "all-apis",
     })
     resp = http.request(
@@ -211,6 +216,7 @@ def main() -> int:
     repo = os.environ.get("GITHUB_REPOSITORY")
     github_token = os.environ.get("GITHUB_TOKEN")
     account_id = os.environ.get("DATABRICKS_ACCOUNT_ID")
+    client_id = os.environ.get("DATABRICKS_CLIENT_ID")
     oidc_token = os.environ.get("DATABRICKS_OIDC_TOKEN")
     workspace_host = os.environ.get("DATABRICKS_HOST")
     catalog = os.environ.get("DATABRICKS_METRICS_CATALOG")
@@ -221,6 +227,7 @@ def main() -> int:
             ("GITHUB_REPOSITORY", repo),
             ("GITHUB_TOKEN", github_token),
             ("DATABRICKS_ACCOUNT_ID", account_id),
+            ("DATABRICKS_CLIENT_ID", client_id),
             ("DATABRICKS_OIDC_TOKEN", oidc_token),
             ("DATABRICKS_HOST", workspace_host),
             ("DATABRICKS_METRICS_CATALOG", catalog),
@@ -254,7 +261,7 @@ def main() -> int:
         f"Authenticating to Databricks (account {account_id}) via GitHub OIDC",
         flush=True,
     )
-    token = get_databricks_token(account_id, oidc_token)
+    token = get_databricks_token(account_id, client_id, oidc_token)
     uri = upload_to_volume(
         workspace_host, token, collection_path(catalog), filename, body
     )

@@ -6,25 +6,24 @@ pipelines, and tables by medallion layer (bronze / silver / gold).
 Results are uploaded as JSONL to a Unity Catalog volume so the Databricks
 Auto Loader in the platform_metrics bundle can ingest them.
 
-No AWS hop — auth to storage is Databricks M2M client_credentials.
+No AWS hop — auth to storage is the federated Databricks token.
 
-Auth: OIDC federation is wired in padda-iac but token exchange currently
-returns TOKEN_INVALID — using M2M as workaround until that's fixed.
+Auth: GitHub OIDC federation (jwt-bearer). The workflow mints an OIDC token
+with the Databricks account as audience and passes it in; a service-principal
+federation policy in padda-iac maps it to the collector SP. No stored secret.
 
 Single environment per run. The workflow runs this once per GitHub environment
-(dev, prod); each run uses that environment's own credentials and inventories
-that environment's own Databricks account, uploading to that environment's
-landing volume. Only the catalog varies the path — schema, volume, and
-collection subdir follow the LANDING_SCHEMA / LANDING_VOLUME / COLLECTION
-convention below.
+(dev, prod); each run inventories that environment's own Databricks account and
+uploads to that environment's landing volume. Only the catalog varies the path
+— schema, volume, and collection subdir follow the LANDING_SCHEMA /
+LANDING_VOLUME / COLLECTION convention below.
 
 Required environment variables:
-  DATABRICKS_ACCOUNT_ID     Databricks account ID for this environment
-  DATABRICKS_CLIENT_ID      Application ID of this environment's SP
-  DATABRICKS_CLIENT_SECRET  OAuth secret for this environment's SP
-  DATABRICKS_HOST           Workspace host hosting this environment's volume
+  DATABRICKS_ACCOUNT_ID       Databricks account ID for this environment
+  DATABRICKS_OIDC_TOKEN       GitHub OIDC JWT (audience = the account ID)
+  DATABRICKS_HOST             Workspace host hosting this environment's volume
   DATABRICKS_METRICS_CATALOG  Catalog (padda_dev_green / dig_databrikker_stage_green)
-  ACCOUNT_LABEL             Label stored in the records, e.g. dev / prod
+  ACCOUNT_LABEL               Label stored in the records, e.g. dev / prod
 """
 
 import json
@@ -56,18 +55,22 @@ def collection_path(catalog: str) -> str:
 
 
 # ---------------------------------------------------------------------------
-# Databricks M2M client_credentials token exchange
+# GitHub OIDC -> Databricks token federation (jwt-bearer)
 # ---------------------------------------------------------------------------
 
 
-def get_account_token(account_id: str, client_id: str, client_secret: str) -> str:
-    """Exchange SP client_id + client_secret for an account-level token."""
+def get_account_token(account_id: str, oidc_token: str) -> str:
+    """Federate a GitHub OIDC token into a Databricks account-level token.
+
+    Uses the jwt-bearer grant: the GitHub Actions OIDC JWT is the assertion,
+    and a Databricks service-principal federation policy (configured in
+    padda-iac) maps it to the collector SP. No stored client secret.
+    """
     url = f"{ACCOUNTS_HOST}/oidc/accounts/{account_id}/v1/token"
     body = urllib.parse.urlencode({
-        "grant_type": "client_credentials",
+        "grant_type": "urn:ietf:params:oauth:grant-type:jwt-bearer",
+        "assertion": oidc_token,
         "scope": "all-apis",
-        "client_id": client_id,
-        "client_secret": client_secret,
     })
     resp = http.request(
         "POST",
@@ -78,7 +81,7 @@ def get_account_token(account_id: str, client_id: str, client_secret: str) -> st
     )
     if resp.status != 200:
         raise RuntimeError(
-            f"Token exchange failed ({resp.status}): {resp.data.decode()}"
+            f"OIDC token exchange failed ({resp.status}): {resp.data.decode()}"
         )
     return json.loads(resp.data.decode())["access_token"]
 
@@ -298,11 +301,11 @@ def upload_to_volume(
 
 def main() -> int:
     # Single environment per run. The workflow invokes this once per GitHub
-    # environment (dev, prod); the secrets/vars resolve to that environment's
-    # own account, workspace, and catalog. No DEV_/PROD_ prefixing.
+    # environment (dev, prod); the vars resolve to that environment's own
+    # account, workspace, and catalog. Auth is GitHub OIDC federation — the
+    # workflow passes a Databricks-audience OIDC token, no stored secret.
     account_id = os.environ.get("DATABRICKS_ACCOUNT_ID")
-    client_id = os.environ.get("DATABRICKS_CLIENT_ID")
-    client_secret = os.environ.get("DATABRICKS_CLIENT_SECRET")
+    oidc_token = os.environ.get("DATABRICKS_OIDC_TOKEN")
     workspace_host = os.environ.get("DATABRICKS_HOST")
     catalog = os.environ.get("DATABRICKS_METRICS_CATALOG")
     account_label = os.environ.get("ACCOUNT_LABEL", "unknown")
@@ -311,8 +314,7 @@ def main() -> int:
         name
         for name, val in [
             ("DATABRICKS_ACCOUNT_ID", account_id),
-            ("DATABRICKS_CLIENT_ID", client_id),
-            ("DATABRICKS_CLIENT_SECRET", client_secret),
+            ("DATABRICKS_OIDC_TOKEN", oidc_token),
             ("DATABRICKS_HOST", workspace_host),
             ("DATABRICKS_METRICS_CATALOG", catalog),
         ]
@@ -324,8 +326,8 @@ def main() -> int:
 
     timestamp = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
 
-    print(f"Authenticating to {account_label} account ({account_id})")
-    token = get_account_token(account_id, client_id, client_secret)
+    print(f"Authenticating to {account_label} account ({account_id}) via GitHub OIDC")
+    token = get_account_token(account_id, oidc_token)
     records = collect_account_metrics(account_id, account_label, token, timestamp)
 
     if not records:

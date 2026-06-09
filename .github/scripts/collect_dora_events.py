@@ -13,22 +13,21 @@ Designed to be copied unchanged to each platform repo's
 .github/scripts/ directory. Each repo's workflow handles its own merged
 PRs — no cross-repo token plumbing.
 
-Auth: Databricks M2M client_credentials (OIDC federation is broken on
-this account — see plan/notes). Once federation is fixed, swap the
-exchange function back to JWT-bearer.
+Auth: GitHub OIDC federation (jwt-bearer). The workflow mints an OIDC token
+with the Databricks account as audience and passes it in; a service-principal
+federation policy in padda-iac maps it to the collector SP. No stored secret.
 
 Single environment per run. The workflow runs this once per GitHub environment
 (dev, prod); each run uploads the repo's events to that environment's own
-landing volume with that environment's SP token. Only the catalog varies the
-path — the rest follows LANDING_SCHEMA / LANDING_VOLUME / COLLECTION below.
+landing volume. Only the catalog varies the path — the rest follows
+LANDING_SCHEMA / LANDING_VOLUME / COLLECTION below.
 
 Required environment variables:
-  GITHUB_TOKEN              Workflow's built-in token (default in GH Actions)
-  GITHUB_REPOSITORY         Set automatically by GitHub Actions
-  DATABRICKS_ACCOUNT_ID     Databricks account ID for this environment
-  DATABRICKS_CLIENT_ID      Application ID of this environment's SP
-  DATABRICKS_CLIENT_SECRET  OAuth secret for this environment's SP
-  DATABRICKS_HOST           Workspace host hosting this environment's volume
+  GITHUB_TOKEN                Workflow's built-in token (default in GH Actions)
+  GITHUB_REPOSITORY           Set automatically by GitHub Actions
+  DATABRICKS_ACCOUNT_ID       Databricks account ID for this environment
+  DATABRICKS_OIDC_TOKEN       GitHub OIDC JWT (audience = the account ID)
+  DATABRICKS_HOST             Workspace host hosting this environment's volume
   DATABRICKS_METRICS_CATALOG  Catalog (padda_dev_green / dig_eksempelteam_stage_green)
 """
 
@@ -61,20 +60,23 @@ def collection_path(catalog: str) -> str:
 
 
 # ---------------------------------------------------------------------------
-# Databricks M2M client_credentials token exchange
+# GitHub OIDC -> Databricks token federation (jwt-bearer)
 # ---------------------------------------------------------------------------
 
 
-def get_databricks_token(account_id: str, client_id: str, client_secret: str) -> str:
-    """Exchange SP client_id + client_secret for an account-level OAuth token."""
+def get_databricks_token(account_id: str, oidc_token: str) -> str:
+    """Federate a GitHub OIDC token into a Databricks account-level token.
+
+    jwt-bearer grant: the GitHub Actions OIDC JWT is the assertion, mapped to
+    the collector SP by a federation policy in padda-iac. No stored secret.
+    """
     import urllib.parse
 
     url = f"{ACCOUNTS_HOST}/oidc/accounts/{account_id}/v1/token"
     body = urllib.parse.urlencode({
-        "grant_type": "client_credentials",
+        "grant_type": "urn:ietf:params:oauth:grant-type:jwt-bearer",
+        "assertion": oidc_token,
         "scope": "all-apis",
-        "client_id": client_id,
-        "client_secret": client_secret,
     })
     resp = http.request(
         "POST",
@@ -85,7 +87,7 @@ def get_databricks_token(account_id: str, client_id: str, client_secret: str) ->
     )
     if resp.status != 200:
         raise RuntimeError(
-            f"Token exchange failed ({resp.status}): {resp.data.decode()}"
+            f"OIDC token exchange failed ({resp.status}): {resp.data.decode()}"
         )
     return json.loads(resp.data.decode())["access_token"]
 
@@ -209,8 +211,7 @@ def main() -> int:
     repo = os.environ.get("GITHUB_REPOSITORY")
     github_token = os.environ.get("GITHUB_TOKEN")
     account_id = os.environ.get("DATABRICKS_ACCOUNT_ID")
-    client_id = os.environ.get("DATABRICKS_CLIENT_ID")
-    client_secret = os.environ.get("DATABRICKS_CLIENT_SECRET")
+    oidc_token = os.environ.get("DATABRICKS_OIDC_TOKEN")
     workspace_host = os.environ.get("DATABRICKS_HOST")
     catalog = os.environ.get("DATABRICKS_METRICS_CATALOG")
 
@@ -220,8 +221,7 @@ def main() -> int:
             ("GITHUB_REPOSITORY", repo),
             ("GITHUB_TOKEN", github_token),
             ("DATABRICKS_ACCOUNT_ID", account_id),
-            ("DATABRICKS_CLIENT_ID", client_id),
-            ("DATABRICKS_CLIENT_SECRET", client_secret),
+            ("DATABRICKS_OIDC_TOKEN", oidc_token),
             ("DATABRICKS_HOST", workspace_host),
             ("DATABRICKS_METRICS_CATALOG", catalog),
         ]
@@ -251,10 +251,10 @@ def main() -> int:
     filename = f"dora-{repo_slug}-{collection_ts}.jsonl"
 
     print(
-        f"Authenticating to Databricks (account {account_id}, SP {client_id})",
+        f"Authenticating to Databricks (account {account_id}) via GitHub OIDC",
         flush=True,
     )
-    token = get_databricks_token(account_id, client_id, client_secret)
+    token = get_databricks_token(account_id, oidc_token)
     uri = upload_to_volume(
         workspace_host, token, collection_path(catalog), filename, body
     )

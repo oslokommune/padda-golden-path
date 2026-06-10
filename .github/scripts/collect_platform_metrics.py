@@ -152,6 +152,31 @@ def _get_paginated(url: str, token: str, items_key: str) -> list:
     return all_items
 
 
+def _get_uc_paginated(
+    url: str, token: str, items_key: str, params: dict | None = None
+) -> list:
+    """Paginate a Unity Catalog list endpoint, including BROWSE-only objects.
+
+    ``include_browse=true`` matters: the collector SP typically holds BROWSE
+    (not USE) on other teams' catalogs, and without the flag the API silently
+    omits everything the SP can only browse — which reads as "zero tables".
+    """
+    all_items: list = []
+    page_params: dict = {
+        **(params or {}),
+        "max_results": "100",
+        "include_browse": "true",
+    }
+    while True:
+        data = _get(url, token, page_params)
+        all_items.extend(data.get(items_key, []))
+        next_token = data.get("next_page_token")
+        if not next_token:
+            break
+        page_params["page_token"] = next_token
+    return all_items
+
+
 def list_workspaces(account_id: str, token: str) -> list[dict]:
     """List all workspaces in a Databricks account."""
     url = f"{ACCOUNTS_HOST}/api/2.0/accounts/{account_id}/workspaces"
@@ -215,8 +240,8 @@ def count_tables_by_tier(
     counts: dict[str, int] = {tier: 0 for tier in (*MEDALLION_TIERS, TIER_NA)}
     incomplete = False
     try:
-        catalogs = _get(f"{workspace_url}/api/2.1/unity-catalog/catalogs", token).get(
-            "catalogs", []
+        catalogs = _get_uc_paginated(
+            f"{workspace_url}/api/2.1/unity-catalog/catalogs", token, "catalogs"
         )
     except RuntimeError as exc:
         print(f"  Warning: could not list catalogs for {workspace_url}: {exc}")
@@ -228,11 +253,12 @@ def count_tables_by_tier(
         if catalog_name in SKIPPED_CATALOGS:
             continue
         try:
-            schemas = _get(
+            schemas = _get_uc_paginated(
                 f"{workspace_url}/api/2.1/unity-catalog/schemas",
                 token,
+                "schemas",
                 {"catalog_name": catalog_name},
-            ).get("schemas", [])
+            )
         except RuntimeError as exc:
             errors.append(f"schemas[{catalog_name}]: {exc}")
             incomplete = True
@@ -243,11 +269,12 @@ def count_tables_by_tier(
                 continue
             schema_tier = medallion_tier(schema["name"])
             try:
-                tables = _get(
+                tables = _get_uc_paginated(
                     f"{workspace_url}/api/2.1/unity-catalog/tables",
                     token,
+                    "tables",
                     {"catalog_name": catalog_name, "schema_name": schema["name"]},
-                ).get("tables", [])
+                )
             except RuntimeError as exc:
                 errors.append(f"tables[{catalog_name}.{schema['name']}]: {exc}")
                 incomplete = True

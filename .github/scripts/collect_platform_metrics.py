@@ -2,9 +2,11 @@
 
 Connects to both the dev and prod Databricks accounts via GitHub OIDC
 federation, enumerates workspaces, and for each workspace counts jobs,
-pipelines, and tables by medallion layer (bronze / silver / gold).
-Results are uploaded as JSONL to a Unity Catalog volume so the Databricks
-Auto Loader in the platform_metrics bundle can ingest them.
+pipelines, and tables grouped by medallion tier (bronze / silver / gold /
+n/a). A table's tier comes from tier keywords in its own name (English or
+Norwegian); tables without one inherit the tier of their schema; everything
+else is "na". Results are uploaded as JSONL to a Unity Catalog volume so the
+Databricks Auto Loader in the platform_metrics bundle can ingest them.
 
 No AWS hop — auth to storage is the federated Databricks token.
 
@@ -30,6 +32,7 @@ Required environment variables:
 
 import json
 import os
+import re
 import sys
 import urllib.parse
 from datetime import UTC, datetime
@@ -39,7 +42,35 @@ import urllib3
 http = urllib3.PoolManager(retries=urllib3.Retry(total=3, backoff_factor=0.5))
 
 ACCOUNTS_HOST = "https://accounts.cloud.databricks.com"
-MEDALLION_KEYWORDS = ("bronze", "silver", "gold")
+
+# Medallion tier keywords, English and Norwegian. Matched as whole tokens of
+# the identifier (split on non-alphanumerics), so "bronze_default" and
+# "salg_gull" match while "resolver" does not match "solv".
+MEDALLION_TIERS: dict[str, tuple[str, ...]] = {
+    "bronze": ("bronze", "bronse"),
+    "silver": ("silver", "sølv", "solv", "soelv"),
+    "gold": ("gold", "gull"),
+}
+TIER_NA = "na"  # tables with no tier keyword in table or schema name
+
+# Vendor/system catalogs that say nothing about platform usage.
+SKIPPED_CATALOGS = ("system", "__databricks_internal", "hive_metastore", "samples")
+
+_IDENTIFIER_TOKENS = re.compile(r"[^a-z0-9æøå]+")
+
+
+def medallion_tier(name: str) -> str | None:
+    """Medallion tier signalled by an identifier's name, or None.
+
+    The first tier (in bronze -> silver -> gold order) with a keyword present
+    as a whole token wins, so e.g. "bronze_to_gold_sync" counts as bronze.
+    """
+    tokens = set(_IDENTIFIER_TOKENS.split(name.lower()))
+    for tier, keywords in MEDALLION_TIERS.items():
+        if tokens.intersection(keywords):
+            return tier
+    return None
+
 
 # Landing-zone layout. One volume per environment holds all collector output,
 # with one subdirectory per collection. The only part that varies per
@@ -160,20 +191,29 @@ def count_pipelines(workspace_url: str, token: str, errors: list[str]) -> int | 
         return None
 
 
-def count_tables_by_medallion(
+def count_tables_by_tier(
     workspace_url: str, token: str, errors: list[str]
 ) -> dict[str, int | None]:
-    """Count tables grouped by medallion layer (bronze/silver/gold).
+    """Count every table in the workspace, grouped by medallion tier.
 
-    A layer count is None when it could not be collected, so a transient
-    failure is not silently reported as zero tables:
-    - catalog listing fails  -> all three layers are unknown (None)
-    - schema listing fails    -> all layers for that catalog are unknown
-    - table listing fails     -> only that schema's layer is unknown
-    Failures are appended to ``errors``.
+    All schemas in all user catalogs are inventoried (not just schemas with a
+    tier keyword). Per table, the tier is resolved as:
+    1. tier keyword in the table's own name (English or Norwegian), else
+    2. the tier inherited from its schema's name, else
+    3. "na".
+    The "total" entry is the sum of all four groups. Views, materialized
+    views, and streaming tables count too — they are the medallion artifacts
+    DLT produces. Each catalog's ``information_schema`` is skipped so its
+    system views don't inflate the n/a group.
+
+    Counts are None when they could not be fully collected, so a transient
+    failure is not silently reported as zero tables. Because a table name can
+    override its schema's tier, a single failed schema or catalog listing
+    makes EVERY tier count unknown — there is no way to know which groups the
+    missing tables belong to. Failures are appended to ``errors``.
     """
-    counts: dict[str, int] = {layer: 0 for layer in MEDALLION_KEYWORDS}
-    unknown: set[str] = set()
+    counts: dict[str, int] = {tier: 0 for tier in (*MEDALLION_TIERS, TIER_NA)}
+    incomplete = False
     try:
         catalogs = _get(f"{workspace_url}/api/2.1/unity-catalog/catalogs", token).get(
             "catalogs", []
@@ -181,11 +221,11 @@ def count_tables_by_medallion(
     except RuntimeError as exc:
         print(f"  Warning: could not list catalogs for {workspace_url}: {exc}")
         errors.append(f"catalogs: {exc}")
-        return {layer: None for layer in MEDALLION_KEYWORDS}
+        return dict.fromkeys((*counts, "total"))
 
     for catalog in catalogs:
         catalog_name = catalog["name"]
-        if catalog_name in ("system", "__databricks_internal", "hive_metastore"):
+        if catalog_name in SKIPPED_CATALOGS:
             continue
         try:
             schemas = _get(
@@ -194,33 +234,31 @@ def count_tables_by_medallion(
                 {"catalog_name": catalog_name},
             ).get("schemas", [])
         except RuntimeError as exc:
-            # We can't tell which medallion layers this catalog held, so every
-            # layer count is now incomplete — mark them all unknown.
             errors.append(f"schemas[{catalog_name}]: {exc}")
-            unknown.update(MEDALLION_KEYWORDS)
+            incomplete = True
             continue
 
         for schema in schemas:
-            schema_name = schema["name"].lower()
-            layer = next((kw for kw in MEDALLION_KEYWORDS if kw in schema_name), None)
-            if layer is None:
+            if schema["name"] == "information_schema":
                 continue
+            schema_tier = medallion_tier(schema["name"])
             try:
                 tables = _get(
                     f"{workspace_url}/api/2.1/unity-catalog/tables",
                     token,
                     {"catalog_name": catalog_name, "schema_name": schema["name"]},
                 ).get("tables", [])
-                counts[layer] += len(tables)
             except RuntimeError as exc:
                 errors.append(f"tables[{catalog_name}.{schema['name']}]: {exc}")
-                unknown.add(layer)
+                incomplete = True
                 continue
+            for table in tables:
+                tier = medallion_tier(table.get("name", "")) or schema_tier or TIER_NA
+                counts[tier] += 1
 
-    return {
-        layer: (None if layer in unknown else counts[layer])
-        for layer in MEDALLION_KEYWORDS
-    }
+    if incomplete:
+        return dict.fromkeys((*counts, "total"))
+    return {**counts, "total": sum(counts.values())}
 
 
 # ---------------------------------------------------------------------------
@@ -250,7 +288,7 @@ def collect_account_metrics(
         errors: list[str] = []
         num_jobs = count_jobs(workspace_url, account_token, errors)
         num_pipelines = count_pipelines(workspace_url, account_token, errors)
-        table_counts = count_tables_by_medallion(workspace_url, account_token, errors)
+        table_counts = count_tables_by_tier(workspace_url, account_token, errors)
 
         records.append({
             "collection_timestamp": timestamp,
@@ -263,6 +301,8 @@ def collect_account_metrics(
             "num_bronze_tables": table_counts["bronze"],
             "num_silver_tables": table_counts["silver"],
             "num_gold_tables": table_counts["gold"],
+            "num_na_tables": table_counts[TIER_NA],
+            "num_tables": table_counts["total"],
             # Failure metadata: distinguishes "could not collect" (NULL counts)
             # from a genuine zero, so partial failures stay visible downstream
             # instead of dropping the workspace or faking a count.

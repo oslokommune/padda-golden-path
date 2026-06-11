@@ -1,16 +1,22 @@
 name: Collect DORA Events
 
-# Captures this repo's merged PRs, computes per-PR lead time, and uploads
-# JSONL to the shared Unity Catalog volume. The platform_metrics DLT
-# pipeline (in padda-databrikker) reads the volume via Auto Loader.
+# Captures this repo's merged PRs, computes per-PR lead time, and uploads JSONL
+# to each environment's Unity Catalog landing volume. The platform_metrics DLT
+# pipeline (in padda-databrikker) reads it via Auto Loader.
 #
-# Single-repo by design — copy this file (and the script under
-# .github/scripts/) to padda-iac and padda-databrikker so each repo
-# emits its own events. No cross-repo tokens needed.
+# Single-repo by design — this file and .github/scripts/collect_dora_events.py
+# are copied verbatim to padda-golden-path, padda-iac, and padda-databrikker so
+# each repo emits its own events. Keep the three copies in sync.
 #
-# Auth: Databricks M2M client_credentials with SP OAuth secret. OIDC
-# federation is wired in padda-iac but the exchange currently returns
-# TOKEN_INVALID — to be revisited.
+# Runs once per GitHub environment (dev, prod) via the matrix. Each environment
+# supplies its own config as environment variables; only the catalog varies the
+# upload path.
+#   vars: DATABRICKS_ACCOUNT_ID, DATABRICKS_CLIENT_ID, DATABRICKS_HOST,
+#         DATABRICKS_METRICS_CATALOG
+#
+# Auth: GitHub OIDC federation (RFC 8693 token-exchange) — the job mints an OIDC
+# token with the Databricks account as audience; client_id selects the collector
+# SP, whose federation policy in padda-iac authorizes it. No stored secret.
 
 on:
   schedule:
@@ -25,22 +31,20 @@ on:
 permissions:
   contents: read
   pull-requests: read
-
-concurrency:
-  group: collect-dora
-  cancel-in-progress: false
-
-env:
-  DATABRICKS_ACCOUNT_ID: "00000000-0000-0000-0000-000000000001"
-  DATABRICKS_CLIENT_ID: "00000000-0000-0000-0000-000000000003"
-  DATABRICKS_HOST: "https://dbc-00000000-0001.cloud.databricks.com"
-  VOLUME_PATH: "/Volumes/padda_dev_green/landing_default/platform_events/dora"
+  id-token: write
 
 jobs:
   collect:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        environment: [dev, prod]
     environment:
-      name: dev
+      name: ${{ matrix.environment }}
+    concurrency:
+      group: collect-dora-${{ matrix.environment }}
+      cancel-in-progress: false
     env:
       LOOKBACK_DAYS: ${{ inputs.lookback_days || '7' }}
     steps:
@@ -53,8 +57,24 @@ jobs:
       - name: Install dependencies
         run: pip install urllib3
 
+      - name: Mint Databricks OIDC token
+        id: oidc
+        run: |
+          TOKEN=$(curl -sS \
+            -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=${{ vars.DATABRICKS_ACCOUNT_ID }}" \
+            | jq -r '.value')
+          echo "OIDC token claims (iss/aud/sub):"
+          echo "$TOKEN" | cut -d. -f2 | python3 -c "import sys,base64,json; p=sys.stdin.read().strip(); p+='='*(-len(p)%4); c=json.loads(base64.urlsafe_b64decode(p)); print(json.dumps({k:c.get(k) for k in ('iss','aud','sub')}, indent=2))"
+          echo "::add-mask::$TOKEN"
+          echo "token=$TOKEN" >> "$GITHUB_OUTPUT"
+
       - name: Collect DORA events
         env:
           GITHUB_TOKEN: ${{ github.token }}
-          DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_CLIENT_SECRET }}
+          DATABRICKS_ACCOUNT_ID: ${{ vars.DATABRICKS_ACCOUNT_ID }}
+          DATABRICKS_CLIENT_ID: ${{ vars.DATABRICKS_CLIENT_ID }}
+          DATABRICKS_OIDC_TOKEN: ${{ steps.oidc.outputs.token }}
+          DATABRICKS_HOST: ${{ vars.DATABRICKS_HOST }}
+          DATABRICKS_METRICS_CATALOG: ${{ vars.DATABRICKS_METRICS_CATALOG }}
         run: python .github/scripts/collect_dora_events.py

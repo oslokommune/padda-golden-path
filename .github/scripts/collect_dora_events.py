@@ -13,18 +13,24 @@ Designed to be copied unchanged to each platform repo's
 .github/scripts/ directory. Each repo's workflow handles its own merged
 PRs — no cross-repo token plumbing.
 
-Auth: Databricks M2M client_credentials (OIDC federation is broken on
-this account — see plan/notes). Once federation is fixed, swap the
-exchange function back to JWT-bearer.
+Auth: GitHub OIDC federation (RFC 8693 token-exchange). The workflow mints an
+OIDC token with the Databricks account as audience and passes it in; client_id
+selects the collector SP, whose federation policy in padda-iac authorizes the
+exchange. No stored secret.
+
+Single environment per run. The workflow runs this once per GitHub environment
+(dev, prod); each run uploads the repo's events to that environment's own
+landing volume. Only the catalog varies the path — the rest follows
+LANDING_SCHEMA / LANDING_VOLUME / COLLECTION below.
 
 Required environment variables:
-  GITHUB_TOKEN              Workflow's built-in token (default in GH Actions)
-  GITHUB_REPOSITORY         Set automatically by GitHub Actions
-  DATABRICKS_ACCOUNT_ID     Account ID used in the token-exchange URL
-  DATABRICKS_CLIENT_ID      Application ID of the federated service principal
-  DATABRICKS_CLIENT_SECRET  OAuth secret for the service principal
-  DATABRICKS_HOST           Workspace host of the target catalog
-  VOLUME_PATH               /Volumes/<catalog>/<schema>/<volume>/<subdir>/
+  GITHUB_TOKEN                Workflow's built-in token (default in GH Actions)
+  GITHUB_REPOSITORY           Set automatically by GitHub Actions
+  DATABRICKS_ACCOUNT_ID       Databricks account ID for this environment
+  DATABRICKS_CLIENT_ID        Collector SP application id (selects the SP; not secret)
+  DATABRICKS_OIDC_TOKEN       GitHub OIDC JWT (audience = the account ID)
+  DATABRICKS_HOST             Workspace host hosting this environment's volume
+  DATABRICKS_METRICS_CATALOG  Catalog (padda_dev_green / dig_databrikker_stage_green)
 """
 
 import json
@@ -41,22 +47,41 @@ ACCOUNTS_HOST = "https://accounts.cloud.databricks.com"
 
 DEFAULT_LOOKBACK_DAYS = 7
 
+# Landing-zone layout (same convention as collect_platform_metrics.py). One
+# volume per environment, one subdirectory per collection. Only the catalog
+# varies per environment.
+#   /Volumes/<catalog>/<LANDING_SCHEMA>/<LANDING_VOLUME>/<COLLECTION>/
+LANDING_SCHEMA = "landing_default"
+LANDING_VOLUME = "platform_events"
+COLLECTION = "dora"  # this collector's subdirectory
+
+
+def collection_path(catalog: str) -> str:
+    """Landing-volume path for this collection in the given catalog."""
+    return f"/Volumes/{catalog}/{LANDING_SCHEMA}/{LANDING_VOLUME}/{COLLECTION}"
+
 
 # ---------------------------------------------------------------------------
-# Databricks M2M client_credentials token exchange
+# GitHub OIDC -> Databricks token federation (RFC 8693 token-exchange)
 # ---------------------------------------------------------------------------
 
 
-def get_databricks_token(account_id: str, client_id: str, client_secret: str) -> str:
-    """Exchange SP client_id + client_secret for an account-level OAuth token."""
+def get_databricks_token(account_id: str, client_id: str, oidc_token: str) -> str:
+    """Federate a GitHub OIDC token into a Databricks account-level token.
+
+    RFC 8693 token exchange: the GitHub Actions OIDC JWT is the subject_token;
+    client_id selects the collector SP, whose federation policy in padda-iac
+    authorizes the exchange. No stored secret.
+    """
     import urllib.parse
 
     url = f"{ACCOUNTS_HOST}/oidc/accounts/{account_id}/v1/token"
     body = urllib.parse.urlencode({
-        "grant_type": "client_credentials",
-        "scope": "all-apis",
+        "grant_type": "urn:ietf:params:oauth:grant-type:token-exchange",
+        "subject_token": oidc_token,
+        "subject_token_type": "urn:ietf:params:oauth:token-type:jwt",
         "client_id": client_id,
-        "client_secret": client_secret,
+        "scope": "all-apis",
     })
     resp = http.request(
         "POST",
@@ -67,7 +92,7 @@ def get_databricks_token(account_id: str, client_id: str, client_secret: str) ->
     )
     if resp.status != 200:
         raise RuntimeError(
-            f"Token exchange failed ({resp.status}): {resp.data.decode()}"
+            f"OIDC token exchange failed ({resp.status}): {resp.data.decode()}"
         )
     return json.loads(resp.data.decode())["access_token"]
 
@@ -192,9 +217,9 @@ def main() -> int:
     github_token = os.environ.get("GITHUB_TOKEN")
     account_id = os.environ.get("DATABRICKS_ACCOUNT_ID")
     client_id = os.environ.get("DATABRICKS_CLIENT_ID")
-    client_secret = os.environ.get("DATABRICKS_CLIENT_SECRET")
+    oidc_token = os.environ.get("DATABRICKS_OIDC_TOKEN")
     workspace_host = os.environ.get("DATABRICKS_HOST")
-    volume_path = os.environ.get("VOLUME_PATH")
+    catalog = os.environ.get("DATABRICKS_METRICS_CATALOG")
 
     missing = [
         name
@@ -203,9 +228,9 @@ def main() -> int:
             ("GITHUB_TOKEN", github_token),
             ("DATABRICKS_ACCOUNT_ID", account_id),
             ("DATABRICKS_CLIENT_ID", client_id),
-            ("DATABRICKS_CLIENT_SECRET", client_secret),
+            ("DATABRICKS_OIDC_TOKEN", oidc_token),
             ("DATABRICKS_HOST", workspace_host),
-            ("VOLUME_PATH", volume_path),
+            ("DATABRICKS_METRICS_CATALOG", catalog),
         ]
         if not val
     ]
@@ -226,18 +251,20 @@ def main() -> int:
         print("Nothing to upload.")
         return 0
 
-    print(
-        f"Authenticating to Databricks (account {account_id}, SP {client_id})",
-        flush=True,
-    )
-    dbx_token = get_databricks_token(account_id, client_id, client_secret)
-
     body = ("\n".join(json.dumps(e, ensure_ascii=False) for e in events) + "\n").encode(
         "utf-8"
     )
     repo_slug = repo.replace("/", "_")
     filename = f"dora-{repo_slug}-{collection_ts}.jsonl"
-    uri = upload_to_volume(workspace_host, dbx_token, volume_path, filename, body)
+
+    print(
+        f"Authenticating to Databricks (account {account_id}) via GitHub OIDC",
+        flush=True,
+    )
+    token = get_databricks_token(account_id, client_id, oidc_token)
+    uri = upload_to_volume(
+        workspace_host, token, collection_path(catalog), filename, body
+    )
     print(f"Uploaded {len(events)} events to {uri}")
     return 0
 

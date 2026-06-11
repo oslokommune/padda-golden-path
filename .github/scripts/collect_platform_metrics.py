@@ -2,29 +2,37 @@
 
 Connects to both the dev and prod Databricks accounts via GitHub OIDC
 federation, enumerates workspaces, and for each workspace counts jobs,
-pipelines, and tables by medallion layer (bronze / silver / gold).
-Results are uploaded as JSONL to a Unity Catalog volume so the Databricks
-Auto Loader in the platform_metrics bundle can ingest them.
+pipelines, and tables grouped by medallion tier (bronze / silver / gold /
+n/a). A table's tier comes from tier keywords in its own name (English or
+Norwegian); tables without one inherit the tier of their schema; everything
+else is "na". Results are uploaded as JSONL to a Unity Catalog volume so the
+Databricks Auto Loader in the platform_metrics bundle can ingest them.
 
-No AWS hop — auth to storage is Databricks M2M client_credentials.
+No AWS hop — auth to storage is the federated Databricks token.
 
-Auth: OIDC federation is wired in padda-iac but token exchange currently
-returns TOKEN_INVALID — using M2M as workaround until that's fixed.
+Auth: GitHub OIDC federation (RFC 8693 token-exchange). The workflow mints an
+OIDC token with the Databricks account as audience and passes it in; client_id
+selects the collector SP, whose federation policy in padda-iac authorizes the
+exchange. No stored secret.
+
+Single environment per run. The workflow runs this once per GitHub environment
+(dev, prod); each run inventories that environment's own Databricks account and
+uploads to that environment's landing volume. Only the catalog varies the path
+— schema, volume, and collection subdir follow the LANDING_SCHEMA /
+LANDING_VOLUME / COLLECTION convention below.
 
 Required environment variables:
-  DEV_CLIENT_ID         Application ID of the dev account SP
-  DEV_CLIENT_SECRET     OAuth secret for the dev account SP
-  PROD_CLIENT_ID        Application ID of the prod account SP
-  PROD_CLIENT_SECRET    OAuth secret for the prod account SP
-  DATABRICKS_HOST       Workspace host the volume lives in
-  VOLUME_PATH           /Volumes/<catalog>/<schema>/<volume>/<subdir>/
-
-The DEV token is used for the upload — the catalog hosting the volume
-is in the dev account.
+  DATABRICKS_ACCOUNT_ID       Databricks account ID for this environment
+  DATABRICKS_CLIENT_ID        Collector SP application id (selects the SP; not secret)
+  DATABRICKS_OIDC_TOKEN       GitHub OIDC JWT (audience = the account ID)
+  DATABRICKS_HOST             Workspace host hosting this environment's volume
+  DATABRICKS_METRICS_CATALOG  Catalog (padda_dev_green / dig_databrikker_stage_green)
+  ACCOUNT_LABEL               Label stored in the records, e.g. dev / prod
 """
 
 import json
 import os
+import re
 import sys
 import urllib.parse
 from datetime import UTC, datetime
@@ -34,25 +42,71 @@ import urllib3
 http = urllib3.PoolManager(retries=urllib3.Retry(total=3, backoff_factor=0.5))
 
 ACCOUNTS_HOST = "https://accounts.cloud.databricks.com"
-MEDALLION_KEYWORDS = ("bronze", "silver", "gold")
 
-DEV_ACCOUNT_ID = "69d82905-dc92-4349-89b2-c4bf6501cb82"
-PROD_ACCOUNT_ID = "5a3d7d58-a44f-4baa-b0df-5648148988d5"
+# Medallion tier keywords, English and Norwegian. Matched as whole tokens of
+# the identifier (split on non-alphanumerics), so "bronze_default" and
+# "salg_gull" match while "resolver" does not match "solv".
+MEDALLION_TIERS: dict[str, tuple[str, ...]] = {
+    "bronze": ("bronze", "bronse"),
+    "silver": ("silver", "sølv", "solv", "soelv"),
+    "gold": ("gold", "gull"),
+}
+TIER_NA = "na"  # tables with no tier keyword in table or schema name
+
+# Vendor/system catalogs that say nothing about platform usage.
+SKIPPED_CATALOGS = ("system", "__databricks_internal", "hive_metastore", "samples")
+
+_IDENTIFIER_TOKENS = re.compile(r"[^a-z0-9æøå]+")
+
+
+def medallion_tier(name: str) -> str | None:
+    """Medallion tier signalled by an identifier's name, or None.
+
+    The first tier (in bronze -> silver -> gold order) with a keyword present
+    as a whole token wins, so e.g. "bronze_to_gold_sync" counts as bronze.
+    """
+    tokens = set(_IDENTIFIER_TOKENS.split(name.lower()))
+    for tier, keywords in MEDALLION_TIERS.items():
+        if tokens.intersection(keywords):
+            return tier
+    return None
+
+
+# Landing-zone layout. One volume per environment holds all collector output,
+# with one subdirectory per collection. The only part that varies per
+# environment is the catalog; schema, volume, and collection are fixed.
+#   /Volumes/<catalog>/<LANDING_SCHEMA>/<LANDING_VOLUME>/<COLLECTION>/
+# The platform_metrics DLT pipeline (padda-databrikker) reads the same path.
+LANDING_SCHEMA = "landing_default"
+LANDING_VOLUME = "platform_events"
+COLLECTION = "workspace_inventory"  # this collector's subdirectory
+
+
+def collection_path(catalog: str) -> str:
+    """Landing-volume path for this collection in the given catalog."""
+    return f"/Volumes/{catalog}/{LANDING_SCHEMA}/{LANDING_VOLUME}/{COLLECTION}"
 
 
 # ---------------------------------------------------------------------------
-# Databricks M2M client_credentials token exchange
+# GitHub OIDC -> Databricks token federation (RFC 8693 token-exchange)
 # ---------------------------------------------------------------------------
 
 
-def get_account_token(account_id: str, client_id: str, client_secret: str) -> str:
-    """Exchange SP client_id + client_secret for an account-level token."""
+def get_account_token(account_id: str, client_id: str, oidc_token: str) -> str:
+    """Federate a GitHub OIDC token into a Databricks account-level token.
+
+    RFC 8693 token exchange against the account OIDC endpoint. The GitHub
+    Actions OIDC JWT is the subject_token; client_id selects the collector SP,
+    whose service-principal federation policy (in padda-iac) authorizes the
+    exchange. No stored client secret.
+    """
     url = f"{ACCOUNTS_HOST}/oidc/accounts/{account_id}/v1/token"
     body = urllib.parse.urlencode({
-        "grant_type": "client_credentials",
-        "scope": "all-apis",
+        "grant_type": "urn:ietf:params:oauth:grant-type:token-exchange",
+        "subject_token": oidc_token,
+        "subject_token_type": "urn:ietf:params:oauth:token-type:jwt",
         "client_id": client_id,
-        "client_secret": client_secret,
+        "scope": "all-apis",
     })
     resp = http.request(
         "POST",
@@ -63,7 +117,7 @@ def get_account_token(account_id: str, client_id: str, client_secret: str) -> st
     )
     if resp.status != 200:
         raise RuntimeError(
-            f"Token exchange failed ({resp.status}): {resp.data.decode()}"
+            f"OIDC token exchange failed ({resp.status}): {resp.data.decode()}"
         )
     return json.loads(resp.data.decode())["access_token"]
 
@@ -98,6 +152,31 @@ def _get_paginated(url: str, token: str, items_key: str) -> list:
     return all_items
 
 
+def _get_uc_paginated(
+    url: str, token: str, items_key: str, params: dict | None = None
+) -> list:
+    """Paginate a Unity Catalog list endpoint, including BROWSE-only objects.
+
+    ``include_browse=true`` matters: the collector SP typically holds BROWSE
+    (not USE) on other teams' catalogs, and without the flag the API silently
+    omits everything the SP can only browse — which reads as "zero tables".
+    """
+    all_items: list = []
+    page_params: dict = {
+        **(params or {}),
+        "max_results": "100",
+        "include_browse": "true",
+    }
+    while True:
+        data = _get(url, token, page_params)
+        all_items.extend(data.get(items_key, []))
+        next_token = data.get("next_page_token")
+        if not next_token:
+            break
+        page_params["page_token"] = next_token
+    return all_items
+
+
 def list_workspaces(account_id: str, token: str) -> list[dict]:
     """List all workspaces in a Databricks account."""
     url = f"{ACCOUNTS_HOST}/api/2.0/accounts/{account_id}/workspaces"
@@ -105,18 +184,27 @@ def list_workspaces(account_id: str, token: str) -> list[dict]:
     return raw if isinstance(raw, list) else raw.get("workspaces", [])
 
 
-def count_jobs(workspace_url: str, token: str) -> int:
-    """Count all jobs in a workspace."""
+def count_jobs(workspace_url: str, token: str, errors: list[str]) -> int | None:
+    """Count all jobs in a workspace.
+
+    Returns None (not -1) when the API call fails, so an unreachable workspace
+    is recorded as "unknown" rather than a value that looks like real data.
+    The failure is appended to ``errors`` for observability.
+    """
     try:
         jobs = _get_paginated(f"{workspace_url}/api/2.1/jobs/list", token, "jobs")
         return len(jobs)
     except RuntimeError as exc:
         print(f"  Warning: could not list jobs for {workspace_url}: {exc}")
-        return -1
+        errors.append(f"jobs: {exc}")
+        return None
 
 
-def count_pipelines(workspace_url: str, token: str) -> int:
-    """Count all DLT pipelines in a workspace."""
+def count_pipelines(workspace_url: str, token: str, errors: list[str]) -> int | None:
+    """Count all DLT pipelines in a workspace.
+
+    Returns None on failure (see :func:`count_jobs`).
+    """
     try:
         pipelines = _get_paginated(
             f"{workspace_url}/api/2.0/pipelines", token, "statuses"
@@ -124,48 +212,146 @@ def count_pipelines(workspace_url: str, token: str) -> int:
         return len(pipelines)
     except RuntimeError as exc:
         print(f"  Warning: could not list pipelines for {workspace_url}: {exc}")
-        return -1
+        errors.append(f"pipelines: {exc}")
+        return None
 
 
-def count_tables_by_medallion(workspace_url: str, token: str) -> dict[str, int]:
-    """Count tables grouped by medallion layer (bronze/silver/gold)."""
-    counts = {layer: 0 for layer in MEDALLION_KEYWORDS}
+def _list_directory(workspace_url: str, token: str, path: str) -> list[dict]:
+    """List a volume directory via the Files API (paginated)."""
+    entries: list = []
+    params: dict = {"page_size": "1000"}
+    url = f"{workspace_url}/api/2.0/fs/directories{path}"
+    while True:
+        data = _get(url, token, params)
+        entries.extend(data.get("contents", []))
+        next_token = data.get("next_page_token")
+        if not next_token:
+            break
+        params["page_token"] = next_token
+    return entries
+
+
+def count_tables_by_tier(
+    workspace_url: str, token: str, errors: list[str]
+) -> dict[str, int | None]:
+    """Count tables per medallion tier, plus data-product volume folders.
+
+    All schemas in all user catalogs are inventoried (not just schemas with a
+    tier keyword). Per table, the tier is resolved as:
+    1. tier keyword in the table's own name (English or Norwegian), else
+    2. the tier inherited from its schema's name, else
+    3. "na".
+    The "total" entry is the sum of all four groups. Views, materialized
+    views, and streaming tables count too — they are the medallion artifacts
+    DLT produces. Each catalog's ``information_schema`` is skipped so its
+    system views don't inflate the n/a group.
+
+    Volume folders: some teams ship data products as FOLDERS in a volume
+    (e.g. dig_bydelsfakta_prod_green.gold_default's volume). Every volume in
+    every schema is inventoried; each top-level folder is counted into
+    ``silver_folders`` / ``gold_folders`` with the usual tier resolution:
+    folder name, else volume name, else the schema's tier. Folders resolving
+    to bronze/na are not data products and are skipped. Listing folders is a
+    DATA-plane read: it requires USE CATALOG + USE SCHEMA + READ VOLUME,
+    granted catalog-wide by padda-iac.
+
+    Counts are None when they could not be fully collected, so a transient
+    failure is not silently reported as zero. Because an object name can
+    override its container's tier, a failed schema or catalog listing makes
+    every count unknown; a failed volume/folder listing only nullifies the
+    two folder counts (table counts stay). Failures are appended to
+    ``errors``.
+    """
+    counts: dict[str, int] = {tier: 0 for tier in (*MEDALLION_TIERS, TIER_NA)}
+    folder_counts: dict[str, int] = {"silver_folders": 0, "gold_folders": 0}
+    all_unknown = dict.fromkeys((*counts, "total", *folder_counts))
+    tables_incomplete = False
+    folders_incomplete = False
     try:
-        catalogs = _get(f"{workspace_url}/api/2.1/unity-catalog/catalogs", token).get(
-            "catalogs", []
+        catalogs = _get_uc_paginated(
+            f"{workspace_url}/api/2.1/unity-catalog/catalogs", token, "catalogs"
         )
     except RuntimeError as exc:
         print(f"  Warning: could not list catalogs for {workspace_url}: {exc}")
-        return counts
+        errors.append(f"catalogs: {exc}")
+        return all_unknown
 
     for catalog in catalogs:
         catalog_name = catalog["name"]
-        if catalog_name in ("system", "__databricks_internal", "hive_metastore"):
+        if catalog_name in SKIPPED_CATALOGS:
             continue
         try:
-            schemas = _get(
+            schemas = _get_uc_paginated(
                 f"{workspace_url}/api/2.1/unity-catalog/schemas",
                 token,
+                "schemas",
                 {"catalog_name": catalog_name},
-            ).get("schemas", [])
-        except RuntimeError:
+            )
+        except RuntimeError as exc:
+            errors.append(f"schemas[{catalog_name}]: {exc}")
+            tables_incomplete = True
+            folders_incomplete = True
             continue
 
         for schema in schemas:
-            schema_name = schema["name"].lower()
-            layer = next((kw for kw in MEDALLION_KEYWORDS if kw in schema_name), None)
-            if layer is None:
+            if schema["name"] == "information_schema":
                 continue
+            schema_tier = medallion_tier(schema["name"])
             try:
-                tables = _get(
+                tables = _get_uc_paginated(
                     f"{workspace_url}/api/2.1/unity-catalog/tables",
                     token,
+                    "tables",
                     {"catalog_name": catalog_name, "schema_name": schema["name"]},
-                ).get("tables", [])
-                counts[layer] += len(tables)
-            except RuntimeError:
+                )
+            except RuntimeError as exc:
+                errors.append(f"tables[{catalog_name}.{schema['name']}]: {exc}")
+                tables_incomplete = True
                 continue
-    return counts
+            for table in tables:
+                tier = medallion_tier(table.get("name", "")) or schema_tier or TIER_NA
+                counts[tier] += 1
+
+            schema_full = f"{catalog_name}.{schema['name']}"
+            try:
+                volumes = _get_uc_paginated(
+                    f"{workspace_url}/api/2.1/unity-catalog/volumes",
+                    token,
+                    "volumes",
+                    {"catalog_name": catalog_name, "schema_name": schema["name"]},
+                )
+            except RuntimeError as exc:
+                errors.append(f"volumes[{schema_full}]: {exc}")
+                folders_incomplete = True
+                continue
+            for volume in volumes:
+                volume_name = volume.get("name", "")
+                volume_tier = medallion_tier(volume_name) or schema_tier
+                path = f"/Volumes/{catalog_name}/{schema['name']}/{volume_name}"
+                try:
+                    entries = _list_directory(workspace_url, token, path)
+                except RuntimeError as exc:
+                    errors.append(f"folders[{schema_full}.{volume_name}]: {exc}")
+                    folders_incomplete = True
+                    continue
+                for entry in entries:
+                    if not entry.get("is_directory"):
+                        continue
+                    tier = medallion_tier(entry.get("name", "")) or volume_tier
+                    if tier in ("silver", "gold"):
+                        folder_counts[f"{tier}_folders"] += 1
+
+    result: dict[str, int | None] = (
+        dict.fromkeys((*counts, "total"))
+        if tables_incomplete
+        else {**counts, "total": sum(counts.values())}
+    )
+    result.update(
+        dict.fromkeys(folder_counts)
+        if tables_incomplete or folders_incomplete
+        else folder_counts
+    )
+    return result
 
 
 # ---------------------------------------------------------------------------
@@ -192,9 +378,10 @@ def collect_account_metrics(
         workspace_url = f"https://{deployment}.cloud.databricks.com"
 
         print(f"  Collecting metrics for {ws_name} ({workspace_url})")
-        num_jobs = count_jobs(workspace_url, account_token)
-        num_pipelines = count_pipelines(workspace_url, account_token)
-        table_counts = count_tables_by_medallion(workspace_url, account_token)
+        errors: list[str] = []
+        num_jobs = count_jobs(workspace_url, account_token, errors)
+        num_pipelines = count_pipelines(workspace_url, account_token, errors)
+        table_counts = count_tables_by_tier(workspace_url, account_token, errors)
 
         records.append({
             "collection_timestamp": timestamp,
@@ -207,6 +394,16 @@ def collect_account_metrics(
             "num_bronze_tables": table_counts["bronze"],
             "num_silver_tables": table_counts["silver"],
             "num_gold_tables": table_counts["gold"],
+            "num_na_tables": table_counts[TIER_NA],
+            "num_tables": table_counts["total"],
+            # Data products shipped as folders in silver/gold-tier volumes.
+            "num_silver_volume_folders": table_counts["silver_folders"],
+            "num_gold_volume_folders": table_counts["gold_folders"],
+            # Failure metadata: distinguishes "could not collect" (NULL counts)
+            # from a genuine zero, so partial failures stay visible downstream
+            # instead of dropping the workspace or faking a count.
+            "partial_failure": bool(errors),
+            "collection_errors": "; ".join(errors),
         })
     return records
 
@@ -244,20 +441,25 @@ def upload_to_volume(
 
 
 def main() -> int:
-    dev_client_id = os.environ.get("DEV_CLIENT_ID")
-    dev_client_secret = os.environ.get("DEV_CLIENT_SECRET")
-    prod_client_id = os.environ.get("PROD_CLIENT_ID")
-    prod_client_secret = os.environ.get("PROD_CLIENT_SECRET")
+    # Single environment per run. The workflow invokes this once per GitHub
+    # environment (dev, prod); the vars resolve to that environment's own
+    # account, workspace, and catalog. Auth is GitHub OIDC federation — the
+    # workflow passes a Databricks-audience OIDC token, no stored secret.
+    account_id = os.environ.get("DATABRICKS_ACCOUNT_ID")
+    client_id = os.environ.get("DATABRICKS_CLIENT_ID")
+    oidc_token = os.environ.get("DATABRICKS_OIDC_TOKEN")
     workspace_host = os.environ.get("DATABRICKS_HOST")
-    volume_path = os.environ.get("VOLUME_PATH")
+    catalog = os.environ.get("DATABRICKS_METRICS_CATALOG")
+    account_label = os.environ.get("ACCOUNT_LABEL", "unknown")
 
     missing = [
         name
         for name, val in [
-            ("DEV_CLIENT_ID", dev_client_id),
-            ("DEV_CLIENT_SECRET", dev_client_secret),
+            ("DATABRICKS_ACCOUNT_ID", account_id),
+            ("DATABRICKS_CLIENT_ID", client_id),
+            ("DATABRICKS_OIDC_TOKEN", oidc_token),
             ("DATABRICKS_HOST", workspace_host),
-            ("VOLUME_PATH", volume_path),
+            ("DATABRICKS_METRICS_CATALOG", catalog),
         ]
         if not val
     ]
@@ -267,39 +469,22 @@ def main() -> int:
 
     timestamp = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
 
-    accounts = [(DEV_ACCOUNT_ID, "dev", dev_client_id, dev_client_secret)]
-    if prod_client_id and prod_client_secret:
-        accounts.append((PROD_ACCOUNT_ID, "prod", prod_client_id, prod_client_secret))
-    else:
-        print("PROD_CLIENT_ID/PROD_CLIENT_SECRET not set — skipping prod account")
+    print(f"Authenticating to {account_label} account ({account_id}) via GitHub OIDC")
+    token = get_account_token(account_id, client_id, oidc_token)
+    records = collect_account_metrics(account_id, account_label, token, timestamp)
 
-    dev_token = None  # captured for upload
-
-    all_records: list[dict] = []
-    for account_id, label, cid, csecret in accounts:
-        try:
-            print(f"Authenticating to {label} account ({account_id})")
-            token = get_account_token(account_id, cid, csecret)
-            if label == "dev":
-                dev_token = token
-            records = collect_account_metrics(account_id, label, token, timestamp)
-            all_records.extend(records)
-        except Exception as exc:
-            print(f"Error collecting from {label} account: {exc}")
-
-    if not all_records or dev_token is None:
-        print("No records collected or dev token missing")
+    if not records:
+        print("No records collected")
         return 0
 
     now = datetime.now(UTC)
     filename = f"metrics-{now.strftime('%Y%m%dT%H%M%SZ')}.jsonl"
-    body = "\n".join(json.dumps(r, ensure_ascii=False) for r in all_records).encode(
-        "utf-8"
-    )
+    body = "\n".join(json.dumps(r, ensure_ascii=False) for r in records).encode("utf-8")
 
-    # Volume lives in the dev catalog — use the dev token for upload.
-    uri = upload_to_volume(workspace_host, dev_token, volume_path, filename, body)
-    print(f"Uploaded {len(all_records)} workspace records to {uri}")
+    uri = upload_to_volume(
+        workspace_host, token, collection_path(catalog), filename, body
+    )
+    print(f"Uploaded {len(records)} workspace records to {uri}")
     return 0
 
 

@@ -216,10 +216,25 @@ def count_pipelines(workspace_url: str, token: str, errors: list[str]) -> int | 
         return None
 
 
+def _list_directory(workspace_url: str, token: str, path: str) -> list[dict]:
+    """List a volume directory via the Files API (paginated)."""
+    entries: list = []
+    params: dict = {"page_size": "1000"}
+    url = f"{workspace_url}/api/2.0/fs/directories{path}"
+    while True:
+        data = _get(url, token, params)
+        entries.extend(data.get("contents", []))
+        next_token = data.get("next_page_token")
+        if not next_token:
+            break
+        params["page_token"] = next_token
+    return entries
+
+
 def count_tables_by_tier(
     workspace_url: str, token: str, errors: list[str]
 ) -> dict[str, int | None]:
-    """Count every table in the workspace, grouped by medallion tier.
+    """Count tables per medallion tier, plus data-product volume folders.
 
     All schemas in all user catalogs are inventoried (not just schemas with a
     tier keyword). Per table, the tier is resolved as:
@@ -231,14 +246,27 @@ def count_tables_by_tier(
     DLT produces. Each catalog's ``information_schema`` is skipped so its
     system views don't inflate the n/a group.
 
+    Volume folders: some teams ship data products as FOLDERS in a volume
+    (e.g. dig_bydelsfakta_prod_green.gold_default's volume). Every volume in
+    every schema is inventoried; each top-level folder is counted into
+    ``silver_folders`` / ``gold_folders`` with the usual tier resolution:
+    folder name, else volume name, else the schema's tier. Folders resolving
+    to bronze/na are not data products and are skipped. Listing folders is a
+    DATA-plane read: it requires USE CATALOG + USE SCHEMA + READ VOLUME,
+    granted catalog-wide by padda-iac.
+
     Counts are None when they could not be fully collected, so a transient
-    failure is not silently reported as zero tables. Because a table name can
-    override its schema's tier, a single failed schema or catalog listing
-    makes EVERY tier count unknown — there is no way to know which groups the
-    missing tables belong to. Failures are appended to ``errors``.
+    failure is not silently reported as zero. Because an object name can
+    override its container's tier, a failed schema or catalog listing makes
+    every count unknown; a failed volume/folder listing only nullifies the
+    two folder counts (table counts stay). Failures are appended to
+    ``errors``.
     """
     counts: dict[str, int] = {tier: 0 for tier in (*MEDALLION_TIERS, TIER_NA)}
-    incomplete = False
+    folder_counts: dict[str, int] = {"silver_folders": 0, "gold_folders": 0}
+    all_unknown = dict.fromkeys((*counts, "total", *folder_counts))
+    tables_incomplete = False
+    folders_incomplete = False
     try:
         catalogs = _get_uc_paginated(
             f"{workspace_url}/api/2.1/unity-catalog/catalogs", token, "catalogs"
@@ -246,7 +274,7 @@ def count_tables_by_tier(
     except RuntimeError as exc:
         print(f"  Warning: could not list catalogs for {workspace_url}: {exc}")
         errors.append(f"catalogs: {exc}")
-        return dict.fromkeys((*counts, "total"))
+        return all_unknown
 
     for catalog in catalogs:
         catalog_name = catalog["name"]
@@ -261,7 +289,8 @@ def count_tables_by_tier(
             )
         except RuntimeError as exc:
             errors.append(f"schemas[{catalog_name}]: {exc}")
-            incomplete = True
+            tables_incomplete = True
+            folders_incomplete = True
             continue
 
         for schema in schemas:
@@ -277,15 +306,52 @@ def count_tables_by_tier(
                 )
             except RuntimeError as exc:
                 errors.append(f"tables[{catalog_name}.{schema['name']}]: {exc}")
-                incomplete = True
+                tables_incomplete = True
                 continue
             for table in tables:
                 tier = medallion_tier(table.get("name", "")) or schema_tier or TIER_NA
                 counts[tier] += 1
 
-    if incomplete:
-        return dict.fromkeys((*counts, "total"))
-    return {**counts, "total": sum(counts.values())}
+            schema_full = f"{catalog_name}.{schema['name']}"
+            try:
+                volumes = _get_uc_paginated(
+                    f"{workspace_url}/api/2.1/unity-catalog/volumes",
+                    token,
+                    "volumes",
+                    {"catalog_name": catalog_name, "schema_name": schema["name"]},
+                )
+            except RuntimeError as exc:
+                errors.append(f"volumes[{schema_full}]: {exc}")
+                folders_incomplete = True
+                continue
+            for volume in volumes:
+                volume_name = volume.get("name", "")
+                volume_tier = medallion_tier(volume_name) or schema_tier
+                path = f"/Volumes/{catalog_name}/{schema['name']}/{volume_name}"
+                try:
+                    entries = _list_directory(workspace_url, token, path)
+                except RuntimeError as exc:
+                    errors.append(f"folders[{schema_full}.{volume_name}]: {exc}")
+                    folders_incomplete = True
+                    continue
+                for entry in entries:
+                    if not entry.get("is_directory"):
+                        continue
+                    tier = medallion_tier(entry.get("name", "")) or volume_tier
+                    if tier in ("silver", "gold"):
+                        folder_counts[f"{tier}_folders"] += 1
+
+    result: dict[str, int | None] = (
+        dict.fromkeys((*counts, "total"))
+        if tables_incomplete
+        else {**counts, "total": sum(counts.values())}
+    )
+    result.update(
+        dict.fromkeys(folder_counts)
+        if tables_incomplete or folders_incomplete
+        else folder_counts
+    )
+    return result
 
 
 # ---------------------------------------------------------------------------
@@ -330,6 +396,9 @@ def collect_account_metrics(
             "num_gold_tables": table_counts["gold"],
             "num_na_tables": table_counts[TIER_NA],
             "num_tables": table_counts["total"],
+            # Data products shipped as folders in silver/gold-tier volumes.
+            "num_silver_volume_folders": table_counts["silver_folders"],
+            "num_gold_volume_folders": table_counts["gold_folders"],
             # Failure metadata: distinguishes "could not collect" (NULL counts)
             # from a genuine zero, so partial failures stay visible downstream
             # instead of dropping the workspace or faking a count.

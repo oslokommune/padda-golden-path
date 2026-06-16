@@ -31,6 +31,7 @@ uvx pre-commit install
 
 ## Installere databricks-cli
 ```bash
+brew trust databricks/tap
 brew tap databricks/tap
 brew install databricks
 ```

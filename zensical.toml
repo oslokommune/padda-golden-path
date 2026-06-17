@@ -83,6 +83,7 @@ nav = [
   ]},
   { "Referanse" = [
     { "index" = "referanse/index.md" },
+    { "Definisjon av dataprodukt" = "referanse/dataprodukt.md" },
     { "Brukervilkår og ansvar" = "referanse/brukervilkaar.md" },
     { "Landing zone" = "referanse/landing-zone.md" },
     { "Roller og rettigheter" = "referanse/roller-og-rettigheter.md" },

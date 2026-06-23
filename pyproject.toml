@@ -32,7 +32,9 @@ dev = [
   "ruff",
   "pre-commit",
 ]
-
+tools = [
+    "databricks-sdk>=0.30",
+  ]
 [dependency-groups]
 dev = [
     "pytest>=8.4.2",

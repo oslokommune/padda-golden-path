@@ -12,7 +12,7 @@ lage datasett som er klare for analyse og rapportering. Vi bruker
 `to_gold`-funksjonen fra referanseeksempelet
 [`examples/csv_pipeline`](https://github.com/oslokommune/padda-golden-path/tree/main/examples/csv_pipeline).
 
-Gold-tabeller sammen med Sølv-tabeller er det som utgjør [dataprodukter](../../om-plattformen/konsepter/dataprodukter.md).
+Gold-tabeller og silver-tabeller er det som utgjør [dataprodukter](../../om-plattformen/konsepter/dataprodukter.md).
 De skal være dokumenterte, pålitelige og forståelige for sluttbrukere — uten at
 de trenger å kjenne transformasjonene bak. For bakgrunn, se [Klassifisering av
 datakvalitet

@@ -79,7 +79,7 @@ nav = [
       { "Gjenopprette etter feil" = "guider/overvaake-og-drifte/gjenopprette-etter-feil.md" },
       { "Feilsøke med logger" = "guider/overvaake-og-drifte/logging.md" },
       { "Bruke DQX" = "guider/overvaake-og-drifte/bruke-dqx.md" },
-      { "Merke kostnader" = "guider/overvaake-og-drifte/kostnadsmerking.md" },
+      { "Tagging av kostnader" = "guider/overvaake-og-drifte/kostnadstagging.md" },
     ]},
   ]},
   { "Referanse" = [

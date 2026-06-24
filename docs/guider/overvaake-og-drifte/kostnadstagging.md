@@ -1,6 +1,6 @@
 ---
-title: Merke kostnader
-description: Hvordan merke Databricks-jobber og -klynger med kostnadstaggene CostTeam og CostProcess for kostnadsfordeling på tvers av team og prosesser.
+title: Tagging av kostnader
+description: Hvordan tagge Databricks-jobber og -klynger med kostnadstaggene CostTeam og CostProcess for kostnadsfordeling på tvers av team og prosesser.
 diataxis: how-to
 ---
 

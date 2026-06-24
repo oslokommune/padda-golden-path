@@ -4,7 +4,7 @@ description: Hvordan tagge Databricks-jobber og -klynger med kostnadstaggene Cos
 diataxis: how-to
 ---
 
-# Merke kostnader
+# Tagging av kostnader
 
 Denne veiledningen viser deg hvordan du merker jobbene dine med kostnadstaggene `CostTeam` og `CostProcess`, slik at forbruket fordeles på riktig team og prosess i kostnadsrapportene. Plattform-infrastruktur (AWS-ressurser og Databricks-compute via klyngepolicyer og landingssonen) tagges automatisk av Golden Path; denne veiledningen viser hvordan du merker dine egne jobber.
 

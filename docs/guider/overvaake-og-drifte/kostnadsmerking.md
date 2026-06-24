@@ -6,43 +6,19 @@ diataxis: how-to
 
 # Merke kostnader
 
-Denne veiledningen viser deg hvordan du merker ressursene i bundlene dine med kostnadstagger, slik at forbruket kan fordeles på riktig team og prosess i kostnadsrapportene.
+Denne veiledningen viser deg hvordan du merker jobbene dine med kostnadstaggene `CostTeam` og `CostProcess`, slik at forbruket fordeles på riktig team og prosess i kostnadsrapportene. Plattform-infrastruktur (AWS-ressurser og Databricks-compute via klyngepolicyer og landingssonen) tagges automatisk av Golden Path; denne veiledningen viser hvordan du merker dine egne jobber.
 
 ## Før du begynner
 
 Sørg for at du har:
 
 - En bundle med en eller flere jobber du eier
-- En klyngedefinisjon (`new_cluster`) i jobben din
-- Avklart hvilket team og hvilken prosesstype ressursen tilhører
+- Avklart hvilket team (`CostTeam`) ressursen tilhører
+- Avklart hvilken prosesstype (`CostProcess`) jobben utfører
 
-## De to godkjente taggene
+## Trinn 1: Merk en jobb med egen klynge (`new_cluster`)
 
-Golden Path bruker to tagger for kostnadsfordeling:
-
-- **`CostTeam`** — teamet som eier ressursen og som forbruket skal belastes.
-- **`CostProcess`** — typen prosess ressursen utfører.
-
-`CostProcess` skal ha én av følgende verdier:
-
-| Verdi | Beskrivelse |
-|-----------|-------------|
-| `General` | Generelt forbruk som ikke passer i de andre kategoriene |
-| `Ingest` | Innhenting av data inn på plattformen |
-| `Transform` | Bearbeiding og transformasjon av data |
-| `Query` | Spørringer og analyse |
-| `Serve` | Servering av data til konsumenter |
-
-## Hva som merkes automatisk
-
-Plattforminfrastrukturen merkes automatisk av Golden Path, og du trenger ikke å gjøre noe for disse:
-
-- AWS-ressurser provisjonert via infrastruktur-as-code.
-- Databricks-compute som styres gjennom klyngepolicyer og landingssonen.
-
-## Trinn 1: Legg til `custom_tags` på klyngen
-
-Som bundle-forfatter setter du `CostTeam` og `CostProcess` som `custom_tags` på `new_cluster`-definisjonene dine. Eksempelet nedenfor er hentet fra `vscode-demo`-bundlen, der jobbklyngen kjører transformasjoner:
+Når jobben definerer sin egen klynge, setter du `CostTeam` og `CostProcess` som `custom_tags` på `new_cluster`. Eksempelet nedenfor er hentet fra `vscode-demo`-bundlen, der jobbklyngen kjører transformasjoner:
 
 ```yaml
       job_clusters:
@@ -59,6 +35,36 @@ Som bundle-forfatter setter du `CostTeam` og `CostProcess` som `custom_tags` på
               max_workers: 2
 ```
 
+Velg `CostProcess` ut fra hva jobben gjør:
+
+| Verdi | Brukes til |
+|-----------|------------|
+| `General` | Generelt forbruk som ikke passer i de andre kategoriene |
+| `Ingest` | Innhenting av data inn på plattformen |
+| `Transform` | Bearbeiding og transformasjon av data |
+| `Query` | Spørringer og analyse |
+| `Serve` | Servering av data til konsumenter |
+
+## Trinn 2: Merk en jobb som bruker `existing_cluster_id`
+
+Når jobben kjører på en eksisterende klynge du ikke eier, kan du ikke sette `custom_tags` på klyngen. Bruk i stedet job-nivå `tags` som søsken av `name` og `tasks`. Eksempelet nedenfor er hentet fra `excel_ingest`-bundlen:
+
+```yaml
+  jobs:
+    ingest_excel_job:
+      name: "Ingest Excel"
+      timeout_seconds: 3600
+      max_concurrent_runs: 1
+      tags:
+        CostTeam: padda
+        CostProcess: Ingest
+      tasks:
+        - task_key: ingest_excel_task
+          existing_cluster_id: ${var.existing_cluster_id}
+```
+
+Job-nivå `tags` er fallback når du ikke eier klyngen og dermed ikke kan sette `custom_tags` på den. Bruk samme `CostProcess`-verdier som i trinn 1.
+
 ## Bekreft resultatet
 
 Valider bundlen for å bekrefte at taggene er på plass:
@@ -67,7 +73,7 @@ Valider bundlen for å bekrefte at taggene er på plass:
 databricks bundle validate
 ```
 
-Den rendrede jobbklyngen skal nå vise `custom_tags` med `CostTeam` og `CostProcess`.
+Den rendrede jobben skal nå vise `custom_tags` på klyngen (trinn 1) eller `tags` på jobben (trinn 2) med `CostTeam` og `CostProcess`.
 
 ## Relatert innhold
 

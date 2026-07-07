@@ -6,7 +6,7 @@ diataxis: reference
 
 # Backup
 
-Backup-løsningen sikrer at data og metadata kan gjenopprettes ved tap. Den dekker landing zone-bøtten og Databricks-metadata per workspace.
+Backup-løsningen sikrer at data og metadata kan gjenopprettes ved tap. Den dekker landing zone-bøtta og Databricks-metadata per workspace.
 
 ## Oversikt
 
@@ -25,11 +25,11 @@ Backup-løsningen sikrer at data og metadata kan gjenopprettes ved tap. Den dekk
 
 ## Databricks-metadata
 
-Et script som kjører som en Databricks-jobb inne i hvert workspace eksporterer alt innhold fra `system.information_schema`. Eksporten lagres i en dedikert S3-bøtte per workspace. Denne bøtten tas deretter backup av med AWS Backup på samme måte som landing zone.
+Et script som kjører som en Databricks-jobb inne i hvert workspace eksporterer alt innhold fra `system.information_schema`. Eksporten lagres i en dedikert S3-bøtte per workspace. Denne bøtta tas deretter backup av med AWS Backup på samme måte som landing zone.
 
 ## Landing zone
 
-Landing zone-bøtten tas backup av med AWS Backup via [standard boilerplate for backup](https://github.com/oslokommune/golden-path-boilerplate/tree/main/boilerplate/terraform/backup).
+Landing zone-bøtta tas backup av med AWS Backup via [standard boilerplate for backup](https://github.com/oslokommune/golden-path-boilerplate/tree/main/boilerplate/terraform/backup).
 
 ## Begrensninger
 

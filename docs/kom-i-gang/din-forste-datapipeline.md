@@ -4,7 +4,7 @@ description: Tutorial som dekker hele dataflyten fra applikasjon til Power BI.
 diataxis: tutorial
 ---
 
-# Kom i gang — fra applikasjon til Power BI
+# Bygg din første datapipeline
 
 Denne guiden gir deg en oversikt over alle stegene som trengs for å sette opp en fungerende datapipeline fra din applikasjon til Power BI via Padda-plattformen.
 
@@ -12,7 +12,7 @@ Denne guiden gir deg en oversikt over alle stegene som trengs for å sette opp e
 
 ```mermaid
 flowchart LR
-    A[Din applikasjon] -->|AWS S3 API| B[Landing zone<br/>S3-bucket]
+    A[Din applikasjon] -->|AWS S3 API| B[Landing zone<br/>S3-bøtte]
     B -->|External Location| C[Databricks<br/>Bronze-lag]
     C -->|Notebook/pipeline| D[Silver/Gold-lag]
     D -->|SQL Warehouse| E[Power BI]
@@ -36,44 +36,46 @@ Se [Brukervilkår og ansvar](../referanse/brukervilkaar.md) for detaljer.
 ## Steg 2 — Få en landing zone-sender
 
 !!! info "Dette gjør plattformteamet for deg"
-    Landing zone-bucketen opprettes og administreres av plattformteamet via Terraform (padda-iac). Du trenger **ikke** opprette S3-bucketen selv.
+    Landing zone-bøtta opprettes og administreres av plattformteamet via Terraform (padda-iac). Du trenger **ikke** opprette S3-bøtta selv.
 
-Hvert Databricks-workspace har **en** landing zone S3-bucket. Dataen din kommer inn via en **sender** — en logisk identitet som representerer kilden din (f.eks. din applikasjon).
+Hvert Databricks-workspace har **en** landing zone S3-bøtte. Dataen din kommer inn via en **sender** — en logisk identitet som representerer kilden din (for eksempel din applikasjon).
 
 **Slik får du en sender:**
 
 1. Kontakt plattformteamet via [#dig-dataspeilet](https://oslokommune.slack.com/archives/C01SFNFEXK7) og oppgi:
     - Hvilket workspace du tilhører
-    - Navnet du ønsker på senderen (f.eks. `min-app`)
+    - Navnet du ønsker på senderen (for eksempel `min-app`)
+    - AWS-kontonummeret deres, hvis dere har egen AWS-konto
     - Eventuell IP-begrensning for opplasting
-2. Plattformteamet oppretter senderen. Det opprettes automatisk tre IAM-brukere med tilhørende prefikser basert på konfidensialitetsnivå:
 
-    | IAM-bruker                 | S3-prefiks                    | Bruksområde         |
-    |----------------------------|-------------------------------|---------------------|
-    | `workspace-min-app-green`  | `s3://bucket/min-app/green/`  | Offentlige data     |
-    | `workspace-min-app-yellow` | `s3://bucket/min-app/yellow/` | Interne data        |
-    | `workspace-min-app-red`    | `s3://bucket/min-app/red/`    | Konfidensielle data |
+2. Plattformteamet oppretter senderen med tre prefikser basert på konfidensialitetsnivå:
 
-3. Du mottar AWS-nøkler (access key + secret key) for den aktuelle brukeren over sikker kanal.
+    | S3-prefiks                    | Bruksområde         |
+    |-------------------------------|---------------------|
+    | `s3://bucket/min-app/green/`  | Offentlige data     |
+    | `s3://bucket/min-app/yellow/` | Interne data        |
+    | `s3://bucket/min-app/red/`    | Konfidensielle data |
+
+3. Du mottar tilgang: en IAM-rolle dere inntar fra egen AWS-konto (anbefalt), eller AWS-nøkler gjennom 1Password. Se [Laste opp filer til landing zone](../guider/hente-inn-data/laste-opp-til-landing-zone.md) for oppsett.
 
 Se [Referanse: Landing zone](../referanse/landing-zone.md) for mer detaljer om struktur og tilgang.
 
 ## Steg 3 — Last opp data til landing zone
 
-Når du har fått IAM-nøklene kan du laste opp data til landing zone fra din applikasjon.
+Når du har fått tilgang kan du laste opp data til landing zone fra din applikasjon.
 
 ### Filformat
 
 Databricks håndterer mange formater, men vi anbefaler:
 
-| Format            | Anbefalt for                          | Merknad                                        |
-|-------------------|---------------------------------------|------------------------------------------------|
-| **Parquet**       | Store datasett, kolonnebasert analyse | Best ytelse, sterk typing                      |
-| **JSON** (ndjson) | API-responser, nestede strukturer     | En JSON-rad per linje                          |
-| **CSV**           | Enkle tabulære data                   | Husk header-rad og konsistent encoding (UTF-8) |
+| Format            | Anbefalt for                          | Merknad                   |
+|-------------------|---------------------------------------|---------------------------|
+| **Parquet**       | Store datasett, kolonnebasert analyse | Best ytelse, sterk typing |
+| **JSON** (ndjson) | API-responser, nestede strukturer     | En JSON-rad per linje     |
+| **CSV**           | Enkle tabulære data                   | Husk header-rad og UTF-8  |
 
 !!! tip "Inkrementell opplasting"
-    Organiser filer i mapper etter dato eller batch, f.eks.:
+    Organiser filer i mapper etter dato eller batch, for eksempel:
 
     ```
     s3://bucket/min-app/green/2026/02/17/data-001.parquet
@@ -87,31 +89,29 @@ Databricks håndterer mange formater, men vi anbefaler:
 ```python
 import boto3
 
-s3 = boto3.client(
-    "s3",
-    region_name="eu-west-1",
-    aws_access_key_id="DIN_ACCESS_KEY",
-    aws_secret_access_key="DIN_SECRET_KEY",
-)
+session = boto3.Session(profile_name="min-sender")
+s3 = session.client("s3")
 
 s3.upload_file(
     Filename="data.parquet",
-    Bucket="69d82-workspace-landing-zone",
+    Bucket="12345-workspace-landing-zone",
     Key="min-app/green/2026/02/17/data.parquet",
 )
 ```
 
-!!! warning "Ikke hardkod nøkler"
-    I produksjon bør du bruke Secrets Manager eller Parameter Store i stedet for å hardkode nøkler. Se [AWS SDK credential-dokumentasjon](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/credentials.html) for alternativer.
+Profilen `min-sender` settes opp som beskrevet i [Laste opp filer til landing zone](../guider/hente-inn-data/laste-opp-til-landing-zone.md).
+
+!!! warning "Ikke hardkod hemmeligheter"
+    I produksjon bør du bruke Secrets Manager eller Parameter Store i stedet for å hardkode nøkler eller external ID. Se [boto3-dokumentasjonen om påloggingsinformasjon](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/credentials.html) for alternativer.
 
 ### Eksempel: Last opp med AWS CLI
 
 ```bash
 AWS_PROFILE=min-sender aws s3 cp data.parquet \
-  s3://69d82-workspace-landing-zone/min-app/green/2026/02/17/data.parquet
+  s3://12345-workspace-landing-zone/min-app/green/2026/02/17/data.parquet
 ```
 
-Se [Laste opp filer til landing zone](../guider/hente-inn-data/laste-opp-til-landing-zone.md) for mer om sikkerhetsnøkler.
+Se [Laste opp filer til landing zone](../guider/hente-inn-data/laste-opp-til-landing-zone.md) for hvordan du setter opp autentiseringen (IAM-rolle eller nøkler).
 
 ## Steg 4 — Les data inn i Databricks
 
@@ -127,7 +127,7 @@ df = (
     .format("cloudFiles")
     .option("cloudFiles.format", "parquet")
     .option("cloudFiles.schemaLocation", "/tmp/schema/min-app")
-    .load("s3://69d82-workspace-landing-zone/min-app/green/")
+    .load("s3://12345-workspace-landing-zone/min-app/green/")
 )
 
 df.writeStream.option("checkpointLocation", "/tmp/checkpoint/min-app").toTable(
@@ -135,7 +135,7 @@ df.writeStream.option("checkpointLocation", "/tmp/checkpoint/min-app").toTable(
 )
 ```
 
-Auto Loader holder styr på hvilke filer som allerede er prosessert, slik at kun nye filer leses inn ved neste kjøring.
+Auto Loader holder styr på hvilke filer som allerede er prosessert, slik at kun nye filer leses inn ved neste kjøring. Se [Sette opp Auto Loader](../guider/hente-inn-data/auto-loader.md) for komplett oppsett med Declarative Pipelines.
 
 ### Med batch-lesning
 
@@ -143,7 +143,7 @@ For enklere tilfeller kan du lese filer direkte:
 
 ```python
 df = spark.read.format("parquet").load(
-    "s3://69d82-workspace-landing-zone/min-app/green/2026/02/17/"
+    "s3://12345-workspace-landing-zone/min-app/green/2026/02/17/"
 )
 
 df.write.mode("append").saveAsTable("min_katalog.bronze_default.min_tabell")
@@ -174,7 +174,7 @@ flowchart LR
 | **Silver** | `silver_default` | Vasket, deduplisert, standardiserte kolonnenavn og typer |
 | **Gold** | `gold_default` | Aggregert, forretningsklart, klart for analyse og BI |
 
-Du bygger pipelines som notebooks eller Databricks-jobber, og deployer dem med [Declarative Automation Bundles](../referanse/databricks-bundles.md).
+Du bygger pipelines som notebooks eller Databricks-jobber, og deployer dem med [Declarative Automation Bundles](../referanse/databricks-bundles.md). Se guidene [Bronze til silver](../guider/bearbeide-data/bronze-til-silver.md) og [Silver til gold](../guider/bearbeide-data/silver-til-gold.md) for hvordan du skriver transformasjonene.
 
 ## Steg 6 — Koble til Power BI
 

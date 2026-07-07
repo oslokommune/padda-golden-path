@@ -35,14 +35,14 @@ Klon `padda-databrikker` og kopier riktig bundle inn i arbeidsrepoet ditt:
 === "Permissive"
 
     ```bash
-    git clone https://github.com/oslokommune/padda-databrikker.git
+    git clone git@github.com:oslokommune/padda-databrikker.git
     cp -r padda-databrikker/bundles/autoloader_permissive mitt-repo/bundles/min-pipeline
     ```
 
 === "Strict"
 
     ```bash
-    git clone https://github.com/oslokommune/padda-databrikker.git
+    git clone git@github.com:oslokommune/padda-databrikker.git
     cp -r padda-databrikker/bundles/autoloader_strict mitt-repo/bundles/min-pipeline
     ```
 

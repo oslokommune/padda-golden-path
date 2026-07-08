@@ -50,50 +50,58 @@ Navngi mappen etter hva pipelinen din gjør, for eksempel `folkeregister-innlast
 
 ## Trinn 3: Konfigurer databricks.yml
 
-Åpne `databricks.yml` og oppdater `bundle.name` og `workspace.host`:
+Åpne `databricks.yml` og oppdater `bundle.name`, `workspace.host` og variabelverdiene under
+`targets.prod`. De øvrige feltene skal beholdes som de er:
 
 ```yaml
 bundle:
   name: min-pipeline # Bytt til et beskrivende navn
 
+# ...
+
 targets:
   prod:
+    # ...
     workspace:
       host: https://<workspace-host>.cloud.databricks.com # Finn i 1Password
+      # ...
     variables:
       catalog: min_katalog # Katalogen der tabellene skal opprettes
-      schema: bronze_default
+      schema: bronze_default # Skjemaet der tabellene skal opprettes
 ```
 
 Workspace-host og katalogens navn finner du i 1Password. Ta kontakt med [plattformteamet](../../hjelp/index.md#kontakt-plattformteamet) om du ikke har tilgang.
 
 ## Trinn 4: Oppdater pipeline-konfigurasjonen
 
-Åpne `resources/*.pipeline.yml` og oppdater `catalog` og `schema` til å samsvare med verdiene fra forrige steg:
+Åpne `resources/*.pipeline.yml` og gi pipelinen et beskrivende navn. `catalog` og `schema` hentes
+fra variablene du satte i forrige trinn og skal ikke endres her:
 
 ```yaml
 resources:
   pipelines:
-    min-pipeline:
-      name: min-pipeline
-      catalog: min_katalog # Oppdater
-      schema: bronze_default # Oppdater
-      serverless: true
-      photon: true
+    min-pipeline: # Oppdater
+      name: min-pipeline # Oppdater
+      catalog: ${var.catalog} # Hentes fra databricks.yml
+      schema: ${var.schema} # Hentes fra databricks.yml
       # ...øvrige felter beholdes
 ```
+
+Oppdaterer du ressursnøkkelen (`min-pipeline` rett under `pipelines`), må du også oppdatere
+referansen `${resources.pipelines.<nøkkel>.id}` i `resources/*.job.yml`.
 
 ## Trinn 5: Tilpass pipeline-SQL
 
 Åpne `src/transformations/*.sql`. Her er to steder du må oppdatere:
 
 1. S3-stien i `read_files()` — bytt til din landing zone-sender
-2. Alle `katalog.skjema.tabell`-referanser i `CREATE ... TABLE`-setningene
+2. Tabellnavnene i `CREATE ... TABLE`-setningene — de er på formen `skjema.tabell`, og katalogen
+   hentes automatisk fra `catalog`-variabelen du satte i trinn 3
 
 === "Permissive"
 
     ```sql
-    CREATE OR REFRESH STREAMING TABLE min_katalog.bronze_default.min_tabell AS
+    CREATE OR REFRESH STREAMING TABLE bronze_default.min_tabell AS
     SELECT
       *,
       _metadata.file_path AS source_file_path,
@@ -113,7 +121,7 @@ resources:
 === "Strict"
 
     ```sql
-    CREATE OR REFRESH STREAMING TABLE min_katalog.bronze_default.min_tabell (
+    CREATE OR REFRESH STREAMING TABLE bronze_default.min_tabell (
         felt_1 STRING NOT NULL,
         felt_2 INT NOT NULL,
         -- Legg til alle forventede kolonner her
@@ -143,8 +151,12 @@ resources:
 Kjør følgende fra bundle-katalogen din (der `databricks.yml` ligger):
 
 ```bash
+databricks bundle validate
 databricks bundle deploy
 ```
+
+`validate` fanger opp feil i konfigurasjonen — som skrivefeil i YAML eller manglende
+variabelverdier — før noe når workspacet.
 
 Første gangs deploy kan ta noe lengre tid fordi Databricks klargjør pipeline-ressursene.
 

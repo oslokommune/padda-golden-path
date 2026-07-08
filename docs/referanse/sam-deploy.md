@@ -178,15 +178,15 @@ flowchart TD
 
 Følgende er konfigurert som GitHub Environment-variabler/-secrets for `stage`-miljøet:
 
-| Variabel | Beskrivelse |
-|----------|-------------|
-| `AWS_REGION` | AWS-region (`eu-west-1`) |
-| `SAM_S3_BUCKET` | S3-bucket for SAM-artifakter |
-| `CFN_ROLE_ARN` | CloudFormation execution role ARN |
-| `PERMISSIONS_BOUNDARY_ARN` | Permission boundary policy ARN |
-| `DEPLOY_ROLE_ARN` | OIDC deploy role ARN |
-| `WORKSPACE_NAME` | Workspace-navn (f.eks. `dig-eksempelteam-stage`) |
-| `ECR_REPOSITORY` | ECR-repository-navn for container images |
+| Variabel                   | Beskrivelse                                     |
+|----------------------------|-------------------------------------------------|
+| `AWS_REGION`               | AWS-region (`eu-west-1`)                        |
+| `SAM_S3_BUCKET`            | S3-bøtte for SAM-artifakter                     |
+| `CFN_ROLE_ARN`             | CloudFormation execution role ARN               |
+| `PERMISSIONS_BOUNDARY_ARN` | Permission boundary policy ARN                  |
+| `DEPLOY_ROLE_ARN`          | OIDC deploy role ARN                            |
+| `WORKSPACE_NAME`           | Workspace-navn (f.eks. `dig-eksempelteam-stage`) |
+| `ECR_REPOSITORY`           | ECR-repository-navn for container images        |
 
 ## Lokal testing
 

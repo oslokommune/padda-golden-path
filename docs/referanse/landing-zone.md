@@ -1,28 +1,28 @@
 ---
 title: Landing zone-struktur
-description: Landing zone S3-bøttestruktur, IAM-roller, tilgangsmodell og anbefalte filformater.
+description: Landing zone S3-bøttestruktur, autentiseringsmekanismer, tilgangsmodell og anbefalte filformater.
 diataxis: reference
-icon: lucide/split
 ---
 
 # Landing zone
 
-Landing zone er en S3-bucket som opprettes for hvert Databricks-workspace for innkommende data. Hver landing zone har en liste med "sendere" som skal laste opp data til bucketen. For hver sender blir det opprettet tre prefikser (green, yellow, red) med tilhørende brukere som kan laste opp til disse, etter skjemaet:
+Landing zone er en S3-bøtte som opprettes for hvert Databricks-workspace for innkommende data. Hver landing zone har en liste med "sendere" som skal laste opp data til bøtta. For hver sender blir det opprettet tre prefikser (green, yellow, red) som senderen kan laste opp til, etter mønsteret:
 
 `s3://bucket_name/sender_name/confidentiality_color/`
 
-## Struktur og tilgang
+## Struktur
 
-- 1:1 — Et workspace har en og bare en landing zone-bucket
-- Hver sender representerer en ekstern aktør (f.eks. en applikasjon) som skal kunne laste opp filer
-- For hver sender opprettes tre sub-prefikser basert på konfidensialitetsnivå:
+- En-til-en — Et workspace har en og bare en landing zone-bøtte
+- Bøttenavnet følger mønsteret `<fem første tegn av Databricks-konto-ID>-<workspace-navn>-landing-zone`
+- Hver sender representerer en ekstern aktør (for eksempel en applikasjon) som skal kunne laste opp filer
+- Bøtta er tilgjengelig i Databricks via en External Location som plattformteamet setter opp
+- For hver sender opprettes tre underprefikser i S3 basert på konfidensialitetsnivå:
     - **green** — offentlige/åpne data
     - **yellow** — interne data
     - **red** — konfidensielle data
-- For hvert prefiks lages en IAM-bruker slik at en bruker kun kan laste opp til sitt eget område
 
 ```
-s3://69d82-workspace-landing-zone/
+s3://12345-workspace-landing-zone/
 ├── sender-a/
 │   ├── green/
 │   ├── yellow/
@@ -33,16 +33,32 @@ s3://69d82-workspace-landing-zone/
     └── red/
 ```
 
-## Tilgang til IAM-brukere
+## Autentisering
 
-For hver sender opprettes IAM-brukere med nøkler (access key + secret key). Nøklene gir kun tilgang til senderens egne prefikser og må formidles over sikker kanal.
+En sender autentiseres på én av to måter. Se [Laste opp filer til landing zone](../guider/hente-inn-data/laste-opp-til-landing-zone.md) for hvordan du ber om en sender og setter opp opplasting.
 
-Hver IAM-bruker kan:
+### IAM-rolle
 
-- `s3:ListBucket` — liste filer i sitt prefiks
+For sendere med egen AWS-konto opprettes en IAM-rolle i plattformkontoen, med ARN etter mønsteret:
+
+`arn:aws:iam::<plattformkonto>:role/landing-zone/senders/<workspace>-<sendernavn>-ingest`
+
+Bare senderens registrerte AWS-konto (eventuelt en spesifikk rolle i den) kan innta rollen med `sts:AssumeRole`, og bare med riktig **external ID** — en tilfeldig generert verdi som formidles til senderen gjennom 1Password. Én rolle dekker alle tre konfidensialitetsprefiksene til senderen.
+
+### IAM-bruker med nøkler
+
+For sendere uten egen AWS-konto opprettes i stedet én IAM-bruker per konfidensialitetsnivå, med navn etter mønsteret `<workspace>-<sendernavn>-<color>`. Brukerne har langlivede tilgangsnøkler (access key + secret key) som formidles gjennom 1Password.
+
+### Rettigheter
+
+Begge mekanismene gir de samme rettighetene, avgrenset til senderens egne prefikser:
+
+- `s3:ListBucket` — liste filer (betinget på senderens prefikser)
 - `s3:PutObject` — laste opp filer
 - `s3:GetObject` — lese filer
 - `s3:DeleteObject` — slette filer
+
+Opplasting kan i tillegg begrenses til gitte IP-adresser (`aws:SourceIp`-betingelse).
 
 ## Anbefalt filformat og struktur
 
@@ -56,7 +72,7 @@ Databricks støtter mange filformater. Vi anbefaler:
 
 ### Organisering for inkrementell innlasting
 
-Organiser filene i mapper etter dato eller batch slik at Databricks Auto Loader enkelt kan plukke opp nye filer:
+Organiser filene i mapper etter dato eller batch slik at [Databricks Auto Loader](../guider/hente-inn-data/auto-loader.md) enkelt kan plukke opp nye filer:
 
 ```
 s3://bucket/min-app/green/2026/02/17/data-001.parquet

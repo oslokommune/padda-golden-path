@@ -89,6 +89,7 @@ nav = [
     { "Roller og rettigheter" = "referanse/roller-og-rettigheter.md" },
     { "SQL Warehouse" = "referanse/sql-warehouse.md" },
     { "Navnekonvensjoner" = "referanse/navnekonvensjoner.md" },
+    { "Anbefalte språk" = "referanse/anbefalte-spraak.md" },
     { "Varsling og alarmer" = "referanse/varsling-og-alarmer.md" },
     { "Declarative Automation Bundles" = "referanse/databricks-bundles.md" },
     { "SAM-deploy" = "referanse/sam-deploy.md" },

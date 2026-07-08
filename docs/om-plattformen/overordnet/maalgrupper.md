@@ -32,6 +32,8 @@ Du bruker SQL og/eller Python til å utforske data, bygge modeller og lage analy
 - **Git** — all kode versjoneres i GitHub
 - Kan være fordelaktig med **SQL**-kompetanse for transformasjoner og spørringer (selv om assistenten [Genie](https://docs.databricks.com/aws/en/genie/) lar deg spørre i naturlig språk)
 
+Se [Anbefalte språk](../../referanse/anbefalte-spraak.md) for hvilke språk vi anbefaler på plattformen.
+
 ### Organisatorisk forankring
 
 - En dataprodukteier som tar ansvar for dataproduktene over tid

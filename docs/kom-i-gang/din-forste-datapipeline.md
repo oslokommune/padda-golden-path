@@ -174,7 +174,7 @@ flowchart LR
 | **Silver** | `silver_default` | Vasket, deduplisert, standardiserte kolonnenavn og typer |
 | **Gold** | `gold_default` | Aggregert, forretningsklart, klart for analyse og BI |
 
-Du bygger pipelines som notebooks eller Databricks-jobber, og deployer dem med [Declarative Automation Bundles](../referanse/databricks-bundles.md). Se guidene [Bronze til silver](../guider/bearbeide-data/bronze-til-silver.md) og [Silver til gold](../guider/bearbeide-data/silver-til-gold.md) for hvordan du skriver transformasjonene.
+Du bygger pipelines som notebooks eller Databricks-jobber, og deployer dem med [Declarative Automation Bundles](../referanse/databricks-bundles.md). Skriv transformasjonene i Python eller SQL — se [Anbefalte språk](../referanse/anbefalte-spraak.md). Se guidene [Bronze til silver](../guider/bearbeide-data/bronze-til-silver.md) og [Silver til gold](../guider/bearbeide-data/silver-til-gold.md) for hvordan du skriver transformasjonene.
 
 ## Steg 6 — Koble til Power BI
 

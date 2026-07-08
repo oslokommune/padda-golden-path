@@ -46,7 +46,7 @@ For å få tilgang til Padda dataplattform må du bekrefte at du har lest og for
 
 2. **Hent repoet til din maskin**
     ```bash
-    git clone https://github.com/oslokommune/padda-golden-path.git
+    git clone git@github.com:oslokommune/padda-golden-path.git
     ```
 3. **Opprett en ny branch** fra `main`:
    ```bash

@@ -157,11 +157,15 @@ sync:
 | Navneprefiks            | `[dev <brukernavn>]`       | Ingen                                                                        |
 | Schedules               | Deaktiveres automatisk     | Aktive                                                                       |
 | Root path               | Brukerens personlige mappe | Må settes eksplisitt (anbefalt: `~/.bundle/${bundle.name}/${bundle.target}`) |
-| Validering              | Minimal                    | Streng — krever `permissions` eller `run_as`                                 |
+| Validering              | Minimal                    | Streng — krever eksplisitt `root_path` eller service principal/`run_as`      |
 | Delta Live Tables (DLT) | Development-modus          | Production-modus                                                             |
 
-!!! warning "`production`-mode krever `permissions` eller `run_as`"
-    Deploy feiler hvis ingen av disse er definert i prod-target.
+!!! warning "`production`-mode krever eksplisitt `root_path`"
+    Både `validate` og `deploy` feiler hvis prod-targetet verken setter
+    `workspace.root_path` eksplisitt eller deployes som service principal
+    (eventuelt med `run_as` på jobbene). Hensikten er å garantere at bare én
+    kopi av bundlen deployes. `permissions` håndheves ikke av CLI-et, men
+    anbefales for å gjøre eierskapet tydelig.
 
 ### Presets
 

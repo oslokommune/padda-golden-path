@@ -15,3 +15,6 @@ Claude foreslår at denne siden bør dekke:
 - Landing zone sin rolle som inngangspunkt
 - Hva som skjer mellom landing zone og bronze
 - Vanlige misforståelser om innlastingsmønstre
+- Hvordan strukturere pipelines og jobber: bronze og silver i samme pipeline eller hver
+  for seg, og dedikert jobb per pipeline kontra pipeline-oppdatering som task i en
+  eksisterende jobb

@@ -85,17 +85,19 @@ Hvert target har en *mode* som endrer hvordan bundles oppfører seg:
 | Navneprefiks          | `[dev <brukernavn>]` legges til alle ressurser | Ingen prefiks — ressurser får det faktiske navnet                                              |
 | Schedules og triggers | Deaktiveres automatisk                         | Aktive — jobber kjører som planlagt                                                            |
 | Root path             | Under brukerens personlige mappe               | Eksplisitt sti, typisk `~/.bundle/<bundle>/<target>` under hjemområdet til service principalen |
-| Validering            | Minimal                                        | Streng — krever `permissions` eller `run_as`                                                   |
+| Validering            | Minimal                                        | Streng — krever eksplisitt `root_path` eller service principal/`run_as`                        |
 | Isolasjon             | Hver utvikler får sin egen kopi                | En felles kopi for hele teamet                                                                 |
 
 !!! tip "Bruk development-mode lokalt"
     I `development`-mode får alle ressurser et prefiks med brukernavnet ditt. Det
     betyr at to utviklere kan deploye samtidig uten å overskrive hverandres jobber.
 
-`production`-mode krever at du eksplisitt definerer hvem som eier ressursene —
-enten gjennom `permissions` (hvem kan se/styre) eller `run_as` (hvilken
-bruker/service principal kjører jobbene). Dette forhindrer at produksjonsjobber
-avhenger av en enkelt utviklers konto.
+`production`-mode krever at deployen er entydig: enten setter du
+`workspace.root_path` eksplisitt i prod-targetet, eller så deployer du som
+service principal (eventuelt med `run_as` på jobbene). I tillegg anbefales
+`run_as` (hvilken bruker/service principal kjører jobbene) og `permissions`
+(hvem kan se/styre) for å gjøre eierskapet tydelig — det forhindrer at
+produksjonsjobber avhenger av en enkelt utviklers konto.
 
 For konkret YAML-oppsett av targets og modes, se [Ta i bruk bundles —
 Konfigurere targets for stage og

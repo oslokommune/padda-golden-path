@@ -6,7 +6,11 @@ diataxis: how-to
 
 # Sette opp Auto Loader
 
-Denne guiden hjelper deg å sette opp en Declarative Pipeline som leser inn nye filer fra landing zone og lagrer dem i bronze- og silver-tabeller i Unity Catalog. Resultatet er en pipeline som kjører daglig og automatisk plukker opp nye filer uten å lese alt på nytt. Vi bruker ett av to eksempler. Guiden bruker disse litt slavisk, men dere må selvsagt tilpasse alt til deres bruksområde.
+Denne guiden hjelper deg å sette opp en Declarative Pipeline som leser inn nye filer fra
+landing zone og lagrer dem i bronze- og silver-tabeller i Unity Catalog. Resultatet er en
+pipeline som kjører daglig og automatisk plukker opp nye filer uten å lese alt på
+nytt. Guiden tar utgangspunkt i to eksempelbundler og følger dem tett — tilpass navn,
+tabeller og transformasjoner til ditt eget bruksområde.
 
 ## Før du begynner
 
@@ -18,15 +22,22 @@ Sørg for at du har:
 
 ## Trinn 1: Velg tilnærming
 
-To bundle-varianter er tilgjengelige i [`padda-databrikker`-repoet](https://github.com/oslokommune/padda-databrikker/tree/main/bundles). Velg ut fra krav til datakvalitet:
+To bundle-varianter er tilgjengelige i
+[`padda-databrikker`-repoet](https://github.com/oslokommune/padda-databrikker/tree/main/bundles). Velg
+ut fra krav til datakvalitet:
 
-|                           | Permissive                                          | Strict                                          |
-| ------------------------- | --------------------------------------------------- | ----------------------------------------------- |
-| Ny kolonne i kilden       | Legges automatisk til i bronze                      | Pipeline feiler — krever manuell håndtering     |
-| Ugyldig eller korrupt rad | Slipper gjennom til bronze                          | Pipeline feiler                                 |
-| Passer for                | Produkter der en feil rad her og der er akseptabelt | Produkter der ingen data er bedre enn feil data |
+|                           | Permissive                                 | Strict                                          |
+|---------------------------|--------------------------------------------|-------------------------------------------------|
+| Ny kolonne i kilden       | Legges automatisk til i bronze             | Pipeline feiler — krever manuell håndtering     |
+| Ugyldig eller korrupt rad | Slipper gjennom til bronze                 | Pipeline feiler                                 |
+| Passer for                | Produkter som tåler en feil rad her og der | Produkter der ingen data er bedre enn feil data |
 
-Dette er ikke egentlig et binært valg. I praksis vil man gjerne mikse og matche litt. Disse eksemplene er ment litt som illustrative ytterpunkter.
+Dette er egentlig ikke et binært valg — i praksis vil man gjerne kombinere elementer fra
+begge. Eksemplene er ment som illustrative ytterpunkter.
+
+Eksemplene legger dessuten bronze- og silver-tabellene i samme pipeline og gir pipelinen
+en egen planlagt jobb — snarveier som passer eksempelformatet, men ikke nødvendigvis
+produktet ditt.
 
 ## Trinn 2: Kopier bundle-malen
 
@@ -46,7 +57,8 @@ Klon `padda-databrikker` og kopier riktig bundle inn i arbeidsrepoet ditt:
     cp -r padda-databrikker/bundles/autoloader_strict mitt-repo/bundles/min-pipeline
     ```
 
-Navngi mappen etter hva pipelinen din gjør, for eksempel `folkeregister-innlasting`.
+Navngi mappa etter hva pipelinen din gjør — for eksempel `folkeregister-innlasting` i
+stedet for `min-pipeline`, som guiden bruker videre.
 
 ## Trinn 3: Konfigurer databricks.yml
 
@@ -72,6 +84,9 @@ targets:
 
 Workspace-host og katalogens navn finner du i 1Password. Ta kontakt med [plattformteamet](../../hjelp/index.md#kontakt-plattformteamet) om du ikke har tilgang.
 
+La `workspace.root_path` stå — production-modus krever en eksplisitt root path. Se
+[Mode-referansen](../../referanse/databricks-bundles.md#mode-referanse) for bakgrunnen.
+
 ## Trinn 4: Oppdater pipeline-konfigurasjonen
 
 Åpne `resources/*.pipeline.yml` og gi pipelinen et beskrivende navn. `catalog` og `schema` hentes
@@ -90,13 +105,21 @@ resources:
 Oppdaterer du ressursnøkkelen (`min-pipeline` rett under `pipelines`), må du også oppdatere
 referansen `${resources.pipelines.<nøkkel>.id}` i `resources/*.job.yml`.
 
+Gjør tilsvarende i `resources/*.job.yml`: gi jobben et beskrivende navn, og bytt ut adressa
+under `email_notifications.on_failure` med den teamet ditt bruker for feilvarsler. Det er denne
+jobben som starter pipelinen daglig.
+
 ## Trinn 5: Tilpass pipeline-SQL
 
-Åpne `src/transformations/*.sql`. Her er to steder du må oppdatere:
+Åpne `src/transformations/*.sql`. Malen definerer en bronze-tabell som leser fra landing
+zone med Auto Loader, og silver-tabeller som viser typekonvertering og datakvalitetsregler
+(expectations). Her er tre steder du må oppdatere:
 
 1. S3-stien i `read_files()` — bytt til din landing zone-sender
 2. Tabellnavnene i `CREATE ... TABLE`-setningene — de er på formen `skjema.tabell`, og katalogen
    hentes automatisk fra `catalog`-variabelen du satte i trinn 3
+3. Silver-tabellene — tilpass kolonnenavn, typekonverteringer og expectations til dine
+   data
 
 === "Permissive"
 
@@ -116,7 +139,23 @@ referansen `${resources.pipelines.<nøkkel>.id}` i `resources/*.job.yml`.
       );
     ```
 
-    Med `inferColumnTypes => false` skrives alle kolonner som `STRING` til bronze. Silver-laget håndterer typekonvertering eksplisitt.
+    Med `inferColumnTypes => false` skrives alle kolonner som `STRING` til bronze. Silver-laget håndterer typekonvertering eksplisitt:
+
+    ```sql
+    CREATE OR REFRESH STREAMING TABLE silver_default.min_tabell (
+        felt_1 STRING PRIMARY KEY NOT NULL COMMENT 'Beskriv kolonnen her',
+        felt_2 INT NOT NULL COMMENT 'Beskriv kolonnen her',
+        -- Gir bare en advarsel i loggene når regelen brytes
+        CONSTRAINT gyldig_felt_2 EXPECT (felt_2 >= 0)
+      ) AS
+    SELECT
+      felt_1,
+      CAST(felt_2 AS INT) AS felt_2
+    FROM
+      STREAM bronze_default.min_tabell;
+    ```
+
+    Expectations uten `ON VIOLATION`-klausul gir bare en advarsel i loggene — radene som bryter regelen slipper gjennom.
 
 === "Strict"
 
@@ -146,6 +185,24 @@ referansen `${resources.pipelines.<nøkkel>.id}` i `resources/*.job.yml`.
 
     Med `FAILFAST` og `failOnNewColumns` vil pipelinen stoppe ved første uventede rad eller kolonne. Dette krever manuell oppdatering av skjemaet og en full refresh ved skjemaendringer i kilden.
 
+    Silver-laget bruker expectations med `ON VIOLATION FAIL UPDATE`, som stopper oppdateringa når en rad bryter regelen:
+
+    ```sql
+    CREATE OR REFRESH STREAMING TABLE silver_default.min_tabell (
+        felt_1 STRING PRIMARY KEY NOT NULL COMMENT 'Beskriv kolonnen her',
+        felt_2 INT NOT NULL COMMENT 'Beskriv kolonnen her',
+        -- Stopper oppdateringa når regelen brytes
+        CONSTRAINT gyldig_felt_2 EXPECT (felt_2 >= 0) ON VIOLATION FAIL UPDATE
+      ) AS
+    SELECT
+      felt_1,
+      felt_2
+    FROM
+      STREAM bronze_default.min_tabell;
+    ```
+
+    Malen viser i tillegg hvordan silver-laget kan normaliseres med en `MATERIALIZED VIEW` og en fremmednøkkel — se `bundles/autoloader_strict/src/transformations/strict.sql` i malrepoet.
+
 ## Trinn 6: Deploy
 
 Kjør følgende fra bundle-katalogen din (der `databricks.yml` ligger):
@@ -158,12 +215,13 @@ databricks bundle deploy
 `validate` fanger opp feil i konfigurasjonen — som skrivefeil i YAML eller manglende
 variabelverdier — før noe når workspacet.
 
-Første gangs deploy kan ta noe lengre tid fordi Databricks klargjør pipeline-ressursene.
+Den første deployen kan ta noe lengre tid fordi Databricks klargjør pipeline-ressursene.
 
 ## Bekreft resultatet
 
-1. Gå til **Workflows → Delta Live Tables** i Databricks-arbeidsområdet.
-2. Finn pipelinen du nettopp deployet og klikk **Start** for å kjøre den manuelt.
+1. Gå til **Jobs & Pipelines** i sidemenyen i workspacet.
+2. Finn pipelinen du nettopp deployet og start den manuelt med kjøreknappen. Du kan også
+   starte den fra terminalen med `databricks bundle run <ressursnøkkel>`.
 3. Vent til statusen viser **Completed**.
 4. Åpne **Catalog Explorer** og kontroller at tabellene er opprettet under din katalog og ditt skjema.
 
@@ -172,45 +230,54 @@ Fremover vil pipelinen kjøre automatisk én gang daglig via den medfølgende jo
 ## Feilsøking
 
 ??? failure "`UnknownFieldException`"
-Kildedata har fått en ny kolonne som ikke er definert i skjemaet.
 
-=== "Permissive"
+    Kildedata har fått en ny kolonne som ikke er definert i skjemaet.
 
-    Løsning:
+    === "Permissive"
 
-      - Dette løser seg selv. Når denne feilen trigges vil kolonnen legges til bronse-tabellen, og ved neste refresh vil det lese inn på riktig måte.
-      - Merk at de videre tabellene ikke blir oppdatert. Pipelinen vil fortsette som før og rett og slett ignorere de nye kolonnene. For å få med disse i etterkant kreves en full refresh.
+        Løsning:
 
-=== "Strict"
+        - Dette løser seg selv. Når feilen trigges, legges kolonnen til bronze-tabellen, og ved neste refresh leses dataene inn på riktig måte.
+        - Merk at de videre tabellene ikke blir oppdatert. Pipelinen vil fortsette som før og rett og slett ignorere de nye kolonnene. For å få med disse i etterkant må du oppdatere silver-definisjonene og kjøre en full refresh.
 
-    Løsning:
+    === "Strict"
 
-      - Legg til den nye kolonnen i `schema`-parameteren i `read_files()` og i de relevante `CREATE TABLE`-kommandoene.
-      - Start en refresh. Full refresh er ikke nødvendig, siden radene aldri ble lest inn og det derfor ikke er noe å korrigere.
+        Løsning:
+
+        - Legg til den nye kolonnen i `schema`-parameteren i `read_files()` og i de relevante `CREATE TABLE`-kommandoene.
+        - Start en refresh. Full refresh er ikke nødvendig, siden radene aldri ble lest inn og det derfor ikke er noe å korrigere.
 
 ??? failure "Expectations feiler eller du får advarsler i loggene"
-Data samsvarer ikke med kvaliteten den skal ha.
 
-=== "Permissive"
+    Data samsvarer ikke med kvaliteten den skal ha.
 
-    Løsning:
+    === "Permissive"
 
-    - Dataen har gått gjennom hele pipelinen. Alle relevante tabeller må korrigeres for hånd.
+        Løsning:
 
-=== "Strict"
+        - Dataen har gått gjennom hele pipelinen. Alle relevante tabeller må korrigeres for hånd.
 
-    Løsning:
+    === "Strict"
 
-    - Dataen har ikke blitt lest inn i tabellen med expectation. I de foregående tabellene og kildene før den der det feilet, derimot, ligger den problematiske dataen. Dette må korrigeres for hånd.
-    - Ved neste refresh leses alt som normalt.
+        Løsning:
 
-Til slutt: Vurder om enten expectationen må endres, om den inkommende dataen må renses på noe vis, eller om kilden til dataen må kontaktes.
+        - Dataen har ikke blitt lest inn i tabellen der expectationen feilet, men den ligger i tabellene og kildene tidligere i pipelinen. Disse må korrigeres for hånd.
+        - Når dataen er korrigert, leses alt som normalt ved neste refresh.
+
+    Til slutt: Vurder om expectationen må endres, om den innkommende dataen må renses på noe vis, eller om kilden til dataen må kontaktes.
 
 ## Ytelsestips
 
+Auto Loader lønner seg først og fremst for tabeller der det blir for dyrt å lese inn alt
+på nytt hver gang. Det innebærer et visst datavolum, med utfordringene som følger med det.
+
 ### Regnekraft
 
-Declarative Pipelines kjører på serverless som standard, men det er også mulig å bruke dedikerte beregningsressurser. Hvis du bruker dedikerte beregningsressurser, kan du ofte spare penger ved å bruke et cluster med en mindre driver-instanstype enn worker-instanstype. Dataflyt fra én tabell til en annen er gjerne worker-tung og driver-lett. Når det gjelder valg av instanstype, avhenger det av spørringene dine:
+Declarative Pipelines kjører på serverless som standard, men det er også mulig å bruke
+dedikerte beregningsressurser. Gjør du det, kan du ofte spare penger ved å bruke et
+cluster med en mindre driver-instanstype enn worker-instanstype. Dataflyt fra én tabell
+til en annen er gjerne worker-tung og driver-lett. Når det gjelder valg av instanstype,
+avhenger det av spørringene dine:
 
 - **Enkle** (ingen aggregeringer eller joins, eller joins der kun én tabell er stor): Bruk compute-optimaliserte instanser.
 - **Komplekse**: Bruk få (ideelt sett én) stor worker-instans med mye minne og lagring.

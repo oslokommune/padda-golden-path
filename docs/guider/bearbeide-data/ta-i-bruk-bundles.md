@@ -118,10 +118,12 @@ Referer til variablene i jobbdefinisjoner med `${var.catalog}` og
     høylytt hvis du glemmer en variabel i et nytt target. Bruk `default:` kun
     for variabler som er miljøuavhengige (for eksempel en timeout).
 
-### Sette permissions og `run_as` for prod
+### Sette `root_path`, permissions og `run_as` for prod
 
-`production`-mode krever at du definerer eierskap. Legg til `permissions` og
-eventuelt `run_as`:
+`production`-mode krever et eksplisitt `root_path` (eller at du deployer som
+service principal). I tillegg anbefaler vi å definere eierskap med `permissions`
+og `run_as`, slik at produksjonsressursene ikke er knyttet til en enkelt
+utviklers konto:
 
 ```yaml
 targets:
@@ -367,12 +369,12 @@ databricks bundle deploy -t prod -p MY_TEAM_PROD
 
 ## Feilsøking
 
-| Symptom                           | Årsak                                                 | Løsning                                                                                                                            |
-|:----------------------------------|:------------------------------------------------------|:-----------------------------------------------------------------------------------------------------------------------------------|
-| `permission denied` ved deploy    | Manglende tilgang til workspace eller feil profil     | Sjekk at `-p`-flagget peker på riktig profil for målet, og at profilen er gyldig (`databricks auth login --profile <navn>`).       |
-| Gammel wheel-versjon brukes       | Clusteret cacher wheels basert på versjonsnummer      | Legg til `artifacts_dynamic_version: true` i stage-target. I prod: oppgrader versjonen i `pyproject.toml`.                         |
-| `ModuleNotFoundError` ved kjøring | Wheelen er ikke tilgjengelig for clusteret            | Sjekk at `libraries` refererer til riktig whl-sti. Sjekk `data_security_mode` på clusteret (`SINGLE_USER` eller `USER_ISOLATION`). |
-| `validate` feiler for prod        | `production`-mode krever `permissions` eller `run_as` | Legg til en `permissions`-blokk eller `run_as` i prod-target.                                                                      |
+| Symptom                           | Årsak                                                                            | Løsning                                                                                                                            |
+|:----------------------------------|:---------------------------------------------------------------------------------|:-----------------------------------------------------------------------------------------------------------------------------------|
+| `permission denied` ved deploy    | Manglende tilgang til workspace eller feil profil                                | Sjekk at `-p`-flagget peker på riktig profil for målet, og at profilen er gyldig (`databricks auth login --profile <navn>`).       |
+| Gammel wheel-versjon brukes       | Clusteret cacher wheels basert på versjonsnummer                                 | Legg til `artifacts_dynamic_version: true` i stage-target. I prod: oppgrader versjonen i `pyproject.toml`.                         |
+| `ModuleNotFoundError` ved kjøring | Wheelen er ikke tilgjengelig for clusteret                                       | Sjekk at `libraries` refererer til riktig whl-sti. Sjekk `data_security_mode` på clusteret (`SINGLE_USER` eller `USER_ISOLATION`). |
+| `validate` feiler for prod        | `production`-mode krever eksplisitt `root_path` eller service principal/`run_as` | Sett `workspace.root_path` i prod-target, for eksempel `~/.bundle/${bundle.name}/${bundle.target}`.                                |
 
 ## Trenger du hjelp?
 

@@ -33,7 +33,7 @@ For å få tilgang til Padda dataplattform må du bekrefte at du har lest og for
    ```markdown
    # Ola Nordmann
    - Dato: 2026-02-17
-   - Jeg bekrefter at jeg har lest og forstått retningslinjene i ONBOARDING.md
+   - Jeg bekrefter at jeg har lest og forstått [brukervilkårene for Padda dataplattform](../../docs/referanse/brukervilkaar.md)
    ```
 
 6. **Klikk "Commit changes..."**, velg **"Create a new branch for this commit and start a pull request"**, og klikk **"Propose changes"**.
@@ -61,7 +61,7 @@ For å få tilgang til Padda dataplattform må du bekrefte at du har lest og for
    ```markdown
    # Ola Nordmann
    - Dato: 2026-02-17
-   - Jeg bekrefter at jeg har lest og forstått retningslinjene i ONBOARDING.md
+   - Jeg bekrefter at jeg har lest og forstått [brukervilkårene for Padda dataplattform](../../docs/referanse/brukervilkaar.md)
    ```
 6. **Commit og push**:
    ```bash

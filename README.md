@@ -26,21 +26,16 @@ uv sync --extra docs
 ## Commands
 
 ```bash
-# Run tests
-uv run pytest
-
-# Tests with coverage
-uv run pytest --cov=libs
-
-# Run a single test
-uv run pytest examples/api_ingest/tests/test_client.py -k "test_name"
+# Run tests (the root workspace has no tests yet; examples with their own
+# uv project run their own suite — see the example's README for prerequisites)
+cd examples/vscode-demo && uv run pytest
 
 # Lint and format
 uvx ruff check . --fix
 uvx ruff format .
 
 # Format check (as CI runs it)
-uv format --check
+uvx ruff format --check
 
 # Install pre-commit hooks
 uvx pre-commit install
@@ -112,4 +107,4 @@ The Claude-powered workflows run on AWS Bedrock via OIDC (no Anthropic API key).
 
 ## pytest configuration
 
-`pythonpath` in `pyproject.toml` includes `src`, `examples/api_ingest/src`, and `examples/etl/src` so imports work without installation.
+Root pytest ignores `bundle-templates/` (templated, non-runnable test files) and `examples/vscode-demo/` (standalone uv project with its own environment) via `addopts` in `pyproject.toml`. The vscode-demo tests require Databricks Connect and workspace authentication — see `examples/vscode-demo/README.md`.

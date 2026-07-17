@@ -14,23 +14,27 @@ Example project used to demonstrate:
 ```bash
 cd examples/vscode-demo
 
-# Create / reuse a uv environment and run tests
+# Run tests (requires Databricks authentication, see below)
 uv run pytest
 
 # Build wheel
 uv build --wheel
-
 ```
 
-## Local Databricks Connect debugging
+## Running tests locally
 
-When running notebooks or the CLI locally (e.g., via the Databricks VS Code
-extension), install and configure [Databricks Connect](https://docs.databricks.com/dev-tools/databricks-connect.html):
+The tests run against Databricks via [Databricks
+Connect](https://docs.databricks.com/dev-tools/databricks-connect.html), which
+is declared as a dev dependency — `uv run pytest` installs it automatically.
+You do need workspace authentication:
 
-1. Install into this project’s environment (e.g. `uv add databricks-connect` or
-   `uv run --project examples/vscode-demo pip install databricks-connect`).
-2. Configure it (`databricks-connect configure` or set `DATABRICKS_*` env vars).
-3. Re-run `uv run --project examples/vscode-demo pytest` or your notebook.
+1. Log in with the Databricks CLI (`databricks auth login`) if you haven't
+   already.
+2. Point the tests at your profile and run them:
 
-If Databricks Connect is missing, local notebook execution raises a helpful error
-with a link to the setup guide.
+   ```bash
+   DATABRICKS_CONFIG_PROFILE=<profile-name> uv run pytest
+   ```
+
+If no cluster is configured for Databricks Connect, the test setup falls back
+to serverless compute automatically.

@@ -17,15 +17,17 @@ targets:
     mode: development
     default: true
     workspace:
-      host: https://dbc-d17b7ed1-eac0.cloud.databricks.com
+      host: https://dev-workspace.cloud.databricks.com # Change to your workspace URL
     presets:
       artifacts_dynamic_version: true
 
   prod:
     mode: production
     workspace:
-      host: https://dbc-5af0a03e-12e6.cloud.databricks.com
-      root_path: /Workspace/Users/fredrik.lovejord@origo.oslo.kommune.no/.bundle/${bundle.name}/${bundle.target}
+      host: https://prod-workspace.cloud.databricks.com # Change to your workspace URL
+      root_path: ~/.bundle/${bundle.name}/${bundle.target}
+    run_as:
+      service_principal_name: my-deploy-sp # Change to your service principal
     permissions:
-      - user_name: fredrik.lovejord@origo.oslo.kommune.no
+      - service_principal_name: my-deploy-sp
         level: CAN_MANAGE

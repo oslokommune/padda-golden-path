@@ -8,6 +8,12 @@ requires-python = ">=3.12"
 dependencies = [
 ]
 
+[dependency-groups]
+dev = [
+    "databricks-connect",
+    "pytest",
+]
+
 [project.scripts]
 main = "vscode_demo.main:main"
 

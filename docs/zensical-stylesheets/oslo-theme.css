@@ -103,6 +103,22 @@
   letter-spacing: -0.2px;
 }
 
+/*
+ * Permalink anchors (¶) must not take up layout space. Otherwise, when a
+ * heading almost fills the content column, the invisible anchor wraps alone
+ * onto a second line and renders as phantom vertical whitespace below the
+ * heading. Zero width removes the layout footprint; the padding/negative
+ * margin pair keeps a clickable hit area without re-adding any advance.
+ */
+.md-typeset .headerlink {
+  display: inline-block;
+  width: 0;
+  padding-right: 1.2em;
+  margin-right: -1.2em;
+  overflow: visible;
+  white-space: nowrap;
+}
+
 /* Bold text uses medium weight per Punkt */
 .md-typeset strong,
 .md-typeset b {

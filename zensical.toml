@@ -71,6 +71,8 @@ nav = [
     ]},
     { "Dele og hente ut data" = [
       { "Koble til Power BI" = "guider/dele-og-hente-ut/koble-til-power-bi.md" },
+      { "Versjonskontrollere Power BI-rapporter" = "guider/dele-og-hente-ut/versjonskontrollere-power-bi-rapporter.md" },
+      { "Oppdatere Power BI-modeller automatisk" = "guider/dele-og-hente-ut/oppdatere-power-bi-modeller-automatisk.md" },
       { "Dele data via Unity Catalog" = "guider/dele-og-hente-ut/unity-catalog.md" },
       { "Dele med Fabric" = "guider/dele-og-hente-ut/dele-med-fabric.md" },
     ]},

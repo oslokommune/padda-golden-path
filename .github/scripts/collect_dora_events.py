@@ -3,7 +3,7 @@
 Fetches PRs merged in the lookback window and computes the two DORA
 signals derivable from GitHub alone:
 
-  * deployment: every merge to main is treated as one deployment
+  * deployment: every merge to the default branch is one deployment
   * lead_time_seconds: time from the PR's first commit to merge_commit
 
 Uploads JSONL to a Unity Catalog volume so the Databricks Auto Loader in
@@ -128,6 +128,10 @@ def fetch_pr_detail(repo: str, number: int, token: str) -> dict:
     return _gh_get(f"{GITHUB_API}/repos/{repo}/pulls/{number}", token)
 
 
+def fetch_default_branch(repo: str, token: str) -> str:
+    return _gh_get(f"{GITHUB_API}/repos/{repo}", token)["default_branch"]
+
+
 def fetch_pr_first_commit_at(repo: str, number: int, token: str) -> str | None:
     commits = _gh_get(
         f"{GITHUB_API}/repos/{repo}/pulls/{number}/commits",
@@ -171,10 +175,11 @@ def collect_repo(
     repo: str, since_iso: str, collection_ts: str, token: str
 ) -> list[dict]:
     prs = fetch_merged_prs(repo, since_iso, token)
+    default_branch = fetch_default_branch(repo, token)
     events: list[dict] = []
     for pr in prs:
         detail = fetch_pr_detail(repo, pr["number"], token)
-        if (detail.get("base") or {}).get("ref") != "main":
+        if (detail.get("base") or {}).get("ref") != default_branch:
             continue
         first_commit_at = fetch_pr_first_commit_at(repo, pr["number"], token)
         events.append(build_event(repo, detail, first_commit_at, collection_ts))
@@ -213,13 +218,15 @@ def upload_to_volume(
 
 
 def main() -> int:
-    repo = os.environ.get("GITHUB_REPOSITORY")
-    github_token = os.environ.get("GITHUB_TOKEN")
-    account_id = os.environ.get("DATABRICKS_ACCOUNT_ID")
-    client_id = os.environ.get("DATABRICKS_CLIENT_ID")
-    oidc_token = os.environ.get("DATABRICKS_OIDC_TOKEN")
-    workspace_host = os.environ.get("DATABRICKS_HOST")
-    catalog = os.environ.get("DATABRICKS_METRICS_CATALOG")
+    # .strip() guards against trailing whitespace/newlines in GitHub vars,
+    # which otherwise corrupt the client_id / account_id sent to Databricks.
+    repo = (os.environ.get("GITHUB_REPOSITORY") or "").strip()
+    github_token = (os.environ.get("GITHUB_TOKEN") or "").strip()
+    account_id = (os.environ.get("DATABRICKS_ACCOUNT_ID") or "").strip()
+    client_id = (os.environ.get("DATABRICKS_CLIENT_ID") or "").strip()
+    oidc_token = (os.environ.get("DATABRICKS_OIDC_TOKEN") or "").strip()
+    workspace_host = (os.environ.get("DATABRICKS_HOST") or "").strip()
+    catalog = (os.environ.get("DATABRICKS_METRICS_CATALOG") or "").strip()
 
     missing = [
         name

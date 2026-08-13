@@ -5,8 +5,9 @@ name: Collect DORA Events
 # pipeline (in padda-databrikker) reads it via Auto Loader.
 #
 # Single-repo by design — this file and .github/scripts/collect_dora_events.py
-# are copied verbatim to padda-golden-path, padda-iac, and padda-databrikker so
-# each repo emits its own events. Keep the three copies in sync.
+# are copied verbatim to padda-golden-path, padda-iac, padda-databrikker, and
+# terraform-databricks-sra so each repo emits its own events. Keep the four
+# copies in sync.
 #
 # Runs once per GitHub environment (dev, prod) via the matrix. Each environment
 # supplies its own config as environment variables; only the catalog varies the
@@ -48,11 +49,11 @@ jobs:
     env:
       LOOKBACK_DAYS: ${{ inputs.lookback_days || '7' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
         with:
-          python-version: "3.12"
+          python-version: "3.14"
 
       - name: Install dependencies
         run: pip install urllib3

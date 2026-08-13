@@ -74,8 +74,3 @@ databricks bundle validate
 ```
 
 Den rendrede jobben skal nå vise `custom_tags` på klusteret (trinn 1) eller `tags` på jobben (trinn 2) med `CostTeam` og `CostProcess`.
-
-## Relatert innhold
-
-- [Slack-alarmer](slack-alarmer.md)
-- [Gjenopprette etter feil](gjenopprette-etter-feil.md)

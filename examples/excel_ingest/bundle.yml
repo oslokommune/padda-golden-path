@@ -22,6 +22,9 @@ resources:
       name: "Ingest Excel"
       timeout_seconds: 3600
       max_concurrent_runs: 1
+      tags:
+        CostTeam: padda
+        CostProcess: Ingest
       tasks:
         - task_key: ingest_excel_task
           existing_cluster_id: ${var.existing_cluster_id}

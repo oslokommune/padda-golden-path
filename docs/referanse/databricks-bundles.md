@@ -337,5 +337,5 @@ sin kode, lever i team-repoet.
   targets, modes og wheel-strategier
 - Se [Databricks-opplæring](../hjelp/databricks-opplaering.md#utvalgt-dokumentasjon)
   for offisiell Databricks-dokumentasjon
-- Spør i [#dig-dataspeilet](https://oslokommune.slack.com/archives/C01SFNFEXK7)
+- Spør i [#dig-dataspeilet-support](https://oslokommune.slack.com/archives/C01DE13PLDP)
   på Slack

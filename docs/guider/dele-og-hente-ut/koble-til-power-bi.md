@@ -83,10 +83,10 @@ automatisk](oppdatere-power-bi-modeller-automatisk.md).
 
 ## Feilsøking
 
-| Problem                                    | Løsning                                                                                                                                                                  |
-|--------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Power BI Desktop kan ikke koble til        | Sjekk at SQL Warehouse kjører og at du bruker riktig Server Hostname / HTTP Path                                                                                         |
-| Du ser ikke katalogen eller tabellene dine | Sjekk at du har tilgang til katalogen og skjemaet i Unity Catalog — kontakt [#dig-dataspeilet](https://oslokommune.slack.com/archives/C01SFNFEXK7) om du mangler tilgang |
+| Problem                                    | Løsning                                                                                                                                                                          |
+|--------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Power BI Desktop kan ikke koble til        | Sjekk at SQL Warehouse kjører og at du bruker riktig Server Hostname / HTTP Path                                                                                                 |
+| Du ser ikke katalogen eller tabellene dine | Sjekk at du har tilgang til katalogen og skjemaet i Unity Catalog — kontakt [#dig-dataspeilet-support](https://oslokommune.slack.com/archives/C01DE13PLDP) om du mangler tilgang |
 
 ## Se også
 

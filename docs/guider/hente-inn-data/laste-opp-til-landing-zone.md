@@ -14,7 +14,7 @@ Er landing zone nytt for deg? Se [Landing zone-struktur](../../referanse/landing
 
 Landing zone-bøtta administreres av plattformteamet via Terraform. Du oppretter **ikke** bøtta selv.
 
-1. Kontakt plattformteamet via [#dig-dataspeilet](https://oslokommune.slack.com/archives/C01SFNFEXK7)
+1. Kontakt plattformteamet via [#dig-dataspeilet-support](https://oslokommune.slack.com/archives/C01DE13PLDP)
 2. Oppgi:
     - Hvilket workspace du tilhører
     - Ønsket sendernavn (for eksempel `min-app`)

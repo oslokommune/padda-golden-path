@@ -378,7 +378,7 @@ databricks bundle deploy -t prod -p MY_TEAM_PROD
 
 ## Trenger du hjelp?
 
-- Spør i [#dig-dataspeilet](https://oslokommune.slack.com/archives/C01SFNFEXK7) på Slack
+- Spør i [#dig-dataspeilet-support](https://oslokommune.slack.com/archives/C01DE13PLDP) på Slack
 - Opprett en issue i [padda-golden-path](https://github.com/oslokommune/padda-golden-path/issues)
 - Se [Declarative Automation Bundles (konsept)](../../om-plattformen/konsepter/databricks-bundles.md) for bakgrunn om targets, modes og wheel-strategier
 - Se [Declarative Automation Bundles (referanse)](../../referanse/databricks-bundles.md) for konfigurasjonsoversikt og tilgjengelige eksempler

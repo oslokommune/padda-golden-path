@@ -222,5 +222,5 @@ Bundles dekker *ikke*:
 - Se [Declarative Automation Bundles
   (referanse)](../../referanse/databricks-bundles.md) for konfigurasjonsfelt og
   eksempler
-- Spør i [#dig-dataspeilet](https://oslokommune.slack.com/archives/C01SFNFEXK7)
+- Spør i [#dig-dataspeilet-support](https://oslokommune.slack.com/archives/C01DE13PLDP)
   på Slack

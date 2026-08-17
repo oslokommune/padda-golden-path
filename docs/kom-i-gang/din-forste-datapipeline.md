@@ -42,7 +42,7 @@ Hvert Databricks-workspace har **en** landing zone S3-bøtte. Dataen din kommer 
 
 **Slik får du en sender:**
 
-1. Kontakt plattformteamet via [#dig-dataspeilet](https://oslokommune.slack.com/archives/C01SFNFEXK7) og oppgi:
+1. Kontakt plattformteamet via [#dig-dataspeilet-support](https://oslokommune.slack.com/archives/C01DE13PLDP) og oppgi:
     - Hvilket workspace du tilhører
     - Navnet du ønsker på senderen (for eksempel `min-app`)
     - AWS-kontonummeret deres, hvis dere har egen AWS-konto
@@ -203,7 +203,7 @@ Når data ligger i gold-laget (eller silver, avhengig av behov) kan du koble til
 | Steg | Handling                       | Ressurs                                                                                    |
 |------|--------------------------------|--------------------------------------------------------------------------------------------|
 | 1    | Onboarding                     | [Brukervilkår og ansvar](../referanse/brukervilkaar.md)                                    |
-| 2    | Få landing zone-sender         | Kontakt [#dig-dataspeilet](https://oslokommune.slack.com/archives/C01SFNFEXK7)             |
+| 2    | Få landing zone-sender         | Kontakt [#dig-dataspeilet-support](https://oslokommune.slack.com/archives/C01DE13PLDP)     |
 | 3    | Last opp data til S3           | [Laste opp filer til landing zone](../guider/hente-inn-data/laste-opp-til-landing-zone.md) |
 | 4    | Les inn i Databricks           | [Sette opp Auto Loader](../guider/hente-inn-data/auto-loader.md)                           |
 | 5    | Bygg pipelines (bronze → gold) | [Skrive transformasjoner](../guider/bearbeide-data/skrive-transformasjoner.md)             |
@@ -211,7 +211,7 @@ Når data ligger i gold-laget (eller silver, avhengig av behov) kan du koble til
 
 ## Trenger du hjelp?
 
-- **Slack**: [#dig-dataspeilet](https://oslokommune.slack.com/archives/C01SFNFEXK7)
+- **Slack**: [#dig-dataspeilet-support](https://oslokommune.slack.com/archives/C01DE13PLDP)
 - **GitHub**: [oslokommune/padda-golden-path](https://github.com/oslokommune/padda-golden-path) — opprett et issue
 
 Se [Hjelp](../hjelp/index.md) for flere kontaktkanaler og fellesskap.

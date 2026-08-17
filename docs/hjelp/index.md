@@ -9,7 +9,7 @@ description: Kontaktinfo, fellesskap og støttekanaler for brukere av dataplattf
 
 Har du spørsmål, trenger hjelp eller vil ta plattformen i bruk? Vi hører gjerne fra deg.
 
-- **[#dig-dataspeilet](https://oslokommune.slack.com/archives/C01SFNFEXK7)** — Slack-kanalen for generelle henvendelser. Her kan du alltid stille spørsmål.
+- **[#dig-dataspeilet-support](https://oslokommune.slack.com/archives/C01DE13PLDP)** — Slack-kanalen for generelle henvendelser. Her kan du alltid stille spørsmål.
 - **[dataspeilet@oslo.kommune.no](mailto:dataspeilet@oslo.kommune.no)**
 
 Når et nytt team tar i bruk plattformen, oppretter vi en dedikert support-kanal for dere på Slack.

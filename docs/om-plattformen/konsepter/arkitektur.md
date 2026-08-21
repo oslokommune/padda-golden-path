@@ -153,13 +153,14 @@ Arkitekturen prioriterer noen hensyn på bekostning av andre:
 
 - **Filbasert batch fremfor sanntid.** Landing zone er filorientert, og data går gjennom
   flere lag før den er klar til bruk. For analytiske formål er forsinkelsen sjelden et
-  problem, men plattformen er ikke bygget for sanntidsstrømmer mot sluttbrukere.
+  problem, men plattformen er ikke bygget for sanntidsstrømmer mot sluttbrukere per nå.
 
 - **Selvbetjening har en grense.** Teamene er selvbetjente på kode og deploy, men
   plattformressurser som nye workspaces, kataloger og [landing
   zone-sendere](../../guider/hente-inn-data/laste-opp-til-landing-zone.md#be-om-en-sender)
   må settes opp av Dataspeilet. Det sikrer at oppsettet blir likt for alle team, men betyr
-  at noen endringer kan innebære ventetid.
+  at noen endringer kan innebære ventetid per nå. Det arbeides med hvordan denne tiden kan
+  minimeres gjennom automatisering.
 
 ## Relatert innhold
 

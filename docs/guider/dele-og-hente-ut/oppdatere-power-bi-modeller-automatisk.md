@@ -165,8 +165,8 @@ targets:
       warehouse_id: <warehouse-id>
 ```
 
-1. Finn warehouse ID-en under **SQL Warehouses** → warehouset ditt → **Connection
-   details** i Databricks-workspacet.
+1. Finn warehouse-ID-en under **SQL Warehouses** → warehouset ditt → **Connection
+   details** i Databricks-workspacet — ID-en er siste ledd i **HTTP path**.
 
 ## Trinn 3 — Legg til `power_bi_task` i jobbdefinisjonen
 

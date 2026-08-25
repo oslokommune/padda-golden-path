@@ -101,11 +101,10 @@ Hvert workspace får kataloger inndelt etter konfidensialitetsnivå — en for `
 
 Inndelingen etter konfidensialitetsnivå er et arkitekturvalg:
 [sensitivitetsklassifiseringen](klassifisering-sensitivitet.md) avgjør hvilken katalog
-data hører hjemme i, og tilgang kan dermed styres på katalognivå med grove, robuste
-skiller — i stedet for å vedlikeholde finmaskede regler per tabell. Pålogging og identitet
-håndteres gjennom Oslo kommunes Entra ID, så tilgang følger kommunebrukeren din — se [Slik
-får du tilgang](../../kom-i-gang/slik-faar-du-tilgang.md). Hva de ulike rollene kan gjøre,
-står i [Roller og rettigheter](../../referanse/roller-og-rettigheter.md).
+data hører hjemme i, og tilgang styres på katalognivå. Hvorfor tilgangsmodellen er bygget
+slik, og hvordan den henger sammen med roller og grupper i Oslo kommunes Entra ID, er
+forklart i [Roller og tilgangsstyring](roller-og-tilgangsstyring.md). Pålogging skjer med
+kommunebrukeren din — se [Slik får du tilgang](../../kom-i-gang/slik-faar-du-tilgang.md).
 
 ## Deploy og drift: delt ansvar
 
@@ -168,6 +167,8 @@ Arkitekturen prioriterer noen hensyn på bekostning av andre:
 
 - [Klassifisering av datakvalitet](klassifisering-datakvalitet.md) — hvorfor data beveger
   seg gjennom bronze, silver og gold
+- [Roller og tilgangsstyring](roller-og-tilgangsstyring.md) — hvorfor tilgang følger
+  roller og grupper
 - [Serverless compute](serverless-compute.md) — Lambda og Fargate for datainnhenting
 - [Declarative Automation Bundles](databricks-bundles.md) — hvorfor deploy skjer med
   bundles

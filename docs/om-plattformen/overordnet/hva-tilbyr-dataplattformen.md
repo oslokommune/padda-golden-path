@@ -69,6 +69,6 @@ Plattformen er et fundament, ikke en ferdig løsning. Du og teamet ditt har ansv
 - **[Dataproduktene dine](../konsepter/dataprodukter.md)** — utvikle, dokumentere og forvalte dem over tid
 - **[Datakvalitet](../konsepter/klassifisering-datakvalitet.md)** — rette feil i datagrunnlaget og følge opp avvik
 - **[Juridiske vurderinger](../konsepter/klassifisering-sensitivitet.md)** — avgjøre hva som kan deles, med hvem, og hvorfor
-- **[Tilgangsbeslutninger](../konsepter/roller-og-tilgangsstyring.md)** — vurdere om og når data kan tilgjengeliggjøres
+- **[Tilgangsbeslutninger](../konsepter/eierskap-og-forvaltning.md)** — vurdere om og når data kan tilgjengeliggjøres
 
 Plattformen gjør det lettere å gjøre rett. Men ansvaret for dataene ligger hos deg som eier dem.

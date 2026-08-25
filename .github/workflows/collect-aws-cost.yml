@@ -1,0 +1,84 @@
+name: Collect AWS Cost
+
+# AWS cost snapshot per CostTeam/CostProcess cost-allocation tag — queries Cost
+# Explorer in one AWS account and uploads daily cost rows as JSONL to that
+# environment's Unity Catalog landing volume. The platform_metrics DLT pipeline
+# (in padda-databrikker) reads it via Auto Loader.
+#
+# Runs once per GitHub environment (dev, prod) via the matrix below. Each
+# environment supplies its own config as environment variables, including
+# which AWS account to read cost from.
+#   vars: AWS_ACCOUNT_ID, DATABRICKS_ACCOUNT_ID, DATABRICKS_CLIENT_ID,
+#         DATABRICKS_HOST, DATABRICKS_METRICS_CATALOG
+#
+# Auth, no stored secrets:
+#   AWS        — GitHub OIDC via aws-actions/configure-aws-credentials, assuming
+#                the read-only `metrics-cost-reader` role (padda-iac
+#                tf/*/…/metrics_collector_cost_oidc.tf) that only allows
+#                ce:GetCostAndUsage/GetDimensionValues/GetTags.
+#   Databricks — GitHub OIDC federation (RFC 8693 token-exchange) against the
+#                collector SP, same as collect-metrics.
+#
+# Runs weekly, same cadence as collect-metrics; the 14-day default lookback
+# gives consecutive runs ample overlap. Can also be dispatched manually with a
+# custom lookback (scheduled runs use the default).
+
+on:
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+    inputs:
+      lookback_days:
+        description: "Days of cost history to collect (UTC, today exclusive)"
+        default: "14"
+        required: false
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        environment: [dev, prod]
+    environment:
+      name: ${{ matrix.environment }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install urllib3 boto3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/metrics-cost-reader
+          aws-region: eu-west-1
+
+      - name: Mint Databricks OIDC token
+        id: oidc
+        run: |
+          TOKEN=$(curl -sS \
+            -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=${{ vars.DATABRICKS_ACCOUNT_ID }}" \
+            | jq -r '.value')
+          echo "::add-mask::$TOKEN"
+          echo "token=$TOKEN" >> "$GITHUB_OUTPUT"
+
+      - name: Collect AWS cost
+        env:
+          DATABRICKS_ACCOUNT_ID: ${{ vars.DATABRICKS_ACCOUNT_ID }}
+          DATABRICKS_CLIENT_ID: ${{ vars.DATABRICKS_CLIENT_ID }}
+          DATABRICKS_OIDC_TOKEN: ${{ steps.oidc.outputs.token }}
+          DATABRICKS_HOST: ${{ vars.DATABRICKS_HOST }}
+          DATABRICKS_METRICS_CATALOG: ${{ vars.DATABRICKS_METRICS_CATALOG }}
+          ACCOUNT_LABEL: ${{ matrix.environment }}
+          LOOKBACK_DAYS: ${{ inputs.lookback_days || '14' }}
+        run: python .github/scripts/collect_aws_cost.py

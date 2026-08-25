@@ -15,4 +15,6 @@ Claude foreslår at denne siden bør dekke:
 - Skillet mellom dataeier og datakonsument
 - Regler og forventninger til datakvalitet, dokumentasjon og livsløp
 - Hvordan forvaltningsbeslutninger tas og håndheves på plattformen
+- Hvordan teamet bør vurdere om og når data kan tilgjengeliggjøres for andre (lenket hit
+  som «Tilgangsbeslutninger» fra «Hva tilbyr dataplattformen?»)
 - Hvordan dette henger sammen med sensitivitetsklassifisering og tilgangsstyring

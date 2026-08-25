@@ -19,13 +19,16 @@ Sjekk at:
 
 ## Trinn 1 — Finn tilkoblingsdetaljer
 
-Du trenger **Server Hostname** og **HTTP Path** fra SQL Warehouse:
+Du trenger **Server hostname** og **HTTP path** fra SQL Warehouse:
 
 1. Åpne Databricks-workspacet
 2. Gå til **SQL Warehouses** i venstremenyen
 3. Klikk på warehouset du vil bruke
 4. Gå til fanen **Connection details**
-5. Kopier **Server Hostname** og **HTTP Path**
+5. Kopier **Server hostname** og **HTTP path**
+
+Se [SQL Warehouse](../../referanse/sql-warehouse.md#tilkoblingsdetaljer) for hva de
+ulike tilkoblingsdetaljene brukes til.
 
 ## Trinn 2 — Koble til fra Power BI Desktop
 
@@ -35,8 +38,8 @@ Du trenger **Server Hostname** og **HTTP Path** fra SQL Warehouse:
    — plattformen vår kjører på AWS, og OAuth-pålogging der støttes bare av
    **Databricks**-konnektoren)
 4. Fyll inn:
-    - **Server Hostname**: verdien fra Trinn 1
-    - **HTTP Path**: verdien fra Trinn 1
+    - **Server hostname**: verdien fra Trinn 1
+    - **HTTP path**: verdien fra Trinn 1
 5. Velg tilkoblingsmodus under **Data Connectivity mode** (se
    [DirectQuery vs. Import](#directquery-vs-import) nedenfor)
 6. Klikk **OK**
@@ -59,7 +62,7 @@ Ved første tilkobling blir du bedt om å autentisere deg:
 
 1. Velg **OAuth (OIDC)** i venstre panel
 2. Klikk **Sign in** — et nettleservindu åpnes
-3. Logg inn med organisasjonskontoen din
+3. Logg inn med kommunebrukeren din
 4. Gå tilbake til Power BI Desktop og klikk **Connect**
 
 ## Trinn 4 — Velg tabeller
@@ -76,21 +79,21 @@ Ved første tilkobling blir du bedt om å autentisere deg:
 3. Rapporten og datasettet blir lastet opp
 
 Hvis teamet versjonskontrollerer rapportene i git, bør du synkronisere via
-git-integrasjonen i stedet for å publisere manuelt — se [Versjonskontrollere Power
+git-integrasjonen i stedet for å publisere manuelt — se [Hvordan versjonskontrollere Power
 BI-rapporter](versjonskontrollere-power-bi-rapporter.md). For automatisk oppdatering av
-publiserte modeller, se [Oppdatere Power BI-modeller
+publiserte modeller, se [Hvordan oppdatere Power BI-modeller
 automatisk](oppdatere-power-bi-modeller-automatisk.md).
 
 ## Feilsøking
 
 | Problem                                    | Løsning                                                                                                                                                                          |
 |--------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Power BI Desktop kan ikke koble til        | Sjekk at SQL Warehouse kjører og at du bruker riktig Server Hostname / HTTP Path                                                                                                 |
+| Power BI Desktop kan ikke koble til        | Sjekk at SQL Warehouse kjører og at du bruker riktig Server hostname / HTTP path                                                                                                 |
 | Du ser ikke katalogen eller tabellene dine | Sjekk at du har tilgang til katalogen og skjemaet i Unity Catalog — kontakt [#dig-dataspeilet-support](https://oslokommune.slack.com/archives/C01DE13PLDP) om du mangler tilgang |
 
 ## Se også
 
-- [Versjonskontrollere Power BI-rapporter](versjonskontrollere-power-bi-rapporter.md) —
+- [Hvordan versjonskontrollere Power BI-rapporter](versjonskontrollere-power-bi-rapporter.md) —
   lagre rapporten som prosjektfil i git og synkroniser arbeidsområdet med GitHub
-- [Oppdatere Power BI-modeller automatisk](oppdatere-power-bi-modeller-automatisk.md) —
+- [Hvordan oppdatere Power BI-modeller automatisk](oppdatere-power-bi-modeller-automatisk.md) —
   la en Databricks-jobb oppdatere den semantiske modellen etter hver pipeline-kjøring

@@ -170,9 +170,9 @@ targets:
 
 ## Trinn 3 — Legg til `power_bi_task` i jobbdefinisjonen
 
-I jobb-ressursfilen (for eksempel `resources/my_job.yml`) legger du til en `power_bi_task`
-som kjører etter datapipelinen. Merk at `power_bi_task` foreløpig er i forhåndsvisning
-(Public Preview) hos Databricks:
+I jobbressursfilen (for eksempel `resources/my_project.job.yml`) legger du til en
+`power_bi_task` som kjører etter datapipelinen. Merk at `power_bi_task` foreløpig er i
+forhåndsvisning ("Public Preview") hos Databricks:
 
 ```yaml
 resources:

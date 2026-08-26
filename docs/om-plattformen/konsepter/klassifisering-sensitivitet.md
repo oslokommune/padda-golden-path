@@ -60,7 +60,7 @@ At kildedataene er røde, betyr ikke at alt som bygges på dem må være det. R�
 den røde katalogen, mens et dataprodukt i gold-laget med aggregerte tall per bydel kan
 vurderes på nytt og legges i grønn eller gul for deling. Men vurderingen må gjøres:
 Aggregering og pseudonymisering er ikke anonymisering — i små grupper kan enkeltpersoner
-gjenkjennes, og en hashet ansattkode er fortsatt en personopplysning så lenge noen kan slå
+gjenkjennes, og en hash-kodet ansattkode er fortsatt en personopplysning så lenge noen kan slå
 den opp.
 
 Trenger du finere skiller *innenfor* en katalog, støtter Unity Catalog [radfiltre og

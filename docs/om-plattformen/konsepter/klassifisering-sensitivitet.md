@@ -67,7 +67,7 @@ Trenger du finere skiller *innenfor* en katalog, støtter Unity Catalog [radfilt
 kolonnemaskering](https://docs.databricks.com/aws/en/tables/row-and-column-filters) på
 tabellnivå. Det er teamets verktøy — katalogene kommer uten slike regler.
 
-## Vanlige spørsmål
+## Vanlige misforståelser
 
 ### «Betyr grønne data at alle kan se dataene?»
 

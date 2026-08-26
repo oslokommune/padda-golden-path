@@ -1,13 +1,13 @@
 ---
 title: Declarative Automation Bundles
-description: Oversikt over tilgjengelige Declarative Automation Bundles, mappestruktur, konfigurasjon og navnekonvensjoner.
+description: Oversikt over tilgjengelige Declarative Automation Bundles, mappestruktur og konfigurasjon.
 diataxis: reference
 ---
 
 # Declarative Automation Bundles
 
-Denne referansen dokumenterer bundle-konfigurasjonen, eksempler og
-navnekonvensjoner brukt på plattformen.
+Denne referansen dokumenterer bundle-konfigurasjonen og eksemplene brukt på
+plattformen.
 
 ## Mappestruktur
 
@@ -17,7 +17,7 @@ Standard struktur for en bundle:
 my-bundle/
   databricks.yml          # Hovedkonfigurasjon
   resources/
-    my_job.yml            # Jobbdefinisjoner (en eller flere)
+    my_project.job.yml    # Jobbdefinisjoner (en eller flere)
   src/
     my_package/
       __init__.py
@@ -301,13 +301,8 @@ sin kode, lever i team-repoet.
 
 ## Navnekonvensjoner
 
-| Ressurs                 | Konvensjon                     | Eksempel                      |
-|-------------------------|:-------------------------------|:------------------------------|
-| Bundle-navn             | kebab-case                     | `my-project`, `excel-ingest`  |
-| Jobb-navn (YAML-nøkkel) | snake_case med `_job`-suffiks  | `my_job`, `ingest_excel_job`  |
-| Task-nøkkel             | snake_case med `_task`-suffiks | `my_task`, `python_task`      |
-| Cluster-nøkkel          | snake_case                     | `job_cluster`                 |
-| Variabler               | snake_case                     | `catalog`, `excel_input_path` |
+Navnemønstrene for bundles, jobber, pipelines, tasks og variabler er samlet i
+[Navnekonvensjoner](navnekonvensjoner.md#bundles-jobber-og-pipelines).
 
 ## CLI-kommandoer
 

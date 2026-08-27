@@ -89,7 +89,7 @@ grensene over.
 
 ### Kolonner
 
-Kolonnenavn er teamets sak, men mellomrom bør unngås. Unity Catalog tillater mellomrom i
+Kolonnenavn er teamets sak. Unity Catalog tillater mellomrom i kolonnenavn, men Delta-tabeller krever da [column
 kolonnenavn, men Delta-tabeller krever da [column
 mapping](https://docs.databricks.com/aws/en/delta/column-mapping), og navnet må omsluttes
 av `` ` `` i alle spørringer.

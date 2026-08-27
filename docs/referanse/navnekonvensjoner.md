@@ -23,7 +23,7 @@ Unity Catalog:
   SQL. Det gjelder for eksempel bindestrek (`` `min-tabell` ``) og norske bokstaver (``
   `målinger` ``).
 
-Av den grunn bruker Dataspeilet én stil for alt som navngis i Unity Catalog: små bokstaver
+Dataspeilet bruker én stil for alt som navngis i Unity Catalog: små bokstaver og understrek (`snake_case`).
 og understrek (`snake_case`).
 
 Workspaces, bøtter, IAM-roller og service principals bruker bindestrek i stedet for

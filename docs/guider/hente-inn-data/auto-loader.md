@@ -95,14 +95,14 @@ fra variablene du satte i forrige trinn og skal ikke endres her:
 ```yaml
 resources:
   pipelines:
-    min-pipeline: # Oppdater
-      name: min-pipeline # Oppdater
+    min_pipeline: # Oppdater
+      name: min_pipeline # Oppdater
       catalog: ${var.catalog} # Hentes fra databricks.yml
       schema: ${var.schema} # Hentes fra databricks.yml
       # ...øvrige felter beholdes
 ```
 
-Oppdaterer du ressursnøkkelen (`min-pipeline` rett under `pipelines`), må du også oppdatere
+Oppdaterer du ressursnøkkelen (`min_pipeline` rett under `pipelines`), må du også oppdatere
 referansen `${resources.pipelines.<nøkkel>.id}` i `resources/*.job.yml`.
 
 Gjør tilsvarende i `resources/*.job.yml`: gi jobben et beskrivende navn, og bytt ut adressa

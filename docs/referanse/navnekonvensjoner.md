@@ -23,8 +23,8 @@ Unity Catalog:
   SQL. Det gjelder for eksempel bindestrek (`` `min-tabell` ``) og norske bokstaver (``
   `målinger` ``).
 
-Dataspeilet bruker én stil for alt som navngis i Unity Catalog: små bokstaver og understrek (`snake_case`).
-og understrek (`snake_case`).
+Dataspeilet bruker én stil for alt som navngis i Unity Catalog: små bokstaver og
+understrek (`snake_case`).
 
 Workspaces, bøtter, IAM-roller og service principals bruker bindestrek i stedet for
 understrek.
@@ -89,10 +89,9 @@ grensene over.
 
 ### Kolonner
 
-Kolonnenavn er teamets sak. Unity Catalog tillater mellomrom i kolonnenavn, men Delta-tabeller krever da [column
-kolonnenavn, men Delta-tabeller krever da [column
-mapping](https://docs.databricks.com/aws/en/delta/column-mapping), og navnet må omsluttes
-av `` ` `` i alle spørringer.
+Kolonnenavn er teamets sak. Unity Catalog tillater mellomrom i kolonnenavn, men
+Delta-tabeller krever da [column mapping](https://docs.databricks.com/aws/en/delta/column-mapping),
+og navnet må omsluttes av `` ` `` i alle spørringer.
 
 ### Volumer
 

@@ -1,6 +1,6 @@
 ---
 title: Landing zone-struktur
-description: Landing zone S3-bøttestruktur, autentiseringsmekanismer, tilgangsmodell og anbefalte filformater.
+description: Landing zone S3-bøttestruktur, autentiseringsmekanismer, tilgangsmodell, oppbevaring og anbefalte filformater.
 diataxis: reference
 ---
 
@@ -59,6 +59,14 @@ Begge mekanismene gir de samme rettighetene, avgrenset til senderens egne prefik
 - `s3:DeleteObject` — slette filer
 
 Opplasting kan i tillegg begrenses til gitte IP-adresser (`aws:SourceIp`-betingelse).
+
+## Sletting og oppbevaring
+
+Filer i landing zone slettes ikke automatisk: plattformen rydder aldri i bøtta og setter
+ingen frist for hvor lenge filer kan bli liggende. Hvor lenge filene skal beholdes, er
+teamets vurdering. Filene er grunnlaget bronze-tabeller gjenskapes fra ved en full
+refresh, se
+[Datainnlasting](../om-plattformen/konsepter/datainnlasting.md#kan-vi-slette-filene-i-landing-zone-etter-innlasting).
 
 ## Anbefalt filformat og struktur
 

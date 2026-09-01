@@ -58,7 +58,7 @@ Loader](../../guider/hente-inn-data/auto-loader.md), som holder styr på hvilke 
 allerede er prosessert.
 
 Ikke alle data trenger å gå denne veien. Mindre datasett som lastes opp manuelt, for
-eksempel en Excel-fil, kan legges rett på en Unity Catalog Volume — se [Importere Excel
+eksempel en Excel-fil, kan legges rett på et Unity Catalog Volume — se [Importere Excel
 til Unity Catalog](../../guider/hente-inn-data/importere-excel-til-uc.md).
 
 ### Når plattformen må hente data selv
@@ -165,6 +165,8 @@ Arkitekturen prioriterer noen hensyn på bekostning av andre:
 
 **Forklaringer:**
 
+- [Datainnlasting](datainnlasting.md) — hvordan data kommer inn, og hvordan innlastinga
+  struktureres i pipelines og jobber
 - [Klassifisering av datakvalitet](klassifisering-datakvalitet.md) — hvorfor data beveger
   seg gjennom bronze, silver og gold
 - [Roller og tilgangsstyring](roller-og-tilgangsstyring.md) — hvorfor tilgang følger

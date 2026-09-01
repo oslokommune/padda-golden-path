@@ -1,15 +1,15 @@
 ---
 title: Laste opp Python-biblioteker
-description: Hvordan laste opp Python wheel-filer til en Unity Catalog Volume for bruk uten internett.
+description: Hvordan laste opp Python wheel-filer til et Unity Catalog Volume for bruk uten internett.
 diataxis: how-to
 ---
 
-# Laste opp Python-pakker (wheel) til en Unity Catalog Volume
+# Laste opp Python-pakker (wheel) til et Unity Catalog Volume
 
-Denne guiden viser hvordan du legger en wheel-fil (f.eks. `openpyxl`) på en UC Volume slik at scripts/notebooks kan installere den uten internett.
+Denne guiden viser hvordan du legger en wheel-fil (f.eks. `openpyxl`) på et UC Volume slik at scripts/notebooks kan installere den uten internett.
 
 ## Forutsetninger
-- Du har tilgang til en Volume under et katalog/schema (f.eks. `dbfs:/Volumes/dig_felles_dev_green/analyst_default/wheels`).
+- Du har tilgang til et Volume under et katalog/schema (f.eks. `dbfs:/Volumes/dig_felles_dev_green/analyst_default/wheels`).
 - Databricks CLI
 
 ## 1) Hent wheel-filen lokalt

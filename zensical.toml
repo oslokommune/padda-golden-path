@@ -36,7 +36,6 @@ nav = [
       { "Datainnlasting" = "om-plattformen/konsepter/datainnlasting.md" },
       { "Klassifisering av sensitivitet" = "om-plattformen/konsepter/klassifisering-sensitivitet.md" },
       { "Klassifisering av datakvalitet" = "om-plattformen/konsepter/klassifisering-datakvalitet.md" },
-      { "Deling og bruk" = "om-plattformen/konsepter/deling-og-bruk.md" },
       { "Overvåking" = "om-plattformen/konsepter/overvaaking.md" },
       { "Serverless compute" = "om-plattformen/konsepter/serverless-compute.md" },
       { "Declarative Automation Bundles" = "om-plattformen/konsepter/databricks-bundles.md" },

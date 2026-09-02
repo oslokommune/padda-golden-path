@@ -21,7 +21,7 @@ Mye av det som bygges på plattformen vil være [dataprodukter](../konsepter/dat
     - Automatisert deploy via CI/CD og Declarative Automation Bundles
     - Serverless compute — ingen cluster-administrasjon
     - Sikker lagring og tilgangsstyring via Unity Catalog
-    - Overvåking, logging og Slack-varsling ut av boksen
+    - Overvåking og logging, med varsling på e-post eller Slack
 
 -   **For deg som leder**
 

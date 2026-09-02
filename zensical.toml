@@ -63,12 +63,13 @@ nav = [
     ]},
     { "Bearbeide data" = [
       { "Skrive transformasjoner" = "guider/bearbeide-data/skrive-transformasjoner.md" },
-      { "Bronze til silver" = "guider/bearbeide-data/bronze-til-silver.md" },
-      { "Silver til gold" = "guider/bearbeide-data/silver-til-gold.md" },
+      { "Deduplisere data i silver" = "guider/bearbeide-data/deduplisere-data.md" },
+      { "Håndtere rader som ikke lar seg konvertere" = "guider/bearbeide-data/haandtere-ugyldige-rader.md" },
       { "Laste opp Python-biblioteker" = "guider/bearbeide-data/laste-opp-python-biblioteker.md" },
       { "Ta i bruk bundles" = "guider/bearbeide-data/ta-i-bruk-bundles.md" },
     ]},
     { "Dele og hente ut data" = [
+      { "Dokumentere et dataprodukt" = "guider/dele-og-hente-ut/dokumentere-dataprodukt.md" },
       { "Koble til Power BI" = "guider/dele-og-hente-ut/koble-til-power-bi.md" },
       { "Versjonskontrollere Power BI-rapporter" = "guider/dele-og-hente-ut/versjonskontrollere-power-bi-rapporter.md" },
       { "Oppdatere Power BI-modeller automatisk" = "guider/dele-og-hente-ut/oppdatere-power-bi-modeller-automatisk.md" },

@@ -105,6 +105,8 @@ Vanlige scenarier:
 - **Ny kolonne i kilden, og du vil ha den med.** Bytt til `schemaEvolutionMode => 'addNewColumns'` (hvis du ikke allerede bruker det) og kjør jobben på nytt. Auto Loader oppdaterer schema-state-en automatisk ved første kjøring.
 - **Ny kolonne, og du vil ignorere den.** Behold `failOnNewColumns` med eksplisitt `schema` slik at uventede kolonner blir oppdaget tidlig, men ikke endrer pipelinen.
 - **Endret type eller fjernet kolonne.** Dette krever endring i transformasjonen. Oppdater koden, vurder om historisk data trenger full refresh, og kjør deretter på nytt.
+- **Du har endret definisjonen av en streaming-tabell i en Declarative Pipeline.** Den nye definisjonen gjelder bare rader som leses inn etterpå. Skal den gjelde rader som allerede er lest inn, må tabellen få en full refresh: åpne pipelinen, klikk kjøreikonet ved tabelldefinisjonen og velg **Full refresh table**, eller kjør `databricks bundle run <pipeline> --full-refresh-all` for alle tabellene i pipelinen. En materialisert view oppdateres alltid fra gjeldende definisjon og trenger ingen full refresh.
+- **Du skal kjøre full refresh av en pipeline som inneholder bronze.** Da leses alt på nytt fra landing zone, se [Datainnlasting](../../om-plattformen/konsepter/datainnlasting.md#kan-vi-slette-filene-i-landing-zone-etter-innlasting).
 
 Hvis schema-state-en er korrupt eller du har byttet evolusjonsmodus uten at det får effekt, slett `cloudFiles.schemaLocation` (samme prosedyre som checkpoint i trinn 3) og la Auto Loader bygge schemaet på nytt.
 
@@ -147,6 +149,9 @@ For streaming-pipelines: la jobben kjøre én batch til etter resetten og bekref
 
 ??? failure "Jobben henger på `Initializing stream` uten feilmelding"
     Streamen klarer ikke å initialisere state fra checkpointet. Stopp jobben i UI-et, og følg trinn 3.
+
+??? failure "Endringa i pipeline-koden slår ikke inn på eksisterende rader"
+    Tabellen er en streaming-tabell, og den nye definisjonen gjelder bare nye rader. Sjekk først at deployen gikk gjennom og at du kjørte pipelinen i samme target, og gi deretter tabellen en full refresh (trinn 4).
 
 ??? failure "Repair run kjører, men samme task feiler på nytt med samme feil"
     Det er ikke en forbigående feil. Gå tilbake til trinn 1 og les hele stack tracen, eller åpne driver logs via Spark UI.

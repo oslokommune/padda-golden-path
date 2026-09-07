@@ -62,11 +62,11 @@ nav = [
       { "Håndtere secrets" = "guider/hente-inn-data/haandtere-secrets.md" },
     ]},
     { "Bearbeide data" = [
+      { "Ta i bruk bundles" = "guider/bearbeide-data/ta-i-bruk-bundles.md" },
       { "Skrive transformasjoner" = "guider/bearbeide-data/skrive-transformasjoner.md" },
       { "Deduplisere data i silver" = "guider/bearbeide-data/deduplisere-data.md" },
       { "Håndtere rader som ikke lar seg konvertere" = "guider/bearbeide-data/haandtere-ugyldige-rader.md" },
       { "Laste opp Python-biblioteker" = "guider/bearbeide-data/laste-opp-python-biblioteker.md" },
-      { "Ta i bruk bundles" = "guider/bearbeide-data/ta-i-bruk-bundles.md" },
     ]},
     { "Dele og hente ut data" = [
       { "Dokumentere et dataprodukt" = "guider/dele-og-hente-ut/dokumentere-dataprodukt.md" },

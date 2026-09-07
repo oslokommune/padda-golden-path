@@ -111,8 +111,10 @@ Modellen er en anbefalt struktur, ikke et rigid krav. For noen datasett kan silv
 
 **Guider:**
 
-- [Bronze til silver](../../guider/bearbeide-data/bronze-til-silver.md) — rensing, deduplisering og standardisering
-- [Silver til gold](../../guider/bearbeide-data/silver-til-gold.md) — aggregering og forretningslogikk
+- [Skrive transformasjoner](../../guider/bearbeide-data/skrive-transformasjoner.md) — fra bronze til silver og gold i en pipeline
+- [Deduplisere data i silver](../../guider/bearbeide-data/deduplisere-data.md)
+- [Håndtere rader som ikke lar seg konvertere](../../guider/bearbeide-data/haandtere-ugyldige-rader.md)
+- [Dokumentere et dataprodukt](../../guider/dele-og-hente-ut/dokumentere-dataprodukt.md)
 - [Sette opp Auto Loader](../../guider/hente-inn-data/auto-loader.md) — innlasting fra landing zone til bronze
 
 **Referanser:**

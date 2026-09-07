@@ -262,7 +262,7 @@ Legg til `--validate-only` på `run`-kommandoen for å sjekke syntaks og avhengi
 
 ## Endre transformasjonen senere
 
-For en materialisert view er det nok å deploye og kjøre på nytt. En streaming-tabell
+For et materialisert view er det nok å deploye og kjøre på nytt. En streaming-tabell
 trenger en full refresh for at endringa skal gjelde rader som allerede er lest inn, se
 [Gjenopprette etter feil i
 pipelines](../overvaake-og-drifte/gjenopprette-etter-feil.md#trinn-4-handter-en-schema-endring-som-bryter-pipelinen).

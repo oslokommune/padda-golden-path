@@ -287,7 +287,7 @@ environments:
 
 !!! info "Alternativ: Unity Catalog Volume"
     Hvis avhengigheten er stor eller deles på tvers av mange bundles, kan du laste
-    den opp én gang til en Unity Catalog Volume og referere til den med en variabel.
+    den opp én gang til et Unity Catalog Volume og referere til den med en variabel.
     Se [Laste opp Python-biblioteker](laste-opp-python-biblioteker.md). Ulempen er
     at versjonen ikke følger samme livssyklus som koden — du må huske å oppdatere
     volumet manuelt når du oppgraderer avhengigheten.

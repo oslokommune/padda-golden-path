@@ -1,19 +1,19 @@
 ---
 title: Importere Excel til Unity Catalog
-description: Hvordan laste opp en Excel-fil til en Unity Catalog Volume og skrive den som en Delta-tabell.
+description: Hvordan laste opp en Excel-fil til et Unity Catalog Volume og skrive den som en Delta-tabell.
 diataxis: how-to
 ---
 
 # Importere Excel til Unity Catalog
 
-Denne guiden viser hvordan du laster opp en Excel-fil til en Unity Catalog Volume og deretter skriver den som en Delta-tabell (som i `examples/excel_ingest`, bundle-navn "Ingest Excel").
+Denne guiden viser hvordan du laster opp en Excel-fil til et Unity Catalog Volume og deretter skriver den som en Delta-tabell (som i `examples/excel_ingest`, bundle-navn "Ingest Excel").
 
 ## Forutsetninger
 - Du har en katalog og et schema du kan skrive til (f.eks. `dig_felles_dev_green.bronze_default`).
 - Databricks CLI er satt opp (se [Sett opp utviklingsmiljøet](../../kom-i-gang/dev-setup.md)).
 - Du vet hvordan du deployer en bundle (se [Ta i bruk bundles](../bearbeide-data/ta-i-bruk-bundles.md)).
 
-## 1) Opprett (eller bruk) en Volume
+## 1) Opprett (eller bruk) et Volume
 - I GUI: `Catalog` → velg katalog og schema → `Volumes` → `Create volume` (f.eks. navn `excel_test`).
 - Volum-sti blir da `dbfs:/Volumes/<catalog>/<schema>/excel_test/`. (f.eks.: `/Volumes/dig_felles_dev_green/bronze_default/excel_test`)
 

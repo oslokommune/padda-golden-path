@@ -21,7 +21,7 @@ flowchart LR
 
 Medallion-arkitekturen er en del av den overordnede plattformarkitekturen. Kildesystemer leverer data til en landing zone i S3. Derfra lastes data inn i bronze-laget, transformeres videre til silver, og til slutt til gold — der den er klar for analyse, rapportering og deling.
 
-Modellen er ikke unik for oss. Den er en [veletablert arkitektur](https://www.databricks.com/glossary/medallion-architecture) i Databricks-økosystemet og i dataingeniørfaget generelt. Vi bruker den fordi den gir en felles struktur som alle team kan forholde seg til, uavhengig av hvilke data de jobber med.
+Modellen er ikke unik for oss. Den er en [veletablert arkitektur](https://www.databricks.com/glossary/medallion-architecture) i Databricks-økosystemet og i data engineering-faget generelt. Vi bruker den fordi den gir en felles struktur som alle team kan forholde seg til, uavhengig av hvilke data de jobber med.
 
 ## Hvorfor lagdeling
 
@@ -123,4 +123,4 @@ Modellen er en anbefalt struktur, ikke et rigid krav. For noen datasett kan silv
 
 **Kom i gang:**
 
-- [Din første datapipeline](../../kom-i-gang/din-forste-datapipeline.md) — ende-til-ende-gjennomgang inkludert medallion-lagene
+- [Bygg din første datapipeline](../../kom-i-gang/din-forste-datapipeline.md) — bronze og silver i praksis, steg for steg

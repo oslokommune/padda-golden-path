@@ -93,4 +93,4 @@ Lagre nøklene i Secrets Manager eller Parameter Store fremfor miljøvariabler e
 - [Landing zone-struktur](../../referanse/landing-zone.md) — bøttestruktur, autentiseringsmekanismer og tilgangsmodell
 - [Sette opp Auto Loader](auto-loader.md) — les inn filene fra landing zone til Unity Catalog. Landing zone er allerede koblet til Databricks via en External Location som plattformteamet setter opp
 - [Hente data via API](hente-data-via-api.md) — sett opp en serverless-funksjon som henter data fra et eksternt API og skriver til landing zone
-- [Bygg din første datapipeline](../../kom-i-gang/din-forste-datapipeline.md) — hele dataflyten fra applikasjon til Power BI
+- [Bygg din første datapipeline](../../kom-i-gang/din-forste-datapipeline.md) — fra fil i et Volume til bronze- og silver-tabell, steg for steg

@@ -46,10 +46,8 @@ nav = [
     { "index" = "kom-i-gang/index.md" },
     { "Slik får du tilgang" = "kom-i-gang/slik-faar-du-tilgang.md" },
     { "Sett opp utviklingsmiljøet" = "kom-i-gang/dev-setup.md" },
-    { "Koble VS Code til Databricks" = "kom-i-gang/koble-vscode-til-databricks.md" },
+    { "Last opp ditt første datasett" = "kom-i-gang/last-opp-ditt-forste-datasett.md" },
     { "Bygg din første datapipeline" = "kom-i-gang/din-forste-datapipeline.md" },
-    { "Sett opp testdata" = "kom-i-gang/sett-opp-testdata.md" },
-    { "Gå fra test til produksjon" = "kom-i-gang/fra-test-til-prod.md" },
   ]},
   { "Guider" = [
     { "index" = "guider/index.md" },
@@ -67,6 +65,8 @@ nav = [
       { "Deduplisere data i silver" = "guider/bearbeide-data/deduplisere-data.md" },
       { "Håndtere rader som ikke lar seg konvertere" = "guider/bearbeide-data/haandtere-ugyldige-rader.md" },
       { "Laste opp Python-biblioteker" = "guider/bearbeide-data/laste-opp-python-biblioteker.md" },
+      { "Koble VS Code til Databricks" = "guider/bearbeide-data/koble-vscode-til-databricks.md" },
+      { "Deploye til produksjon med GitHub Actions" = "guider/bearbeide-data/deploye-til-produksjon.md" },
     ]},
     { "Dele og hente ut data" = [
       { "Dokumentere et dataprodukt" = "guider/dele-og-hente-ut/dokumentere-dataprodukt.md" },

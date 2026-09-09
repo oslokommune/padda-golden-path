@@ -105,7 +105,7 @@ transformasjonene kan aldri røre bronze. Prisen er flere ressurser å konfigure
 overvåke, og at rekkefølgen mellom dem må styres et annet sted, i jobben.
 
 Ved splitting er bronze det naturlige skillepunktet: en streaming-tabell kan leses videre
-av andre pipelines, mens en materialisert view ikke kan brukes som strømmekilde.
+av andre pipelines, mens et materialisert view ikke kan brukes som strømmekilde.
 
 ## Egen jobb eller task i en større jobb
 

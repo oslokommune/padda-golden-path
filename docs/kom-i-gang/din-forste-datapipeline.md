@@ -1,217 +1,241 @@
 ---
 title: Bygg din første datapipeline
-description: Tutorial som dekker hele dataflyten fra applikasjon til Power BI.
+description: Skriv en bundle med en pipeline som leser filene i volumet inn i bronze- og silver-tabeller, og se at bare nye filer leses ved neste kjøring.
 diataxis: tutorial
 ---
 
 # Bygg din første datapipeline
 
-Denne guiden gir deg en oversikt over alle stegene som trengs for å sette opp en fungerende datapipeline fra din applikasjon til Power BI via Padda-plattformen.
+I dette steget bygger vi en datapipeline på datasettet fra [Last opp ditt første
+datasett](last-opp-ditt-forste-datasett.md). Vi skriver en bundle med en pipeline som
+leser filene i volumet inn i en bronze-tabell og videre til en silver-tabell med riktige
+typer. Til slutt laster vi opp en ny fil og ser at pipelinen bare plukker opp det som er
+nytt.
 
-## Oversikt over dataflyten
+## Dette skal vi lage
 
-```mermaid
-flowchart LR
-    A[Din applikasjon] -->|AWS S3 API| B[Landing zone<br/>S3-bøtte]
-    B -->|External Location| C[Databricks<br/>Bronze-lag]
-    C -->|Notebook/pipeline| D[Silver/Gold-lag]
-    D -->|SQL Warehouse| E[Power BI]
+Når du er ferdig, har du:
+
+- en bundle på maskinen din, deployet til workspacet som en pipeline
+- tabellene `bronze_default.paddeobservasjoner` og `silver_default.paddeobservasjoner`,
+  som du kan slå opp i med SQL
+
+## Før du begynner
+
+Du trenger:
+
+- [Last opp ditt første datasett](last-opp-ditt-forste-datasett.md) gjennomført, så mappa
+  `paddeobservasjoner` finnes på maskinen din og fila ligger i volumet.
+- Rett til å opprette tabeller i skjemaene `bronze_default` og `silver_default` i
+  katalogen.
+
+Som før står `<profilnavn>` for CLI-profilen din og `min_katalog` for teamets katalog.
+
+## Trinn 1: Skriv bundlen
+
+En [bundle](../om-plattformen/konsepter/databricks-bundles.md) er en mappe med
+konfigurasjon og kode som Databricks CLI deployer til workspacet. Stå i mappa
+`paddeobservasjoner` og lag tre filer.
+
+Først `databricks.yml`, som gir bundlen et navn og sier hvilket workspace den skal til.
+Bytt ut `<workspace-url>` med adressen til workspacet ditt:
+
+```yaml
+bundle:
+  name: paddeobservasjoner
+
+include:
+  - resources/*.yml
+
+targets:
+  stage:
+    default: true
+    mode: development
+    workspace:
+      host: https://<workspace-url>
 ```
 
-| Steg                  | Hva                                            | Hvem            |
-|-----------------------|------------------------------------------------|-----------------|
-| 1. Onboarding         | Lese retningslinjer og bekrefte                | Ditt team       |
-| 2. Landing zone       | Opprette sender i landing zone                 | Plattformteamet |
-| 3. Last opp data      | Sende data fra app til S3                      | Ditt team       |
-| 4. Les inn data       | Lese data fra landing zone inn i Databricks    | Ditt team       |
-| 5. Transformer data   | Prosessere data gjennom bronze → silver → gold | Ditt team       |
-| 6. Koble til Power BI | Koble Power BI til Databricks SQL Warehouse    | Ditt team       |
+!!! warning "Én om gangen på teamet"
+    Pipelinen får navnet ditt som prefiks, men tabellene den lager deles i katalogen. Ta
+    derfor dette steget én om gangen på teamet, og rydd opp til slutt.
 
-## Steg 1 — Onboarding
+Så `resources/paddeobservasjoner.pipeline.yml`, som definerer pipelinen:
 
-Før du kan bruke plattformen må du gjennomføre onboarding. Dette innebærer å lese retningslinjene og bekrefte at du forstår dem via en pull request.
-
-Se [Brukervilkår og ansvar](../referanse/brukervilkaar.md) for detaljer.
-
-## Steg 2 — Få en landing zone-sender
-
-!!! info "Dette gjør plattformteamet for deg"
-    Landing zone-bøtta opprettes og administreres av plattformteamet via Terraform (padda-iac). Du trenger **ikke** opprette S3-bøtta selv.
-
-Hvert Databricks-workspace har **en** landing zone S3-bøtte. Dataen din kommer inn via en **sender** — en logisk identitet som representerer kilden din (for eksempel din applikasjon).
-
-**Slik får du en sender:**
-
-1. Kontakt plattformteamet via [#dig-dataspeilet-support](https://oslokommune.slack.com/archives/C01DE13PLDP) og oppgi:
-    - Hvilket workspace du tilhører
-    - Navnet du ønsker på senderen (for eksempel `min-app`)
-    - AWS-kontonummeret deres, hvis dere har egen AWS-konto
-    - Eventuell IP-begrensning for opplasting
-
-2. Plattformteamet oppretter senderen med tre prefikser basert på konfidensialitetsnivå:
-
-    | S3-prefiks                    | Bruksområde         |
-    |-------------------------------|---------------------|
-    | `s3://bucket/min-app/green/`  | Offentlige data     |
-    | `s3://bucket/min-app/yellow/` | Interne data        |
-    | `s3://bucket/min-app/red/`    | Konfidensielle data |
-
-3. Du mottar tilgang: en IAM-rolle dere inntar fra egen AWS-konto (anbefalt), eller AWS-nøkler gjennom 1Password. Se [Laste opp filer til landing zone](../guider/hente-inn-data/laste-opp-til-landing-zone.md) for oppsett.
-
-Se [Referanse: Landing zone](../referanse/landing-zone.md) for mer detaljer om struktur og tilgang.
-
-## Steg 3 — Last opp data til landing zone
-
-Når du har fått tilgang kan du laste opp data til landing zone fra din applikasjon.
-
-### Filformat
-
-Databricks håndterer mange formater, men vi anbefaler:
-
-| Format            | Anbefalt for                          | Merknad                   |
-|-------------------|---------------------------------------|---------------------------|
-| **Parquet**       | Store datasett, kolonnebasert analyse | Best ytelse, sterk typing |
-| **JSON** (ndjson) | API-responser, nestede strukturer     | En JSON-rad per linje     |
-| **CSV**           | Enkle tabulære data                   | Husk header-rad og UTF-8  |
-
-!!! tip "Inkrementell opplasting"
-    Organiser filer i mapper etter dato eller batch, for eksempel:
-
-    ```
-    s3://bucket/min-app/green/2026/02/17/data-001.parquet
-    s3://bucket/min-app/green/2026/02/17/data-002.parquet
-    ```
-
-    Dette gjør det enkelt for Databricks Auto Loader å bare plukke opp nye filer.
-
-### Eksempel: Last opp med Python (boto3)
-
-```python
-import boto3
-
-session = boto3.Session(profile_name="min-sender")
-s3 = session.client("s3")
-
-s3.upload_file(
-    Filename="data.parquet",
-    Bucket="12345-workspace-landing-zone",
-    Key="min-app/green/2026/02/17/data.parquet",
-)
+```yaml
+resources:
+  pipelines:
+    paddeobservasjoner_pipeline:
+      name: paddeobservasjoner_pipeline
+      catalog: min_katalog
+      schema: bronze_default
+      serverless: true
+      root_path: ../src
+      libraries:
+        - glob:
+            include: ../src/transformations/**
 ```
 
-Profilen `min-sender` settes opp som beskrevet i [Laste opp filer til landing zone](../guider/hente-inn-data/laste-opp-til-landing-zone.md).
+Til slutt tabellene, i `src/transformations/paddeobservasjoner.sql`:
 
-!!! warning "Ikke hardkod hemmeligheter"
-    I produksjon bør du bruke Secrets Manager eller Parameter Store i stedet for å hardkode nøkler eller external ID. Se [boto3-dokumentasjonen om påloggingsinformasjon](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/credentials.html) for alternativer.
+```sql
+CREATE OR REFRESH STREAMING TABLE bronze_default.paddeobservasjoner AS
+SELECT
+  *,
+  _metadata.file_path AS source_file_path,
+  _metadata.file_modification_time AS source_file_modified_at,
+  current_timestamp() AS ingested_at
+FROM
+  STREAM read_files(
+    '/Volumes/min_katalog/landing_default/paddeobservasjoner/',
+    format => 'json',
+    inferColumnTypes => false
+  );
 
-### Eksempel: Last opp med AWS CLI
+CREATE OR REFRESH STREAMING TABLE silver_default.paddeobservasjoner (
+    observasjon_id STRING PRIMARY KEY NOT NULL COMMENT 'Unik ID for observasjonen',
+    lokalitet STRING NOT NULL COMMENT 'Dammen eller vannet der paddene ble observert',
+    antall INT NOT NULL COMMENT 'Antall padder observert',
+    observert TIMESTAMP NOT NULL COMMENT 'Tidspunkt for observasjonen',
+    CONSTRAINT gyldig_antall EXPECT (antall >= 0) ON VIOLATION DROP ROW
+  )
+  COMMENT 'Paddeobservasjoner med riktige typer'
+  AS
+SELECT
+  observasjon_id,
+  lokalitet,
+  CAST(antall AS INT) AS antall,
+  CAST(observert AS TIMESTAMP) AS observert
+FROM
+  STREAM bronze_default.paddeobservasjoner;
+```
+
+Legg merke til at bronze-tabellen beholder alle kolonner som tekst, mens silver-tabellen
+gir dem riktige typer og forkaster rader med negativt antall. Hvorfor lagene deles slik,
+står i [Klassifisering av
+datakvalitet](../om-plattformen/konsepter/klassifisering-datakvalitet.md), og hvordan Auto
+Loader holder styr på hvilke filer som er lest, står i
+[Datainnlasting](../om-plattformen/konsepter/datainnlasting.md#fra-landing-zone-til-bronze).
+
+## Trinn 2: Deploy og kjør pipelinen
+
+Valider konfigurasjonen, deploy bundlen og kjør pipelinen:
 
 ```bash
-AWS_PROFILE=min-sender aws s3 cp data.parquet \
-  s3://12345-workspace-landing-zone/min-app/green/2026/02/17/data.parquet
+databricks bundle validate -p <profilnavn>
+databricks bundle deploy -p <profilnavn>
+databricks bundle run paddeobservasjoner_pipeline -p <profilnavn>
 ```
 
-Se [Laste opp filer til landing zone](../guider/hente-inn-data/laste-opp-til-landing-zone.md) for hvordan du setter opp autentiseringen (IAM-rolle eller nøkler).
+Forventet resultat: valideringa ender med `Validation OK!`, deployen skriver `Created
+pipelines.paddeobservasjoner_pipeline`, og kjøringa skriver framdriften til den ender med
+`Update ... is COMPLETED`. Første kjøring tar gjerne rundt et minutt, senere kjøringer går
+raskere.
 
-## Steg 4 — Les data inn i Databricks
+Åpne **SQL Editor** i sidemenyen og kjør:
 
-Når data ligger i landing zone kan du lese den inn i Databricks via en **External Location** som plattformteamet allerede har satt opp.
-
-### Med Auto Loader (anbefalt)
-
-Auto Loader overvåker landing zone og plukker automatisk opp nye filer. Bruk dette for inkrementell innlasting:
-
-```python
-df = (
-    spark.readStream
-    .format("cloudFiles")
-    .option("cloudFiles.format", "parquet")
-    .option("cloudFiles.schemaLocation", "/tmp/schema/min-app")
-    .load("s3://12345-workspace-landing-zone/min-app/green/")
-)
-
-df.writeStream.option("checkpointLocation", "/tmp/checkpoint/min-app").toTable(
-    "min_katalog.bronze_default.min_tabell"
-)
+```sql
+SELECT observasjon_id, lokalitet, antall, observert
+FROM min_katalog.silver_default.paddeobservasjoner
+ORDER BY observert;
 ```
 
-Auto Loader holder styr på hvilke filer som allerede er prosessert, slik at kun nye filer leses inn ved neste kjøring. Se [Sette opp Auto Loader](../guider/hente-inn-data/auto-loader.md) for komplett oppsett med Declarative Pipelines.
+Du skal se de tre observasjonene fra fila, nå med `antall` som tall og `observert` som
+tidspunkt. Under **Jobs & Pipelines** finner du pipelinen som `[dev <brukernavn>]
+paddeobservasjoner_pipeline`, med grafen over bronze- og silver-tabellen.
 
-### Med batch-lesning
+## Trinn 3: Last opp en ny fil og kjør igjen
 
-For enklere tilfeller kan du lese filer direkte:
+Kilder leverer nye filer over tid, og pipelinen skal bare lese det som er nytt. Lag fila
+`testdata/paddeobservasjoner-2026-04-16.json`, der den første raden har negativt antall
+med hensikt:
 
-```python
-df = spark.read.format("parquet").load(
-    "s3://12345-workspace-landing-zone/min-app/green/2026/02/17/"
-)
-
-df.write.mode("append").saveAsTable("min_katalog.bronze_default.min_tabell")
+```json
+{"observasjon_id": "obs-004", "lokalitet": "Bogstadvannet", "antall": -1, "observert": "2026-04-15T22:10:00"}
+{"observasjon_id": "obs-005", "lokalitet": "Sognsvann", "antall": 8, "observert": "2026-04-16T21:20:00"}
 ```
 
-### Med Databricks Bundle (golden path)
+Last opp fila og kjør pipelinen på nytt:
 
-Vi har ferdiglagde eksempler du kan kopiere og tilpasse:
-
-- [Importere Excel til Unity Catalog](../guider/hente-inn-data/importere-excel-til-uc.md) — leser Excel-filer fra Unity Catalog Volume til Delta-tabell
-
-Se [Ta i bruk bundles](../guider/bearbeide-data/ta-i-bruk-bundles.md) for hvordan du setter opp en bundle fra malene, og [Declarative Automation Bundles](../referanse/databricks-bundles.md) for konfigurasjonsdetaljene.
-
-## Steg 5 — Transformer data (bronze → silver → gold)
-
-Databricks-workspace er organisert etter **medallion-arkitekturen**:
-
-```mermaid
-flowchart LR
-    L[Landing zone<br/>Rådata i S3] --> B[Bronze<br/>Rådata i Delta]
-    B --> S[Silver<br/>Vasket og standardisert]
-    S --> G[Gold<br/>Forretningsklare data]
+```bash
+databricks fs cp testdata/paddeobservasjoner-2026-04-16.json \
+  dbfs:/Volumes/min_katalog/landing_default/paddeobservasjoner/ -p <profilnavn>
+databricks bundle run paddeobservasjoner_pipeline -p <profilnavn>
 ```
 
-| Lag | Schema | Formål |
-|-----|--------|--------|
-| **Bronze** | `bronze_default` | Rå kopi av data fra landing zone, minimalt prosessert |
-| **Silver** | `silver_default` | Vasket, deduplisert, standardiserte kolonnenavn og typer |
-| **Gold** | `gold_default` | Aggregert, forretningsklart, klart for analyse og BI |
+Forventet resultat: kjøringa ender med `COMPLETED` som sist.
 
-Du bygger pipelines som notebooks eller Databricks-jobber, og deployer dem med [Declarative Automation Bundles](../referanse/databricks-bundles.md). Skriv transformasjonene i Python eller SQL — se [Anbefalte språk](../referanse/anbefalte-spraak.md). Se [Skrive transformasjoner](../guider/bearbeide-data/skrive-transformasjoner.md) for hvordan du skriver transformasjonene.
+## Kontroller resultatet
 
-## Steg 6 — Koble til Power BI
+Kjør spørringen fra trinn 2 på nytt. Silver-tabellen skal nå ha fire rader:
 
-Når data ligger i gold-laget (eller silver, avhengig av behov) kan du koble til Power BI via Databricks SQL Warehouse.
+| observasjon_id | lokalitet      | antall | observert           |
+|----------------|----------------|--------|---------------------|
+| obs-001        | Østensjøvannet | 12     | 2026-04-14 21:30:00 |
+| obs-002        | Sognsvann      | 3      | 2026-04-14 22:05:00 |
+| obs-003        | Østensjøvannet | 27     | 2026-04-15 21:45:00 |
+| obs-005        | Sognsvann      | 8      | 2026-04-16 21:20:00 |
 
-**Slik kobler du til:**
+`obs-004` mangler fordi `gyldig_antall` forkastet den. Bronze-tabellen har alle fem
+radene, og viser at hver fil bare er lest én gang:
 
-1. **Finn tilkoblingsdetaljer** i Databricks:
-    - Gå til **SQL Warehouses** i Databricks-workspacet
-    - Velg ditt warehouse og klikk **Connection details**
-    - Noter **Server hostname** og **HTTP path**
+```sql
+SELECT substring_index(source_file_path, '/', -1) AS fil, count(*) AS rader
+FROM min_katalog.bronze_default.paddeobservasjoner
+GROUP BY fil
+ORDER BY fil;
+```
 
-2. **Koble til fra Power BI Desktop:**
-    - Åpne Power BI Desktop → **Get Data** → **Databricks**
-    - Skriv inn **Server hostname** og **HTTP path**
-    - Autentiser med din Databricks-konto
-    - Velg katalog, schema og tabeller du vil bruke
+| fil                                | rader |
+|------------------------------------|-------|
+| paddeobservasjoner-2026-04-15.json | 3     |
+| paddeobservasjoner-2026-04-16.json | 2     |
 
-3. **Publiser til Power BI Service** for å dele rapporter med andre.
+## Hvis noe ikke stemmer
 
-!!! info "Tilgang"
-    Du må ha tilgang til SQL Warehouse og de relevante katalogene/schemaene i Unity Catalog. Kontakt workspace admin om du mangler tilgang.
+??? failure "`Resources: 0 created` etter deploy"
 
-## Oppsummering
+    Bundlen fant ikke pipeline-definisjonen. Sjekk at `databricks.yml` har
+    `include: - resources/*.yml`, og at fila ligger i mappa `resources`.
 
-| Steg | Handling                       | Ressurs                                                                                    |
-|------|--------------------------------|--------------------------------------------------------------------------------------------|
-| 1    | Onboarding                     | [Brukervilkår og ansvar](../referanse/brukervilkaar.md)                                    |
-| 2    | Få landing zone-sender         | Kontakt [#dig-dataspeilet-support](https://oslokommune.slack.com/archives/C01DE13PLDP)     |
-| 3    | Last opp data til S3           | [Laste opp filer til landing zone](../guider/hente-inn-data/laste-opp-til-landing-zone.md) |
-| 4    | Les inn i Databricks           | [Sette opp Auto Loader](../guider/hente-inn-data/auto-loader.md)                           |
-| 5    | Bygg pipelines (bronze → gold) | [Skrive transformasjoner](../guider/bearbeide-data/skrive-transformasjoner.md)             |
-| 6    | Koble til Power BI             | [Koble Power BI til Databricks](../guider/dele-og-hente-ut/koble-til-power-bi.md)          |
+??? failure "Pipelinen feiler med at stien eller katalogen ikke finnes"
 
-## Trenger du hjelp?
+    Sjekk at `min_katalog` er byttet ut med katalogen din på begge stedene: `catalog` i
+    `resources/paddeobservasjoner.pipeline.yml` og volumstien i
+    `src/transformations/paddeobservasjoner.sql`.
 
-- **Slack**: [#dig-dataspeilet-support](https://oslokommune.slack.com/archives/C01DE13PLDP)
-- **GitHub**: [oslokommune/padda-golden-path](https://github.com/oslokommune/padda-golden-path) — opprett et issue
+Feiler kjøringa av andre grunner, se [Feilsøke med
+logger](../guider/overvaake-og-drifte/logging.md).
 
-Se [Hjelp](../hjelp/index.md) for flere kontaktkanaler og fellesskap.
+## Du har nå
+
+- En pipeline som leser filer inkrementelt fra volumet inn i en bronze-tabell, og
+  videre til en silver-tabell med riktige typer og en kvalitetsregel
+- En bundle du kan endre, deploye og kjøre på nytt så ofte du vil
+
+Produksjonspipelines på plattformen er bygd av de samme delene. To ting er gjerne
+annerledes: ekte kilder leverer filene til [landing zone](../referanse/landing-zone.md) i
+stedet for at du laster dem opp selv, og innlasting og transformasjon ligger ofte i hver
+sin pipeline, se [Én pipeline eller
+flere](../om-plattformen/konsepter/datainnlasting.md#en-pipeline-eller-flere).
+
+## Rydd opp
+
+Når du er ferdig med å utforske, fjerner du pipelinen og volumet. Tabellene slettes sammen
+med pipelinen:
+
+```bash
+databricks bundle destroy -p <profilnavn>
+databricks volumes delete min_katalog.landing_default.paddeobservasjoner -p <profilnavn>
+```
+
+Da er katalogen klar for neste på teamet, og for guidene, som lager sine egne
+testtabeller.
+
+## Neste steg
+
+- [Ta i bruk bundles](../guider/bearbeide-data/ta-i-bruk-bundles.md) viser hvordan du
+  setter opp en bundle fra malene, med targets og variabler for stage og prod
+- [Skrive transformasjoner](../guider/bearbeide-data/skrive-transformasjoner.md) viser
+  hvordan du legger silver og gold i en egen pipeline i en slik bundle
+- [Sette opp Auto Loader](../guider/hente-inn-data/auto-loader.md) viser samme mønster mot
+  ekte filer i landing zone

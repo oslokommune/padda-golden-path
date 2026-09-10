@@ -172,5 +172,5 @@ bevisst valg om å gi fra deg den muligheten.
 
 **Kom i gang:**
 
-- [Bygg din første datapipeline](../../kom-i-gang/din-forste-datapipeline.md) — hele
-  flyten i praksis
+- [Bygg din første datapipeline](../../kom-i-gang/din-forste-datapipeline.md) — fra fil
+  til tabell i praksis

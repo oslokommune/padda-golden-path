@@ -10,7 +10,7 @@ Tilgang til dataplattformen gis på teamnivå. I dette steget melder du inn team
 Slack. Når Dataspeilet har behandlet innmeldinga, har teamet fått miljøene sine i
 Databricks, og du kan logge inn med kommunebrukeren din.
 
-## Før du starter
+## Før du begynner
 
 - Les [brukervilkårene](../referanse/brukervilkaar.md). Den som melder inn teamet, godtar
   vilkårene på vegne av hele teamet.

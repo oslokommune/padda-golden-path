@@ -28,21 +28,26 @@ Sørg for at du har:
   `~/.databrickscfg`.
 - [VS Code](https://code.visualstudio.com/) installert.
 
-## Trinn 1: Installer utvidelsen
+## Trinn 1: Installer anbefalte utvidelser
 
-1. Åpne **Extensions**-panelet i VS Code.
-2. Søk etter «Databricks».
-3. Installer den offisielle
-   [Databricks-utvidelsen](https://marketplace.visualstudio.com/items?itemName=databricks.databricks).
+Vi har laget en [`extensions.json`](https://github.com/oslokommune/padda-golden-path/blob/main/.vscode/extensions.json)
+som lister utvidelsene vi anbefaler: den offisielle Databricks-utvidelsen, Ruff for
+formatering og linting av Python, og YAML-støtte for bundle-konfigurasjon. Legger du fila
+i prosjektet ditt, foreslår VS Code å installere utvidelsene når du åpner mappa.
+
+1. Opprett en tom mappe `databricks-demo` og åpne den i VS Code (**File → Open Folder**).
+2. Lag mappa `.vscode` og lagre en kopi av `extensions.json` der.
+3. Klikk **Install** i varselet fra VS Code om anbefalte utvidelser. Får du ikke noe
+   varsel, åpner du **Extensions**-panelet, skriver `@recommended` i søkefeltet og
+   installerer utvidelsene under **Workspace Recommendations**.
 
 ## Trinn 2: Koble til workspacet
 
-1. Opprett en tom mappe `databricks-demo` og åpne den i VS Code (**File → Open Folder**).
-2. Klikk på Databricks-ikonet i sidepanelet.
-3. Klikk **Create configuration**.
-4. Oppgi workspace-URL-en din, og velg autentiseringsprofilen du opprettet i [Sett opp
+1. Klikk på Databricks-ikonet i sidepanelet.
+2. Klikk **Create configuration**.
+3. Oppgi workspace-URL-en din, og velg autentiseringsprofilen du opprettet i [Sett opp
    utviklingsmiljøet](../../kom-i-gang/dev-setup.md#logg-inn-i-databricks).
-5. Klikk **Select a cluster** og velg **Serverless**.
+4. Klikk **Select a cluster** og velg **Serverless**.
 
 ## Trinn 3: Kjør kode på Databricks
 
@@ -72,7 +77,7 @@ workspacet, til kjøring på Databricks-compute.
 - [Ta i bruk bundles](ta-i-bruk-bundles.md), for når koden skal pakkes og deployes til
   Databricks
 - [`examples/vscode-demo`](https://github.com/oslokommune/padda-golden-path/tree/main/examples/vscode-demo)
-  i repoet viser et komplett prosjekt med notebook, wheel-bygging og bundle-konfigurasjon
+  viser et komplett prosjekt med notebook, wheel-bygging og bundle-konfigurasjon
 
 **Kom i gang:**
 

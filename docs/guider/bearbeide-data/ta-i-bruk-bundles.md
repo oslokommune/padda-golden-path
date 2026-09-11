@@ -125,7 +125,8 @@ Referer til variablene i jobbdefinisjoner med `${var.catalog}` og
 `production`-mode krever et eksplisitt `root_path` (eller at du deployer som
 service principal). I tillegg anbefaler vi å definere eierskap med `permissions`
 og `run_as`, slik at produksjonsressursene ikke er knyttet til en enkelt
-utviklers konto:
+utviklers konto. Begge tar service principalens application ID (en UUID), ikke
+visningsnavnet:
 
 ```yaml
 targets:
@@ -135,9 +136,9 @@ targets:
       host: https://prod-workspace.cloud.databricks.com
       root_path: ~/.bundle/${bundle.name}/${bundle.target}
     run_as:
-      service_principal_name: my-deploy-sp
+      service_principal_name: <application-id>
     permissions:
-      - service_principal_name: my-deploy-sp
+      - service_principal_name: <application-id>
         level: CAN_MANAGE
 ```
 
@@ -329,9 +330,9 @@ databricks bundle validate -t stage -p MY_TEAM_STAGE
     feil workspace.
 
 !!! info "CI bruker miljøvariabler"
-    I GitHub Actions autentiserer du via miljøvariabler (`DATABRICKS_HOST` +
-    `DATABRICKS_TOKEN`, eller OAuth machine-to-machine-credentials for en service
-    principal), ikke profiler.
+    I GitHub Actions autentiserer du med OIDC via miljøvariablene
+    `DATABRICKS_AUTH_TYPE=github-oidc` og `DATABRICKS_CLIENT_ID`, ikke profiler. Se
+    [Deploye til produksjon med GitHub Actions](deploye-til-produksjon.md).
 
 ### Validere konfigurasjonen
 

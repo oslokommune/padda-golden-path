@@ -107,10 +107,10 @@ prod](../../guider/bearbeide-data/ta-i-bruk-bundles.md#konfigurere-targets-for-s
 
 Anbefalt mønster for prod-target er `root_path:
 ~/.bundle/${bundle.name}/${bundle.target}`. `~/` refererer til hjemområdet til
-identiteten som deployer — for prod blir det service principalen i
-`run_as`. Eierskapet blir dermed tydelig knyttet til service principalen som
-faktisk eier ressursene, og leter du opp ressursene i workspacet, finner du dem
-under service principalens mappe.
+identiteten som deployer, for prod deploy-service principalen fra GitHub
+Actions, som også står i `run_as`. Eierskapet blir dermed tydelig knyttet til
+service principalen som faktisk eier ressursene, og leter du opp ressursene i
+workspacet, finner du dem under service principalens mappe.
 
 Target-suffikset er en billig forsikring mot at stage- og prod-deploy ender oppå
 hverandre om noen ved et uhell deployer feil target til samme workspace. I

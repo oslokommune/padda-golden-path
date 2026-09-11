@@ -1,6 +1,6 @@
 {
     "recommendations": [
-        "astral-sh.ruff",
+        "charliermarsh.ruff",
         "databricks.databricks",
         "redhat.vscode-yaml",
     ]

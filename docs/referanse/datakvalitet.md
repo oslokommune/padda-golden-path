@@ -61,7 +61,9 @@ De tre håndhevingsmodiene for expectations:
 
 ### Alerts
 
-[Alerts](https://docs.databricks.com/aws/en/sql/user/alerts/) er SQL-spørringer som kjører på definerte intervaller. Et alert utløses når spørringsresultatet avviker fra en definert betingelse, og sender varsel per e-post til konfigurerte mottakere.
+SQL-alarmer, *alerts* i Databricks, er SQL-spørringer som kjører på tidsplan og varsler
+når resultatet bryter en betingelse. Feltene og et eksempel står i [Varsling og
+alarmer](varsling-og-alarmer.md#sql-alarmer).
 
 ## Verktøy i DQX
 
@@ -102,6 +104,10 @@ Se offisiell dokumentasjon for [flere eksempler](https://databrickslabs.github.i
 **Forklaringer:**
 
 - [Hva er datakvalitet](../om-plattformen/konsepter/datakvalitet.md)
+
+**Referanser:**
+
+- [Varsling og alarmer](varsling-og-alarmer.md) — SQL-alarmer og varsler på jobber og pipelines
 
 **Ekstern dokumentasjon:**
 

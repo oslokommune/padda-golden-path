@@ -10,34 +10,42 @@ diataxis: reference
 
 Padda er Oslo kommunes dataplattform for datainnsamling, prosessering og analyse. Plattformen gjør det mulig for dataproduktteam å jobbe effektivt med data på en sikker og strukturert måte.
 
-## Krav ved bruk av Dataplattformen (Databricks)
-Ved bruk av dataplattformen gjelder følgende krav:
+## Krav ved bruk av dataplattformen
 
-**Dataeierskap og samtykke**
+Ved bruk av dataplattformen gjelder følgende krav.
+
+### Dataeierskap og samtykke
+
 Dataproduktteamet (teamet) er ansvarlig for at:
+
 - dataeier har godkjent opplasting av data
 - dataeier er kjent med risikoen ved bruk av plattformen
 
-**Krav til personvern- og risikovurdering**
+### Personvern- og risikovurdering
+
 Dataspeilet har gjennomført en overordnet risikovurdering av dataplattformen og Paddas standardoppsett for Databricks workspace.
 
 En egen personvern- og risikovurdering for teamets bruk av data på plattformen er påkrevd.
 
 Teamet er ansvarlig for at:
+
 - risikovurdering er gjennomført
 - personvernvurdering er gjennomført
 
-**Tilgangsstyring**
+### Tilgangsstyring
+
 Du er ansvarlig for å forstå og velge riktig tilgangsnivå for datasettene dine.
 
-**Ingen SLA**
+### Ingen SLA
+
 Plattformen er under utvikling, og det foreligger per i dag ingen SLA knyttet til oppetid eller tilgjengelighet.
 
-**Backup og redundans**
-Du er selv ansvarlig for å sørge for redundant lagring av dataene.
-Dataplattformen tar ikke backup av datasettene i løsningen.
+### Backup og redundans
 
-**Verktøystøtte**
+Plattformen tar ikke backup av tabellene i Unity Catalog. Teamet er selv ansvarlig for redundant lagring av dataene. Landing zone-bøtta og Databricks-metadata tas backup av, se [Backup](backup.md).
+
+### Verktøystøtte
+
 Følgende ressurser er tilgjengelige for å støtte arbeidet med personvern- og risikovurderinger:
 - [Risikovurdering av plattformen og standardoppsett](https://oslokommune.sharepoint.com/:b:/r/sites/21b20/Felles-dokumenter/Dataspeilet/ROS%20Data%20engineering%20plattform/ROS-rapport%20Dataengineeringplattform%20med%20Databricks.pdf?csf=1&web=1&e=VxwG4d)
 - [Miro-mal for gjennomføring av ROS-prosess (NextGen ROS)](https://miro.com/app/board/uXjVGQbi2BY=/)
@@ -47,3 +55,19 @@ Følgende ressurser er tilgjengelige for å støtte arbeidet med personvern- og 
 ## Kontakt
 
 Har du spørsmål eller trenger hjelp? Se [Hjelp](../hjelp/index.md) for kontaktinfo og støttekanaler.
+
+## Relatert innhold
+
+**Forklaringer:**
+
+- [Eierskap og forvaltning](../om-plattformen/konsepter/eierskap-og-forvaltning.md) —
+  hvem som har ansvar for hva på plattformen
+- [Klassifisering av
+  sensitivitet](../om-plattformen/konsepter/klassifisering-sensitivitet.md) —
+  tilgangsnivåene du velger mellom
+
+**Referanser:**
+
+- [Roller og rettigheter](roller-og-rettigheter.md) — gruppene og rettighetene tilgang
+  gis gjennom
+- [Backup](backup.md) — hva plattformen tar backup av

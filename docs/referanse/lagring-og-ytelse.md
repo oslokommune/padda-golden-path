@@ -6,23 +6,19 @@ diataxis: reference
 
 # Lagring og ytelse
 
-Oversikt over tilgjengelige strategier for å kontrollere fysisk gruppering av data på disk, samt vedlikeholdsoperasjoner for Delta-tabeller i Databricks.
-
-## Oversikt
-
-- **Type:** Konfigurasjon og vedlikehold
-- **Gjelder for:** Delta-tabeller i Databricks (Delta Lake)
-- **Standardoppførsel:** Ingen eksplisitt datagruppering; filer skrives i ankomstrekkefølge
-- **Avhengigheter:** Databricks Runtime, Delta Lake
+Delta-tabeller i Databricks skriver som standard filene i ankomstrekkefølge, uten noen
+eksplisitt gruppering av data. Tre strategier styrer hvordan data grupperes fysisk i
+Parquet-filer på disk, og vedlikeholdsoperasjonene `OPTIMIZE` og `VACUUM` kan kjøres på to
+måter.
 
 ## Grupperingsstrategier
 
 Tre strategier er tilgjengelige for å kontrollere hvordan data grupperes fysisk i Parquet-filer på disk.
 
 | Strategi                                                                 | Beskrivelse                                                                                                                                                 | Passer for                                                                                                                                                                         |
-| ------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|--------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | [Liquid Clustering](https://docs.databricks.com/aws/en/delta/clustering) | Databricks-administrert strategi som automatisk omorganiserer data basert på angitte kolonner. Kan endres uten å skrive om tabellen.                        | Tabeller med varierende eller uforutsigbare spørringsmønstre.                                                                                                                      |
-| [Partisjonering](https://docs.databricks.com/aws/en/tables/partitions)   | Data deles inn i fysisk separate kataloger basert på distinkte verdier i én kolonne. Vanskelig å endre på. Se advarsel.                                     | Tabeller med én kolonne med et begrenset antall distinkte verdier (i hundrevis) som konsekvent brukes i WHERE-setninger. Eksempel på egnede kolonner: Dato eller transaksjonstype. |
+| [Partisjonering](https://docs.databricks.com/aws/en/tables/partitions)   | Data deles inn i fysisk separate kataloger basert på distinkte verdier i én kolonne. Krever full omskriving av tabellen for å endres. Se merknad nedenfor.  | Tabeller med én kolonne med et begrenset antall distinkte verdier (i hundrevis) som konsekvent brukes i WHERE-setninger. Eksempel på egnede kolonner: Dato eller transaksjonstype. |
 | [Z-ordering](https://docs.databricks.com/aws/en/delta/data-skipping)     | Co-lokaliserer relaterte data i de samme Parquet-filene slik at Databricks kan hoppe over irrelevante filer under spørringer basert på min/maks-statistikk. | Tabeller med høy lesefrekvens der spørringer filtrerer på bestemte kolonner. Eksempel på egnet kolonne: Bruker-ID.                                                                 |
 
 ## Vedlikeholdsoperasjoner
@@ -31,7 +27,7 @@ To tilnærminger finnes for å kjøre `OPTIMIZE` og `VACUUM` på Delta-tabeller.
 
 ### Prediktiv optimalisering
 
-En Databricks-funksjon som automatisk utløser `OPTIMIZE` og `VACUUM` basert på observerte bruksmønstre. Krever ingen eksplisitt planlegging eller manuell kjøring. Praktisk erfaring med dette har vært litt blandet.
+En Databricks-funksjon som automatisk utløser `OPTIMIZE` og `VACUUM` basert på observerte bruksmønstre. Krever ingen eksplisitt planlegging eller manuell kjøring.
 
 ### Eksplisitt OPTIMIZE og VACUUM
 
@@ -46,9 +42,9 @@ Manuelt planlagte vedlikeholdsoperasjoner:
 - Z-ordering må angis eksplisitt ved hver `OPTIMIZE`-kjøring for å opprettholdes.
 - Liquid Clustering krever Databricks Runtime 13.3 eller nyere.
 
-!!! warning "Partisjonering er vanskelig å reversere"
-    En partisjonert tabell kan ikke enkelt ompartisjoneres eller avpartisjoneres — det krever
-    full omskriving av tabellen. Valget bør gjøres med omhu før tabellen tas i produksjon.
+!!! warning "Partisjonering kan ikke reverseres uten omskriving"
+    En partisjonert tabell kan ikke ompartisjoneres eller avpartisjoneres uten full
+    omskriving av tabellen.
 
 ## Eksempel
 

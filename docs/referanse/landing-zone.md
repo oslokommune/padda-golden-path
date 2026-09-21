@@ -1,5 +1,5 @@
 ---
-title: Landing zone-struktur
+title: Landing zone
 description: Landing zone S3-bøttestruktur, autentiseringsmekanismer, tilgangsmodell, oppbevaring og anbefalte filformater.
 diataxis: reference
 ---
@@ -89,3 +89,27 @@ s3://bucket/min-app/green/2026/02/18/data-001.parquet
 ```
 
 Auto Loader holder styr på hvilke filer som allerede er prosessert, slik at kun nye filer leses inn ved neste kjøring.
+
+## Relatert innhold
+
+**Forklaringer:**
+
+- [Datainnlasting](../om-plattformen/konsepter/datainnlasting.md) — hvorfor data kommer
+  inn via landing zone, og hva som skjer med filene etterpå
+- [Klassifisering av
+  sensitivitet](../om-plattformen/konsepter/klassifisering-sensitivitet.md) — fargene
+  green, yellow og red
+
+**Guider:**
+
+- [Laste opp filer til landing
+  zone](../guider/hente-inn-data/laste-opp-til-landing-zone.md) — bestille en sender og
+  sette opp opplasting
+- [Sette opp Auto Loader](../guider/hente-inn-data/auto-loader.md) — lese filene inn i
+  bronze
+
+**Referanser:**
+
+- [Navnekonvensjoner](navnekonvensjoner.md#landing-zone-og-sendere) — mønstrene for
+  bøtte, prefikser, roller og brukere
+- [Backup](backup.md) — landing zone-bøtta tas backup av

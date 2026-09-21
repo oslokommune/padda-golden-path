@@ -6,14 +6,9 @@ diataxis: reference
 
 # Datakvalitet
 
-Mekanismer og verktøy for å validere og overvåke datakvalitet på Databricks-plattformen. Dekker innebygde Databricks-funksjoner (Constraints, Expectations, Alerts) og det eksterne Python-rammeverket DQX.
-
-## Oversikt
-
-- **Type:** Verktøy og mekanismer
-- **Gjelder for:** Databricks-plattformen
-- **Komponenter:** Constraints (Delta-tabeller), Expectations (Declarative Pipelines), Alerts, DQX
-- **Avhengigheter:** DQX krever manuell installasjon i lukket nettverksmiljø
+Mekanismene for å validere og overvåke datakvalitet på plattformen er de innebygde
+Databricks-funksjonene constraints, expectations og SQL-alarmer, og Python-rammeverket
+DQX, som installeres som et eksternt bibliotek.
 
 ## Innebygde mekanismer i Databricks
 

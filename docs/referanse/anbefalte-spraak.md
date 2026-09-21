@@ -23,3 +23,21 @@ i notebooks og pipelines.
 Databricks støtter også Scala og R, men med begrensninger, og [anbefaler dem ikke for nye
 prosjekter](https://docs.databricks.com/aws/en/languages/overview#recommendations). Plattformen har
 ikke støtte eller eksempler for andre språk enn Python og SQL.
+
+## Relatert innhold
+
+**Guider:**
+
+- [Skrive transformasjoner](../guider/bearbeide-data/skrive-transformasjoner.md) —
+  Python og SQL i en pipeline
+
+**Referanser:**
+
+- [Declarative Automation Bundles](databricks-bundles.md#task-typer) — task-typene som
+  kjører Python-kode og notebooks
+- [SQL Warehouse](sql-warehouse.md#begrensninger) — compute som bare kjører SQL
+
+**Hjelp:**
+
+- [Databricks-opplæring](../hjelp/databricks-opplaering.md) — kurs og dokumentasjon fra
+  Databricks

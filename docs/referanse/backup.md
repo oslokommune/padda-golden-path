@@ -6,15 +6,12 @@ diataxis: reference
 
 # Backup
 
-Backup-løsningen sikrer at data og metadata kan gjenopprettes ved tap. Den dekker landing zone-bøtta og Databricks-metadata per workspace.
-
-## Oversikt
-
-- **Gjelder for:** Alle Databricks-workspaces og tilhørende S3-bøtter
-- **Mekanisme:** AWS Backup
-- **Komponenter som backes opp:** Landing zone-bøtte, Databricks-metadata-bøtte per workspace
-- **Komponenter som ikke backes opp:** Notebooks, tabeller (Delta-data)
-- **Avhengigheter:** [Standard boilerplate for backup](https://github.com/oslokommune/golden-path-boilerplate/tree/main/boilerplate/terraform/backup)
+Backup-løsningen dekker landing zone-bøtta og Databricks-metadata for hvert workspace, med
+AWS Backup som mekanisme. Notebooks og tabellene i Unity Catalog, altså selve
+Delta-dataene, inngår ikke. Ansvaret for redundant lagring av dem ligger hos teamet, se
+[Brukervilkår og ansvar](brukervilkaar.md#backup-og-redundans). Løsningen bygger på
+[standard boilerplate for
+backup](https://github.com/oslokommune/golden-path-boilerplate/tree/main/boilerplate/terraform/backup).
 
 ## Backup-komponenter
 
@@ -37,5 +34,19 @@ Landing zone-bøtta tas backup av med AWS Backup via [standard boilerplate for b
 - Backup dekker kun det som er eksplisitt listet i [Backup-komponenter](#backup-komponenter).
 
 ## Relatert innhold
+
+**Referanser:**
+
+- [Brukervilkår og ansvar](brukervilkaar.md#backup-og-redundans) — teamets ansvar for
+  redundant lagring av tabellene
+- [Landing zone](landing-zone.md) — bøtta som tas backup av
+
+**Guider:**
+
+- [Gjenopprette etter feil i
+  pipelines](../guider/overvaake-og-drifte/gjenopprette-etter-feil.md) — gjenskape
+  tabeller fra filene i landing zone
+
+**Ekstern dokumentasjon:**
 
 - [Databricks: Disaster Recovery](https://docs.databricks.com/aws/en/admin/disaster-recovery)

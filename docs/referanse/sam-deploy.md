@@ -6,17 +6,26 @@ diataxis: reference
 
 # SAM-deploy
 
-Denne siden dokumenterer konvensjoner og infrastruktur for deploy av serverless-funksjoner (Lambda og Fargate) via AWS SAM på dataplattformen.
+SAM-deploy lar et team kjøre serverless-funksjoner (Lambda og Fargate) i AWS ved siden av
+Databricks-workspacet, typisk for å [hente data som plattformen må hente
+selv](../om-plattformen/konsepter/arkitektur.md#nar-plattformen-ma-hente-data-selv).
+Dataspeilet slår på SAM-deploy per workspace. Med det følger rettigheter for deploy-rollen
+til GitHub Actions, en permission boundary med krav til navn, en bøtte for SAM-artefakter
+og et ECR-register.
+
+Navnekravene og permission boundary-en gjelder alle workspaces med SAM-deploy.
+Mappestrukturen, secret-flyten og CI/CD-pipelinen beskriver oppsettet i
+[padda-databrikker](https://github.com/oslokommune/padda-databrikker).
 
 ## Verktøy
 
 Du trenger følgende verktøy installert lokalt:
 
-| Verktøy | Formål | Installer |
-|---------|--------|-----------|
-| **SAM CLI** | Bygge og teste SAM-templater | `brew install aws-sam-cli` |
-| **Docker** | Påkrevd for container-baserte funksjoner og `sam local invoke` | [docker.com](https://www.docker.com/) |
-| **AWS CLI** | AWS-autentisering (valgfritt for lokal testing) | `brew install awscli` |
+| Verktøy     | Formål                                                         | Installer                             |
+|-------------|----------------------------------------------------------------|---------------------------------------|
+| **SAM CLI** | Bygge og teste SAM-templater                                   | `brew install aws-sam-cli`            |
+| **Docker**  | Påkrevd for container-baserte funksjoner og `sam local invoke` | [docker.com](https://www.docker.com/) |
+| **AWS CLI** | AWS-autentisering (valgfritt for lokal testing)                | `brew install awscli`                 |
 
 ## Mappestruktur
 
@@ -226,3 +235,27 @@ docker run --env LOG_LEVEL=INFO my-fargate-task
 
 !!! info "ARM64 for Lambda"
     Zip-baserte Lambdaer bruker ARM64 (Graviton2)-prosessorer, som er mer kostnadseffektive enn x86_64. Container-baserte funksjoner bruker arkitekturen til base-imaget sitt.
+
+## Relatert innhold
+
+**Forklaringer:**
+
+- [Arkitektur](../om-plattformen/konsepter/arkitektur.md#nar-plattformen-ma-hente-data-selv)
+  — hvorfor plattformen bruker serverless-tjenester for å hente data
+- [Serverless compute](../om-plattformen/konsepter/serverless-compute.md) — Lambda og
+  Fargate, og når du velger hva
+
+**Guider:**
+
+- [Hente data via API](../guider/hente-inn-data/hente-data-via-api.md) — sette opp en
+  funksjon som henter data til landing zone
+- [Håndtere secrets](../guider/hente-inn-data/haandtere-secrets.md#ssm-parameter-store-lambda-fargate)
+  — hemmeligheter for Lambda og Fargate steg for steg
+
+**Referanser:**
+
+- [Navnekonvensjoner](navnekonvensjoner.md#serverless-funksjoner) — prefikskravene i
+  sammenheng med plattformens øvrige navn
+- [Roller og rettigheter](roller-og-rettigheter.md#github-actions-service-principals) —
+  identitetene GitHub Actions deployer med
+- [Landing zone](landing-zone.md) — bøtta funksjonene skriver til

@@ -76,9 +76,9 @@ DQX](https://github.com/oslokommune/padda-databrikker/tree/main/bundles/datakval
 det samme, se [Installere og bruke DQX](../../guider/overvaake-og-drifte/bruke-dqx.md).
 
 For overvåking som ikke hører hjemme i en pipelinekjøring, finnes to verktøy til.
-[Alerts](../../referanse/datakvalitet.md#alerts) er SQL-spørringer som kjører på tidsplan
-og varsler når resultatet bryter en betingelse, for eksempel at data er eldre enn
-forventet. Databricks har også innebygd
+[SQL-alarmer](../../referanse/varsling-og-alarmer.md#sql-alarmer) er SQL-spørringer som
+kjører på tidsplan og varsler når resultatet bryter en betingelse, for eksempel at data er
+eldre enn forventet. Databricks har også innebygd
 [dataprofilering](https://docs.databricks.com/aws/en/data-governance/unity-catalog/data-quality-monitoring/data-profiling/),
 tidligere kalt Lakehouse Monitoring, som teamet kan skru på for egne tabeller for å følge
 statistikk og endringer i datafordelinga over tid.
@@ -102,5 +102,6 @@ statistikk og endringer i datafordelinga over tid.
 
 **Referanser:**
 
-- [Datakvalitet](../../referanse/datakvalitet.md) — constraints, expectations, alerts og
-  DQX
+- [Varsling og alarmer](../../referanse/varsling-og-alarmer.md) — varsler på jobber og
+  pipelines, SQL-alarmer
+- [Datakvalitet](../../referanse/datakvalitet.md) — constraints, expectations og DQX

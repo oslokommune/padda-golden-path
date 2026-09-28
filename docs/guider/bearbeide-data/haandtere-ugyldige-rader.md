@@ -149,7 +149,8 @@ i samme fil:
             THEN 'gyldig_antall' END,
           CASE WHEN try_to_timestamp(observert, "yyyy-MM-dd'T'HH:mm:ss") IS NULL
             THEN 'gyldig_observert' END
-        ) AS brutte_regler
+        ) AS brutte_regler,
+        current_timestamp() AS lagt_i_karantene
       FROM
         STREAM bronze_default.paddeobservasjoner
     )
@@ -173,12 +174,14 @@ i samme fil:
             spark.readStream
             .table("bronze_default.paddeobservasjoner")
             .withColumn("brutte_regler", brutte_regler)
+            .withColumn("lagt_i_karantene", F.current_timestamp())
             .where("brutte_regler <> ''")
         )
     ```
 
-Kommer bronze-tabellen fra Auto Loader, følger `source_file_path` og
-`source_file_modified_at` med, så du ser hvilken fil hver rad kom fra.
+Kolonnen `lagt_i_karantene` sier når raden ble skrevet til karantenetabellen. Kommer
+bronze-tabellen fra Auto Loader, følger `source_file_path` og `source_file_modified_at`
+med, så du ser hvilken fil hver rad kom fra.
 
 ## Trinn 3: Deploy og kjør
 

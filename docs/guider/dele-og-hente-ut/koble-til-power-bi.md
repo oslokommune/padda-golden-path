@@ -4,7 +4,7 @@ description: Hvordan koble Power BI Desktop til SQL Warehouse for å utforske da
 diataxis: how-to
 ---
 
-# Hvordan koble Power BI til Databricks
+# Koble Power BI til Databricks
 
 Denne guiden viser hvordan du kobler Power BI Desktop til et SQL Warehouse i Databricks,
 slik at du kan utforske data og bygge rapporter mot tabellene i Unity Catalog.
@@ -79,9 +79,9 @@ Ved første tilkobling blir du bedt om å autentisere deg:
 3. Rapporten og datasettet blir lastet opp
 
 Hvis teamet versjonskontrollerer rapportene i git, bør du synkronisere via
-git-integrasjonen i stedet for å publisere manuelt — se [Hvordan versjonskontrollere Power
+git-integrasjonen i stedet for å publisere manuelt — se [Versjonskontrollere Power
 BI-rapporter](versjonskontrollere-power-bi-rapporter.md). For automatisk oppdatering av
-publiserte modeller, se [Hvordan oppdatere Power BI-modeller
+publiserte modeller, se [Oppdatere Power BI-modeller
 automatisk](oppdatere-power-bi-modeller-automatisk.md).
 
 ## Feilsøking
@@ -93,7 +93,7 @@ automatisk](oppdatere-power-bi-modeller-automatisk.md).
 
 ## Se også
 
-- [Hvordan versjonskontrollere Power BI-rapporter](versjonskontrollere-power-bi-rapporter.md) —
+- [Versjonskontrollere Power BI-rapporter](versjonskontrollere-power-bi-rapporter.md) —
   lagre rapporten som prosjektfil i git og synkroniser arbeidsområdet med GitHub
-- [Hvordan oppdatere Power BI-modeller automatisk](oppdatere-power-bi-modeller-automatisk.md) —
+- [Oppdatere Power BI-modeller automatisk](oppdatere-power-bi-modeller-automatisk.md) —
   la en Databricks-jobb oppdatere den semantiske modellen etter hver pipeline-kjøring

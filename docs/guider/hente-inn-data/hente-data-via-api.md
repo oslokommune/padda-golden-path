@@ -689,7 +689,7 @@ Legg til VPC-tilgang på IAM-rollen:
 
 ## Bruke secrets i Lambda
 
-Hemmeligheter (API-nøkler, tokens, passord) skal aldri legges direkte i `template.yaml`. Bruk SSM Parameter Store i stedet. Se [Håndtere secrets](haandtere-secrets.md) for en komplett guide.
+Hemmeligheter (API-nøkler, tokens, passord) skal aldri legges direkte i `template.yaml`. Bruk SSM Parameter Store i stedet. Se [Håndtere secrets](../utvikle-og-deploye/haandtere-secrets.md) for en komplett guide.
 
 Kort oppsummert:
 

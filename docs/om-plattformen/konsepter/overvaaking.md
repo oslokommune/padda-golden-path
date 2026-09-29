@@ -39,7 +39,7 @@ gjelder:
 
 - **Slack-varsling** krever en *notification destination* i workspacet, et engangsoppsett
   som må gjøres av en workspace-admin. Deretter kan alle jobber i workspacet peke på
-  den. Se [Slack-varsler](../../guider/overvaake-og-drifte/slack-alarmer.md).
+  den. Se [Sette opp Slack-alarmer](../../guider/overvaake-og-drifte/slack-alarmer.md).
 
 At varslinga ligger i bundlen, betyr at den versjoneres, gjennomgås og deployes sammen med
 jobben, og at den kan variere mellom miljøer: aktiv i prod, avslått i stage. Når varselet
@@ -94,7 +94,7 @@ statistikk og endringer i datafordelinga over tid.
 
 **Guider:**
 
-- [Slack-varsler](../../guider/overvaake-og-drifte/slack-alarmer.md)
+- [Sette opp Slack-alarmer](../../guider/overvaake-og-drifte/slack-alarmer.md)
 - [Feilsøke med logger](../../guider/overvaake-og-drifte/logging.md)
 - [Gjenopprette etter feil i pipelines](../../guider/overvaake-og-drifte/gjenopprette-etter-feil.md)
 - [Installere og bruke DQX](../../guider/overvaake-og-drifte/bruke-dqx.md)

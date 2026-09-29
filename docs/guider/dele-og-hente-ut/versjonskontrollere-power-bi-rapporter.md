@@ -4,7 +4,7 @@ description: Hvordan lagre Power BI-rapporter som prosjektfiler i git og synkron
 diataxis: how-to
 ---
 
-# Hvordan versjonskontrollere Power BI-rapporter
+# Versjonskontrollere Power BI-rapporter
 
 Denne guiden viser hvordan du lagrer en rapport som et **Power BI-prosjekt** (`.pbip`),
 sjekker den inn i git og synkroniserer arbeidsområdet i Power BI Service med

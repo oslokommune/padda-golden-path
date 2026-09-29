@@ -4,7 +4,7 @@ description: Hvordan sette opp Slack-varsler for Databricks-jobber med notificat
 diataxis: how-to
 ---
 
-# Slack-varsler
+# Sette opp Slack-alarmer
 
 Slack-varsler kan settes opp i bundle.
 

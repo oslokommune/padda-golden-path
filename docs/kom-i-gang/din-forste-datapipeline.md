@@ -233,7 +233,7 @@ testtabeller.
 
 ## Neste steg
 
-- [Ta i bruk bundles](../guider/bearbeide-data/ta-i-bruk-bundles.md) viser hvordan du
+- [Ta i bruk bundles](../guider/utvikle-og-deploye/ta-i-bruk-bundles.md) viser hvordan du
   setter opp en bundle fra malene, med targets og variabler for stage og prod
 - [Skrive transformasjoner](../guider/bearbeide-data/skrive-transformasjoner.md) viser
   hvordan du legger silver og gold i en egen pipeline i en slik bundle

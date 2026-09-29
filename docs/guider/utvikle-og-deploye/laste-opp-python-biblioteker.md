@@ -4,7 +4,7 @@ description: Hvordan laste opp Python wheel-filer til et Unity Catalog Volume fo
 diataxis: how-to
 ---
 
-# Laste opp Python-pakker (wheel) til et Unity Catalog Volume
+# Laste opp Python-biblioteker
 
 Denne guiden viser hvordan du legger en wheel-fil (f.eks. `openpyxl`) på et UC Volume slik at scripts/notebooks kan installere den uten internett.
 

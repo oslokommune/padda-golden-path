@@ -98,9 +98,8 @@ og navnet må omsluttes av `` ` `` i alle spørringer.
 Et volum adresseres som `/Volumes/<katalog>/<skjema>/<volume>/`, for eksempel
 `/Volumes/dig_eksempel_stage_green/landing_default/opplastinger/`. Volumnavn følger samme
 stil som skjemaer og tabeller. Volum for innkommende filer hører hjemme i
-`landing_default`. Volumer med Python-pakker er beskrevet i [Laste opp Python-pakker
-(wheel) til et Unity Catalog
-Volume](../guider/bearbeide-data/laste-opp-python-biblioteker.md).
+`landing_default`. Volumer med Python-pakker er beskrevet i [Laste opp
+Python-biblioteker](../guider/utvikle-og-deploye/laste-opp-python-biblioteker.md).
 
 ## Bundles, jobber og pipelines
 

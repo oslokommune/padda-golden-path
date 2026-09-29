@@ -129,7 +129,7 @@ variables:
 
 Variabelverdiene settes per target under `targets.<target>.variables`. Se [Ta i
 bruk bundles — Sette variabler per
-target](../guider/bearbeide-data/ta-i-bruk-bundles.md#sette-variabler-per-target)
+target](../guider/utvikle-og-deploye/ta-i-bruk-bundles.md#sette-variabler-per-target)
 for hvorfor `default:` typisk unngås for miljøspesifikke variabler.
 
 ### sync
@@ -280,7 +280,7 @@ resources:
 ```
 
 Se [Deklarere volumes som
-bundle-ressurser](../guider/bearbeide-data/ta-i-bruk-bundles.md#deklarere-volumes-som-bundle-ressurser)
+bundle-ressurser](../guider/utvikle-og-deploye/ta-i-bruk-bundles.md#deklarere-volumes-som-bundle-ressurser)
 i guiden for praktisk bruk og advarsler rundt `bundle destroy`.
 
 ## Ansvarsfordeling mellom bundles og padda-iac
@@ -320,12 +320,12 @@ Navnemønstrene for bundles, jobber, pipelines, tasks og variabler er samlet i
     Kommandoene over treffer workspacet definert av aktiv CLI-profil (eller
     `DEFAULT` om ingen er valgt). `-p <profil>` velger hvilken profil — og dermed
     hvilket workspace — kommandoen treffer. Se [Ta i bruk bundles — Velge
-    CLI-profil](../guider/bearbeide-data/ta-i-bruk-bundles.md#velge-cli-profil) for
+    CLI-profil](../guider/utvikle-og-deploye/ta-i-bruk-bundles.md#velge-cli-profil) for
     praktisk oppsett.
 
 ## Trenger du hjelp?
 
-- Se [Ta i bruk bundles](../guider/bearbeide-data/ta-i-bruk-bundles.md) for
+- Se [Ta i bruk bundles](../guider/utvikle-og-deploye/ta-i-bruk-bundles.md) for
   steg-for-steg-instruksjoner
 - Se [Declarative Automation Bundles
   (konsept)](../om-plattformen/konsepter/databricks-bundles.md) for bakgrunn om

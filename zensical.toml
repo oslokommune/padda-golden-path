@@ -19,7 +19,7 @@ extra_css = [
 ]
 
 # ---------------------------------------------------------------------------
-# Navigation — Diataxis-oriented top level, pipeline phases under Guider
+# Navigation — Diataxis-oriented top level; Guider grouped by tooling, then pipeline phases
 # ---------------------------------------------------------------------------
 nav = [
   { "Om plattformen" = [
@@ -52,22 +52,23 @@ nav = [
   ]},
   { "Guider" = [
     { "index" = "guider/index.md" },
+    { "Utvikle og deploye" = [
+      { "Ta i bruk bundles" = "guider/utvikle-og-deploye/ta-i-bruk-bundles.md" },
+      { "Koble VS Code til Databricks" = "guider/utvikle-og-deploye/koble-vscode-til-databricks.md" },
+      { "Laste opp Python-biblioteker" = "guider/utvikle-og-deploye/laste-opp-python-biblioteker.md" },
+      { "Håndtere secrets" = "guider/utvikle-og-deploye/haandtere-secrets.md" },
+      { "Deploye til produksjon med GitHub Actions" = "guider/utvikle-og-deploye/deploye-til-produksjon.md" },
+    ]},
     { "Hente inn data" = [
-      { "Laste opp til landing zone" = "guider/hente-inn-data/laste-opp-til-landing-zone.md" },
+      { "Laste opp filer til landing zone" = "guider/hente-inn-data/laste-opp-til-landing-zone.md" },
       { "Sette opp Auto Loader" = "guider/hente-inn-data/auto-loader.md" },
-      { "Importere Excel til Unity Catalog" = "guider/hente-inn-data/importere-excel-til-uc.md" },
       { "Hente data via API" = "guider/hente-inn-data/hente-data-via-api.md" },
-      { "Hente data fra Fabric" = "guider/hente-inn-data/hente-fra-fabric.md" },
-      { "Håndtere secrets" = "guider/hente-inn-data/haandtere-secrets.md" },
+      { "Importere Excel til Unity Catalog" = "guider/hente-inn-data/importere-excel-til-uc.md" },
     ]},
     { "Bearbeide data" = [
-      { "Ta i bruk bundles" = "guider/bearbeide-data/ta-i-bruk-bundles.md" },
       { "Skrive transformasjoner" = "guider/bearbeide-data/skrive-transformasjoner.md" },
       { "Deduplisere data i silver" = "guider/bearbeide-data/deduplisere-data.md" },
       { "Håndtere rader som ikke lar seg konvertere" = "guider/bearbeide-data/haandtere-ugyldige-rader.md" },
-      { "Laste opp Python-biblioteker" = "guider/bearbeide-data/laste-opp-python-biblioteker.md" },
-      { "Koble VS Code til Databricks" = "guider/bearbeide-data/koble-vscode-til-databricks.md" },
-      { "Deploye til produksjon med GitHub Actions" = "guider/bearbeide-data/deploye-til-produksjon.md" },
     ]},
     { "Maskinlæring" = [
       { "Trene og registrere en modell" = "guider/maskinlaering/trene-og-registrere-modell.md" },
@@ -76,17 +77,15 @@ nav = [
     ]},
     { "Dele og hente ut data" = [
       { "Dokumentere et dataprodukt" = "guider/dele-og-hente-ut/dokumentere-dataprodukt.md" },
-      { "Koble til Power BI" = "guider/dele-og-hente-ut/koble-til-power-bi.md" },
+      { "Koble Power BI til Databricks" = "guider/dele-og-hente-ut/koble-til-power-bi.md" },
       { "Versjonskontrollere Power BI-rapporter" = "guider/dele-og-hente-ut/versjonskontrollere-power-bi-rapporter.md" },
       { "Oppdatere Power BI-modeller automatisk" = "guider/dele-og-hente-ut/oppdatere-power-bi-modeller-automatisk.md" },
-      { "Dele data via Unity Catalog" = "guider/dele-og-hente-ut/unity-catalog.md" },
-      { "Dele med Fabric" = "guider/dele-og-hente-ut/dele-med-fabric.md" },
     ]},
     { "Overvåke og drifte" = [
-      { "Slack-alarmer" = "guider/overvaake-og-drifte/slack-alarmer.md" },
-      { "Gjenopprette etter feil" = "guider/overvaake-og-drifte/gjenopprette-etter-feil.md" },
+      { "Sette opp Slack-alarmer" = "guider/overvaake-og-drifte/slack-alarmer.md" },
       { "Feilsøke med logger" = "guider/overvaake-og-drifte/logging.md" },
-      { "Bruke DQX" = "guider/overvaake-og-drifte/bruke-dqx.md" },
+      { "Gjenopprette etter feil i pipelines" = "guider/overvaake-og-drifte/gjenopprette-etter-feil.md" },
+      { "Installere og bruke DQX" = "guider/overvaake-og-drifte/bruke-dqx.md" },
       { "Tagging av kostnader" = "guider/overvaake-og-drifte/kostnadstagging.md" },
     ]},
   ]},

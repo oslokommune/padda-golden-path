@@ -62,9 +62,7 @@ S3. Den enkelheten tjener flere formål på én gang:
 
 Ikke alt trenger å gå denne veien. Mindre datasett som lastes opp manuelt, for eksempel
 Excel-filer, kan legges rett på et Unity Catalog Volume, se [Importere Excel til Unity
-Catalog](../../guider/hente-inn-data/importere-excel-til-uc.md). Data som allerede ligger
-på [Fabric-plattformen](../overordnet/velg-riktig-plattform.md) kan leses direkte derfra,
-se [Hente data fra Fabric](../../guider/hente-inn-data/hente-fra-fabric.md).
+Catalog](../../guider/hente-inn-data/importere-excel-til-uc.md).
 
 ## Fra landing zone til bronze
 
@@ -163,7 +161,6 @@ bevisst valg om å gi fra deg den muligheten.
 - [Hente data via API](../../guider/hente-inn-data/hente-data-via-api.md)
 - [Sette opp Auto Loader](../../guider/hente-inn-data/auto-loader.md)
 - [Importere Excel til Unity Catalog](../../guider/hente-inn-data/importere-excel-til-uc.md)
-- [Hente data fra Fabric](../../guider/hente-inn-data/hente-fra-fabric.md)
 
 **Referanser:**
 

@@ -4,7 +4,7 @@ description: Hvordan la en Databricks-jobb oppdatere semantiske modeller i Power
 diataxis: how-to
 ---
 
-# Hvordan oppdatere Power BI-modeller automatisk
+# Oppdatere Power BI-modeller automatisk
 
 Denne guiden viser hvordan du setter opp en Databricks-jobb som automatisk oppdaterer en
 semantisk modell i Power BI etter at en datapipeline har kjørt, slik at rapportene alltid
@@ -23,7 +23,7 @@ Sjekk at:
 - Du har en publisert semantisk modell i Power BI Service (se
   [Koble Power BI til Databricks](koble-til-power-bi.md))
 - Teamet har en Declarative Automation Bundle med en jobbdefinisjon (se
-  [Ta i bruk bundles](../bearbeide-data/ta-i-bruk-bundles.md))
+  [Ta i bruk bundles](../utvikle-og-deploye/ta-i-bruk-bundles.md))
 - Bundlen ligger i et GitHub-repo der du har rettigheter til å opprette workflows og
   administrere GitHub Environments
 - Du har tilgang til et SQL Warehouse (se [SQL Warehouse](../../referanse/sql-warehouse.md))
@@ -246,5 +246,5 @@ oppdaterer Power BI-modellen automatisk etter at pipelinen har hentet ferske dat
   Warehouse og publiser rapporten
 - [Versjonskontrollere Power BI-rapporter](versjonskontrollere-power-bi-rapporter.md) —
   lagre rapporten som prosjektfil i git og synkroniser arbeidsområdet med GitHub
-- [Ta i bruk bundles](../bearbeide-data/ta-i-bruk-bundles.md) — sett opp en Declarative
+- [Ta i bruk bundles](../utvikle-og-deploye/ta-i-bruk-bundles.md) — sett opp en Declarative
   Automation Bundle med jobber og pipelines

@@ -101,7 +101,7 @@ produksjonsjobber avhenger av en enkelt utviklers konto.
 
 For konkret YAML-oppsett av targets og modes, se [Ta i bruk bundles —
 Konfigurere targets for stage og
-prod](../../guider/bearbeide-data/ta-i-bruk-bundles.md#konfigurere-targets-for-stage-og-prod).
+prod](../../guider/utvikle-og-deploye/ta-i-bruk-bundles.md#konfigurere-targets-for-stage-og-prod).
 
 ### Root path og eierskap i prod
 
@@ -156,13 +156,13 @@ Resultatet havner i `dist/` og lastes opp sammen med bundlen.
 
 I noen tilfeller kan en avhengighet som er stor, eller som deles på tvers av
 mange bundles, legges på et Unity Catalog Volume og refereres derfra. Se [Laste opp
-Python-biblioteker](../../guider/bearbeide-data/laste-opp-python-biblioteker.md)
+Python-biblioteker](../../guider/utvikle-og-deploye/laste-opp-python-biblioteker.md)
 for hvordan, og merk at versjonen da ikke følger koden — du må oppdatere volumet
 manuelt når du oppgraderer avhengigheten.
 
 For praktisk YAML-oppsett av begge mønstre, se [Ta i bruk bundles — Håndtere
 Python
-wheels](../../guider/bearbeide-data/ta-i-bruk-bundles.md#handtere-python-wheels).
+wheels](../../guider/utvikle-og-deploye/ta-i-bruk-bundles.md#handtere-python-wheels).
 
 ### Versjoneringskonflikter i development-mode
 
@@ -175,7 +175,7 @@ versjonsnummer fra `pyproject.toml` — der er det CI/CD-pipelinen som sikrer at
 riktig versjon deployes.
 
 For praktisk YAML-oppsett, se [Ta i bruk bundles — Ditt eget prosjekt:
-artifacts-seksjonen](../../guider/bearbeide-data/ta-i-bruk-bundles.md#ditt-eget-prosjekt-artifacts-seksjonen).
+artifacts-seksjonen](../../guider/utvikle-og-deploye/ta-i-bruk-bundles.md#ditt-eget-prosjekt-artifacts-seksjonen).
 
 ## Deployflyt
 
@@ -200,13 +200,13 @@ prod-jobber fortsetter å kjøre selv om en utvikler slutter.
 Bundles dekker deploy av jobber, pipelines og artifacts. De kan også eie Unity
 Catalog Volumes for data som er tett koblet til koden — men da sletter `bundle
 destroy` også volumet og dataene i det. Se [Deklarere volumes som
-bundle-ressurser](../../guider/bearbeide-data/ta-i-bruk-bundles.md#deklarere-volumes-som-bundle-ressurser)
+bundle-ressurser](../../guider/utvikle-og-deploye/ta-i-bruk-bundles.md#deklarere-volumes-som-bundle-ressurser)
 i guiden for detaljer.
 
 Bundles dekker *ikke*:
 
 - **Secrets** — håndteres separat fra bundles. Se [Håndtere
-  secrets](../../guider/hente-inn-data/haandtere-secrets.md).
+  secrets](../../guider/utvikle-og-deploye/haandtere-secrets.md).
 - **Plattformressurser** — workspaces, kataloger, schemas som deles på tvers av
   team, og cluster policies eies av `padda-iac`, ikke av den enkelte
   bundle. Workspacet må eksistere før du deployer til det. Se [Ansvarsfordeling
@@ -217,7 +217,7 @@ Bundles dekker *ikke*:
 
 ## Trenger du hjelp?
 
-- Se [Ta i bruk bundles](../../guider/bearbeide-data/ta-i-bruk-bundles.md) for
+- Se [Ta i bruk bundles](../../guider/utvikle-og-deploye/ta-i-bruk-bundles.md) for
   en praktisk guide til å deploye din første bundle
 - Se [Declarative Automation Bundles
   (referanse)](../../referanse/databricks-bundles.md) for konfigurasjonsfelt og

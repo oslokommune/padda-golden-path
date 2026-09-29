@@ -46,7 +46,7 @@ Warehouses** → `<navn på warehouset>` → **Connection details**:
 Warehouse-ID-en vises ikke som et eget felt, men er siste ledd i **HTTP path**
 (`/sql/1.0/warehouses/<warehouse-id>`).
 
-Pålogging skjer med kommunebrukeren din — se [Hvordan koble Power BI til
+Pålogging skjer med kommunebrukeren din — se [Koble Power BI til
 Databricks](../guider/dele-og-hente-ut/koble-til-power-bi.md) for hvordan det gjøres i
 praksis.
 
@@ -73,8 +73,8 @@ status, kjøretid og en spørringsprofil for feilsøking av trege spørringer.
 
 ## Relatert innhold
 
-- [Hvordan koble Power BI til Databricks](../guider/dele-og-hente-ut/koble-til-power-bi.md)
+- [Koble Power BI til Databricks](../guider/dele-og-hente-ut/koble-til-power-bi.md)
   — koble Power BI Desktop til et warehouse og bygg rapporter
-- [Hvordan oppdatere Power BI-modeller automatisk](../guider/dele-og-hente-ut/oppdatere-power-bi-modeller-automatisk.md)
+- [Oppdatere Power BI-modeller automatisk](../guider/dele-og-hente-ut/oppdatere-power-bi-modeller-automatisk.md)
   — la en jobb oppdatere semantiske modeller via warehouset
 - [Databricks sin dokumentasjon om SQL warehouses](https://docs.databricks.com/aws/en/compute/sql-warehouse/)

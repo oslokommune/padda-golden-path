@@ -249,7 +249,7 @@ docker run --env LOG_LEVEL=INFO my-fargate-task
 
 - [Hente data via API](../guider/hente-inn-data/hente-data-via-api.md) — sette opp en
   funksjon som henter data til landing zone
-- [Håndtere secrets](../guider/hente-inn-data/haandtere-secrets.md#ssm-parameter-store-lambda-fargate)
+- [Håndtere secrets](../guider/utvikle-og-deploye/haandtere-secrets.md#ssm-parameter-store-lambda-fargate)
   — hemmeligheter for Lambda og Fargate steg for steg
 
 **Referanser:**

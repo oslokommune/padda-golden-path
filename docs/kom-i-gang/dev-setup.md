@@ -112,7 +112,7 @@ nettleseren, og når du er innlogget lagres profilen i `~/.databrickscfg`.
 
     Har du tilgang til flere workspaces (for eksempel stage og prod), logger du inn én
     gang per workspace, med en egen profil for hvert av dem, se [Velge
-    CLI-profil](../guider/bearbeide-data/ta-i-bruk-bundles.md#velge-cli-profil).
+    CLI-profil](../guider/utvikle-og-deploye/ta-i-bruk-bundles.md#velge-cli-profil).
 
 Sjekk at innloggingen er gyldig:
 
@@ -134,7 +134,7 @@ git clone git@github.com:oslokommune/padda-golden-path.git
 
 Du kan bruke den teksteditoren du foretrekker. Bruker du VS Code, følger det med anbefalte
 utvidelser og innstillinger i `.vscode/`-mappa i repoet, og du kan [koble VS Code direkte
-til Databricks](../guider/bearbeide-data/koble-vscode-til-databricks.md).
+til Databricks](../guider/utvikle-og-deploye/koble-vscode-til-databricks.md).
 
 ## Neste steg
 

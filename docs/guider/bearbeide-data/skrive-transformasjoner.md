@@ -25,7 +25,7 @@ Sørg for at du har:
   `bronze_default.paddeobservasjoner`, og at alle kolonner er `STRING`. Har du ingen,
   lager du en testtabell nedenfor.
 - En bundle å legge transformasjonen i, med variabelen `catalog` satt per target. Se [Ta i
-  bruk bundles](ta-i-bruk-bundles.md). Guiden deployer til targetet `stage`. Har bundlen
+  bruk bundles](../utvikle-og-deploye/ta-i-bruk-bundles.md). Guiden deployer til targetet `stage`. Har bundlen
   din bare `prod`, slik Auto Loader-malen har, bytter du ut `stage` i kommandoene
   nedenfor.
 - Databricks CLI innlogget mot stage-workspacet, se [Sett opp
@@ -301,7 +301,7 @@ pipelines](../overvaake-og-drifte/gjenopprette-etter-feil.md).
 - [Håndtere rader som ikke lar seg konvertere](haandtere-ugyldige-rader.md)
 - [Dokumentere et dataprodukt](../dele-og-hente-ut/dokumentere-dataprodukt.md)
 - [Sette opp Auto Loader](../hente-inn-data/auto-loader.md)
-- [Ta i bruk bundles](ta-i-bruk-bundles.md)
+- [Ta i bruk bundles](../utvikle-og-deploye/ta-i-bruk-bundles.md)
 
 **Forklaringer:**
 

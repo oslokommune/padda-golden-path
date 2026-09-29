@@ -195,15 +195,14 @@ koden.
 Beskrivelsene dekker det en konsument trenger for å forstå og bruke tabellen. [Forslaget
 til dataproduktdefinisjon](../../referanse/dataprodukt.md) stiller flere krav til et
 dataprodukt, blant annet bruksrett, livssyklusstatus og tilgangsmodell, som ikke har noen
-plass i tabellens metadata. Hvem som får lese tabellen, er en egen oppgave, se [Dele data
-via Unity Catalog](unity-catalog.md).
+plass i tabellens metadata. Hvem som får lese tabellen, er en egen oppgave, se [Roller og
+tilgangsstyring](../../om-plattformen/konsepter/roller-og-tilgangsstyring.md).
 
 ## Relatert innhold
 
 **Guider:**
 
 - [Skrive transformasjoner](../bearbeide-data/skrive-transformasjoner.md)
-- [Dele data via Unity Catalog](unity-catalog.md)
 
 **Forklaringer:**
 

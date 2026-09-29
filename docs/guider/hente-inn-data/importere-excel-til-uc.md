@@ -11,7 +11,7 @@ Denne guiden viser hvordan du laster opp en Excel-fil til et Unity Catalog Volum
 ## Forutsetninger
 - Du har en katalog og et schema du kan skrive til (f.eks. `dig_felles_dev_green.bronze_default`).
 - Databricks CLI er satt opp (se [Sett opp utviklingsmiljøet](../../kom-i-gang/dev-setup.md)).
-- Du vet hvordan du deployer en bundle (se [Ta i bruk bundles](../bearbeide-data/ta-i-bruk-bundles.md)).
+- Du vet hvordan du deployer en bundle (se [Ta i bruk bundles](../utvikle-og-deploye/ta-i-bruk-bundles.md)).
 
 ## 1) Opprett (eller bruk) et Volume
 - I GUI: `Catalog` → velg katalog og schema → `Volumes` → `Create volume` (f.eks. navn `excel_test`).

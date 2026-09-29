@@ -5,7 +5,6 @@ exclude = [
   ".venv",
   "build",
   "bundles/sat-tool",
-  "databricks/bundles/**/notebooks/*.py",
   "dist",
   "site",
 ]
@@ -31,11 +30,6 @@ fixable = ["ALL"]
 unfixable = []
 
 [lint.isort]
-known-first-party = [
-  "common",
-  "pipelines",
-  "etl_job",
-]
 combine-as-imports = true
 
 [lint.per-file-ignores]

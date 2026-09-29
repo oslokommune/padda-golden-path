@@ -1,7 +1,0 @@
-[project]
-name = "padda.common"
-version = "0.0.1"
-description = "lib for common som del av golden path for Padda"
-readme = "README.md"
-requires-python = ">=3.13"
-dependencies = []

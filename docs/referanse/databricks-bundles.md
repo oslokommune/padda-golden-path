@@ -68,7 +68,7 @@ include:
 | `workspace.host`      | string                        | URL til Databricks-workspacet.                                                                       |
 | `workspace.root_path` | string                        | Rotmappe i workspacet for deployen. Standard: `/Workspace/Users/<bruker>/.bundle/<target>/<bundle>`. |
 | `permissions`         | list                          | Liste med brukere/grupper og deres rettighetsnivå.                                                   |
-| `run_as`              | object                        | Bruker eller service principal som kjører jobbene.                                                   |
+| `run_as`              | object                        | Bruker eller service principal (application ID) som kjører jobbene.                                  |
 | `presets`             | object                        | Forhåndsinnstillinger. Se [Presets](#presets).                                                       |
 | `variables`           | object                        | Overstyrte variabelverdier for dette targetet.                                                       |
 
@@ -88,9 +88,9 @@ targets:
       host: https://prod-workspace.cloud.databricks.com
       root_path: ~/.bundle/${bundle.name}/${bundle.target}
     run_as:
-      service_principal_name: my-deploy-sp
+      service_principal_name: <application-id>
     permissions:
-      - service_principal_name: my-deploy-sp
+      - service_principal_name: <application-id>
         level: CAN_MANAGE
     variables:
       catalog: prod_catalog

@@ -45,14 +45,16 @@ targets:
     mode: production
     workspace:
       host: {{.prod_workspace_host}}
-      # '~/' resolves to the home directory of the identity in 'run_as' (the
-      # service principal below). The '${bundle.target}' suffix prevents
-      # accidental collisions if multiple targets ever deploy to the same
-      # workspace.
+      # '~/' resolves to the home directory of the identity that deploys, i.e.
+      # the deploy service principal when deploying from GitHub Actions. The
+      # '${bundle.target}' suffix prevents accidental collisions if multiple
+      # targets ever deploy to the same workspace.
       root_path: ~/.bundle/${bundle.name}/${bundle.target}
     run_as:
-      # Override this if your deployment should run as a different principal.
-      service_principal_name: {{template `service_principal_name` .}}
+      # Application ID (a UUID) of the deploy service principal, normally
+      # {{template `service_principal_name` .}}. The display name does not work
+      # here. Ask Dataspeilet for the ID.
+      service_principal_name: REPLACE_WITH_APPLICATION_ID
     variables:
       catalog: prod_catalog
       schema: production

@@ -122,9 +122,8 @@ databricks auth profiles
 
 ## Klon `padda-golden-path`
 
-Flere av guidene bruker malene og eksemplene i
-[`padda-golden-path`](https://github.com/oslokommune/padda-golden-path), blant annet
-bundle-malene i `bundle-templates/` og eksempelprosjektene i `examples/`. Klon repoet:
+Guidene som setter opp en bundle bruker bundle-malene i `bundle-templates` i
+[`padda-golden-path`](https://github.com/oslokommune/padda-golden-path). Klon repoet:
 
 ```bash
 git clone git@github.com:oslokommune/padda-golden-path.git

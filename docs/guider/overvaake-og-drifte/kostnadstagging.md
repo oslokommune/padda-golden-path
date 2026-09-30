@@ -1,12 +1,16 @@
 ---
 title: Tagging av kostnader
-description: Hvordan tagge Databricks-jobber og -kluster med kostnadstaggene CostTeam og CostProcess for kostnadsfordeling på tvers av team og prosesser.
+description: Hvordan tagge Databricks-jobber og -clustere med kostnadstaggene CostTeam og CostProcess for kostnadsfordeling på tvers av team og prosesser.
 diataxis: how-to
 ---
 
 # Tagging av kostnader
 
-Denne veiledningen viser deg hvordan du merker jobbene dine med kostnadstaggene `CostTeam` og `CostProcess`, slik at forbruket fordeles på riktig team og prosess i kostnadsrapportene. Plattform-infrastruktur (AWS-ressurser og Databricks-compute via klusterpolicyer og landingssonen) tagges automatisk av Golden Path; denne veiledningen viser hvordan du merker dine egne jobber.
+Denne veiledningen viser deg hvordan du merker jobbene dine med kostnadstaggene `CostTeam`
+og `CostProcess`, slik at forbruket fordeles på riktig team og prosess i
+kostnadsrapportene. Plattform-infrastruktur (AWS-ressurser og Databricks-compute via
+clusterpolicyer og landingssonen) tagges automatisk av Golden Path; denne veiledningen
+viser hvordan du merker dine egne jobber.
 
 ## Før du begynner
 
@@ -16,9 +20,12 @@ Sørg for at du har:
 - Avklart hvilket team (`CostTeam`) ressursen tilhører
 - Avklart hvilken prosesstype (`CostProcess`) jobben utfører
 
-## Trinn 1: Merk en jobb med eget kluster (`new_cluster`)
+## Trinn 1: Merk en jobb med eget cluster (`new_cluster`)
 
-Når jobben definerer sitt eget kluster, setter du `CostTeam` og `CostProcess` som `custom_tags` på `new_cluster`. Eksempelet nedenfor er hentet fra `vscode-demo`-bundlen, der jobbklusteret kjører transformasjoner:
+Når jobben definerer sitt eget cluster, setter du `CostTeam` og `CostProcess` som
+`custom_tags` på `new_cluster`. Eksempelet nedenfor er hentet fra
+[`vscode_demo`](https://github.com/oslokommune/padda-databrikker/tree/main/bundles/vscode_demo)-bundlen
+i `padda-databrikker`, der jobben kjører transformasjoner på et eget cluster:
 
 ```yaml
       job_clusters:
@@ -47,13 +54,17 @@ Velg `CostProcess` ut fra hva jobben gjør:
 | `ML` | Trening av modeller og batch-inferens |
 
 !!! note "Serverless-jobber og serving-endepunkter"
-    På serverless-jobber finnes det ikke noe kluster å tagge; bruk job-nivå `tags`
+    På serverless-jobber finnes det ikke noe cluster å tagge; bruk job-nivå `tags`
     som i trinn 2. Serving-endepunkter tagges med en liste av `key`/`value`-par,
     se [MLflow og modellregister](../../referanse/mlflow-og-modellregister.md#model_serving_endpoints).
 
 ## Trinn 2: Merk en jobb som bruker `existing_cluster_id`
 
-Når jobben kjører på et eksisterende kluster som er felles, kan du ikke sette `custom_tags` på klusteret. Bruk i stedet job-nivå `tags` som søsken av `name` og `tasks`. Eksempelet nedenfor er hentet fra `excel_ingest`-bundlen:
+Når jobben kjører på et eksisterende cluster som er felles, kan du ikke sette
+`custom_tags` på clusteret. Bruk i stedet job-nivå `tags` som søsken av `name` og
+`tasks`. Eksempelet nedenfor er hentet fra
+[`excel_ingest`](https://github.com/oslokommune/padda-databrikker/tree/main/bundles/excel_ingest)-bundlen
+i `padda-databrikker`:
 
 ```yaml
   jobs:
@@ -69,7 +80,8 @@ Når jobben kjører på et eksisterende kluster som er felles, kan du ikke sette
           existing_cluster_id: ${var.existing_cluster_id}
 ```
 
-Job-nivå `tags` er fallback når det er et felles kluster og dermed ikke kan sette `custom_tags` på det. Bruk samme `CostProcess`-verdier som i trinn 1.
+Job-nivå `tags` er fallback når det er et felles cluster og dermed ikke kan sette
+`custom_tags` på det. Bruk samme `CostProcess`-verdier som i trinn 1.
 
 ## Bekreft resultatet
 
@@ -79,4 +91,5 @@ Valider bundlen for å bekrefte at taggene er på plass:
 databricks bundle validate
 ```
 
-Den rendrede jobben skal nå vise `custom_tags` på klusteret (trinn 1) eller `tags` på jobben (trinn 2) med `CostTeam` og `CostProcess`.
+Den rendrede jobben skal nå vise `custom_tags` på clusteret (trinn 1) eller `tags` på
+jobben (trinn 2) med `CostTeam` og `CostProcess`.

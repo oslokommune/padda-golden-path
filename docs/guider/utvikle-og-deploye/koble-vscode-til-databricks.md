@@ -76,8 +76,9 @@ workspacet, til kjøring på Databricks-compute.
 
 - [Ta i bruk bundles](ta-i-bruk-bundles.md), for når koden skal pakkes og deployes til
   Databricks
-- [`examples/vscode-demo`](https://github.com/oslokommune/padda-golden-path/tree/main/examples/vscode-demo)
-  viser et komplett prosjekt med notebook, wheel-bygging og bundle-konfigurasjon
+- [`bundles/vscode_demo`](https://github.com/oslokommune/padda-databrikker/tree/main/bundles/vscode_demo)
+  i `padda-databrikker` viser et komplett prosjekt med notebook, wheel-bygging og
+  bundle-konfigurasjon
 
 **Kom i gang:**
 

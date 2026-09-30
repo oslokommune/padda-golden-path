@@ -43,7 +43,13 @@ Velg `CostProcess` ut fra hva jobben gjør:
 | `Ingest` | Innhenting av data inn på plattformen |
 | `Transform` | Bearbeiding og transformasjon av data |
 | `Query` | Spørringer og analyse |
-| `Serve` | Servering av data til konsumenter |
+| `Serve` | Servering av data til konsumenter, inkludert serving-endepunkter for modeller |
+| `ML` | Trening av modeller og batch-inferens |
+
+!!! note "Serverless-jobber og serving-endepunkter"
+    På serverless-jobber finnes det ikke noe kluster å tagge; bruk job-nivå `tags`
+    som i trinn 2. Serving-endepunkter tagges med en liste av `key`/`value`-par,
+    se [MLflow og modellregister](../../referanse/mlflow-og-modellregister.md#model_serving_endpoints).
 
 ## Trinn 2: Merk en jobb som bruker `existing_cluster_id`
 

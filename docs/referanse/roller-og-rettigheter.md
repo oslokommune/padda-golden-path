@@ -91,6 +91,22 @@ gjelder:
 - **Data Explorer**: `KATALOGBRUKERE` får `USE CATALOG/USE SCHEMA` + `SHOW
   TABLES` slik at metadata er synlig, men ikke data.
 
+### Modeller i Unity Catalog
+
+Registrerte modeller styres med de samme mekanismene som tabeller. Den som
+deployer en ML-bundle blir eier av skjemaet og modellen; bundlen gir
+konsumentgruppen rettighetene den trenger.
+
+| Handling | Privilegium | Gis av |
+|----------|-------------|--------|
+| Opprette skjema for modellen | `USE CATALOG`, `CREATE SCHEMA` på katalogen | Katalogeier eller `padda-iac` |
+| Registrere nye versjoner | Eierskap til modellen, eller `CREATE MODEL` på skjemaet | Deploy av bundlen |
+| Bruke modellen til inferens | `USE CATALOG`, `USE SCHEMA`, `EXECUTE` på modellen | `grants` på modellressursen i bundlen |
+| Lese prediksjoner | `USE CATALOG`, `USE SCHEMA`, `SELECT` | `grants` på skjemaressursen i bundlen |
+| Kalle et serving-endepunkt | `CAN_QUERY` på endepunktet | `permissions` på endepunktressursen |
+
+Se [MLflow og modellregister](mlflow-og-modellregister.md#privilegier).
+
 ## Oversikt over tilgangsnivåer
 
 - **Identiteter og grupper**: Alltid i Entra ID; Databricks leser dem via SCIM.

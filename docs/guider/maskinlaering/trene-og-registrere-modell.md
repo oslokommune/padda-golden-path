@@ -130,7 +130,7 @@ Dette tar et par minutter første gang (rundt 200 MB). Du gjør det på nytt bar
 når du bytter torch-versjon eller miljøversjon.
 
 !!! note "Hvorfor volum og ikke `dist/deps`?"
-    [Ta i bruk bundles](../bearbeide-data/ta-i-bruk-bundles.md#tredjepartsbiblioteker)
+    [Ta i bruk bundles](../utvikle-og-deploye/ta-i-bruk-bundles.md#tredjepartsbiblioteker)
     anbefaler å pakke små tredjepartsbiblioteker sammen med bundlen. PyTorch
     er for stort til det, så eksempelet bruker et volum som bundlen eier og
     `--no-index --find-links` i jobbmiljøet.
@@ -254,4 +254,4 @@ bundlen må da slette den gamle modellen, og feiler til versjonene er borte.
 - [Publisere en modell som serving-endepunkt](publisere-serving-endepunkt.md)
 - [MLflow og modellregister (referanse)](../../referanse/mlflow-og-modellregister.md)
 - [Maskinlæring på plattformen](../../om-plattformen/konsepter/maskinlaering.md)
-- [Laste opp Python-biblioteker](../bearbeide-data/laste-opp-python-biblioteker.md)
+- [Laste opp Python-biblioteker](../utvikle-og-deploye/laste-opp-python-biblioteker.md)

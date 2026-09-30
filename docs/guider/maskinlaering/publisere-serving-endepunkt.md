@@ -132,7 +132,7 @@ med sannsynligheten for at rommet er booket. Adressen er
 === "Lambda i padda-databrikker"
 
     Hent tokenet fra SSM Parameter Store slik [Håndtere
-    secrets](../hente-inn-data/haandtere-secrets.md#ssm-parameter-store-lambda-fargate)
+    secrets](../utvikle-og-deploye/haandtere-secrets.md#ssm-parameter-store-lambda-fargate)
     beskriver, og kall endepunktet med `urllib` for å slippe ekstra
     avhengigheter:
 
@@ -249,4 +249,4 @@ sletter endepunktet; modellen og tabellene beholdes.
 - [Kjøre batch-inferens med en registrert modell](batch-inferens.md)
 - [MLflow og modellregister (referanse)](../../referanse/mlflow-og-modellregister.md)
 - [Maskinlæring på plattformen](../../om-plattformen/konsepter/maskinlaering.md)
-- [Håndtere secrets](../hente-inn-data/haandtere-secrets.md)
+- [Håndtere secrets](../utvikle-og-deploye/haandtere-secrets.md)

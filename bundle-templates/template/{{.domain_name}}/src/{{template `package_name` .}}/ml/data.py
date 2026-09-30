@@ -20,7 +20,13 @@ import numpy as np
 import pandas as pd
 
 BUILDINGS: list[str] = ["Rådhuset", "Grensen", "Storgata"]
-UNITS: list[str] = ["Byrådsavdelingen", "Plan og bygning", "Utdanning", "Helse", "Kultur"]
+UNITS: list[str] = [
+    "Byrådsavdelingen",
+    "Plan og bygning",
+    "Utdanning",
+    "Helse",
+    "Kultur",
+]
 WORK_HOURS: range = range(7, 18)  # booking start hours 07:00 .. 17:00
 DURATIONS_HOURS: list[int] = [1, 1, 1, 2, 2, 3]
 DEFAULT_START_DATE = date(2026, 6, 1)  # a Monday
@@ -31,7 +37,9 @@ _NORWEGIAN = str.maketrans({"æ": "ae", "ø": "o", "å": "a"})
 def slug(text: str) -> str:
     """Return an ASCII snake_case identifier for use in column names."""
     lowered = text.lower().translate(_NORWEGIAN)
-    ascii_only = unicodedata.normalize("NFKD", lowered).encode("ascii", "ignore").decode()
+    ascii_only = (
+        unicodedata.normalize("NFKD", lowered).encode("ascii", "ignore").decode()
+    )
     return "_".join(part for part in ascii_only.replace("-", " ").split() if part)
 
 
@@ -51,17 +59,18 @@ class GeneratorConfig:
 
 
 def generate_rooms(cfg: GeneratorConfig) -> pd.DataFrame:
-    """Return the ``rom`` table: one row per room with building, floor, capacity, video."""
+    """Return the ``rom`` table.
+
+    One row per room with building, floor, capacity and video.
+    """
     rng = np.random.default_rng(cfg.seed)
-    return pd.DataFrame(
-        {
-            "rom_id": [f"rom-{i:03d}" for i in range(1, cfg.n_rooms + 1)],
-            "bygg": rng.choice(BUILDINGS, cfg.n_rooms),
-            "etasje": rng.integers(1, 7, cfg.n_rooms).astype("int64"),
-            "kapasitet": rng.choice([4, 6, 8, 10, 12, 20], cfg.n_rooms).astype("int64"),
-            "har_video": rng.random(cfg.n_rooms) < 0.6,
-        }
-    )
+    return pd.DataFrame({
+        "rom_id": [f"rom-{i:03d}" for i in range(1, cfg.n_rooms + 1)],
+        "bygg": rng.choice(BUILDINGS, cfg.n_rooms),
+        "etasje": rng.integers(1, 7, cfg.n_rooms).astype("int64"),
+        "kapasitet": rng.choice([4, 6, 8, 10, 12, 20], cfg.n_rooms).astype("int64"),
+        "har_video": rng.random(cfg.n_rooms) < 0.6,
+    })
 
 
 def booking_probability(
@@ -118,17 +127,19 @@ def generate_bookings(rooms: pd.DataFrame, cfg: GeneratorConfig) -> pd.DataFrame
                 duration = int(rng.choice(DURATIONS_HOURS))
                 duration = min(duration, max(WORK_HOURS) + 1 - hour)
                 start = datetime.combine(day, time(hour))
-                lead = timedelta(days=int(rng.integers(0, 14)), hours=int(rng.integers(1, 9)))
-                rows.append(
-                    {
-                        "rom_id": room["rom_id"],
-                        "start": start,
-                        "slutt": start + timedelta(hours=duration),
-                        "enhet": str(rng.choice(UNITS)),
-                        "opprettet": start - lead,
-                    }
+                lead = timedelta(
+                    days=int(rng.integers(0, 14)), hours=int(rng.integers(1, 9))
                 )
+                rows.append({
+                    "rom_id": room["rom_id"],
+                    "start": start,
+                    "slutt": start + timedelta(hours=duration),
+                    "enhet": str(rng.choice(UNITS)),
+                    "opprettet": start - lead,
+                })
                 busy_until = hour + duration
-    bookings = pd.DataFrame(rows, columns=["rom_id", "start", "slutt", "enhet", "opprettet"])
+    bookings = pd.DataFrame(
+        rows, columns=["rom_id", "start", "slutt", "enhet", "opprettet"]
+    )
     bookings.insert(0, "booking_id", np.arange(1, len(bookings) + 1, dtype="int64"))
     return bookings

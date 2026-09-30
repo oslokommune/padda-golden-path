@@ -19,7 +19,7 @@ AUC_METRIC = "val_auc"
 
 
 def choose_alias(new_auc: float, padda_auc: float | None, min_auc: float = 0.5) -> str:
-    """Return ``padda`` when at least as good as the current padda, else ``utmaner_padda``.
+    """Return ``padda`` if at least as good as the current one, else ``utmaner_padda``.
 
     A model below ``min_auc`` (no better than chance) is never promoted, even
     when there is no padda yet.

@@ -63,7 +63,9 @@ spark.createDataFrame(predictions).write.mode("overwrite").option(
 Hvis feature-tabellen er stor, gi poeng med en Spark UDF i stedet for pandas:
 
 ```python
-predict_udf = mlflow.pyfunc.spark_udf(spark, f"models:/{model_name}@padda", result_type="double")
+predict_udf = mlflow.pyfunc.spark_udf(
+    spark, f"models:/{model_name}@padda", result_type="double"
+)
 scored = spark.table(f"{catalog}.{schema}.romledighet_features").withColumn(
     "sannsynlighet_booket", predict_udf(*FEATURE_COLUMNS)
 )

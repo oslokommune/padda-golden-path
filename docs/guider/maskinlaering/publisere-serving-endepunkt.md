@@ -107,10 +107,16 @@ med sannsynligheten for at rommet er booket. Adressen er
 
     rows = [
         {
-            "ukedag": 2.0, "time_num": 10.0, "etasje": 3.0, "kapasitet": 6.0,
-            "har_video": 1.0, "booket_forrige_uke": 1.0,
+            "ukedag": 2.0,
+            "time_num": 10.0,
+            "etasje": 3.0,
+            "kapasitet": 6.0,
+            "har_video": 1.0,
+            "booket_forrige_uke": 1.0,
             "andel_booket_siste_4_uker": 0.75,
-            "bygg_radhuset": 1.0, "bygg_grensen": 0.0, "bygg_storgata": 0.0,
+            "bygg_radhuset": 1.0,
+            "bygg_grensen": 0.0,
+            "bygg_storgata": 0.0,
         }
     ]
     response = requests.post(
@@ -138,15 +144,21 @@ med sannsynligheten for at rommet er booket. Adressen er
     import boto3
 
     ssm = boto3.client("ssm")
-    token = ssm.get_parameter(Name=os.environ["TOKEN_PARAMETER"], WithDecryption=True)["Parameter"]["Value"]
+    token = ssm.get_parameter(Name=os.environ["TOKEN_PARAMETER"], WithDecryption=True)[
+        "Parameter"
+    ]["Value"]
     host = os.environ["DATABRICKS_HOST"]
+
 
     def handler(event, context):
         body = json.dumps({"dataframe_records": event["rows"]}).encode()
         request = urllib.request.Request(
             f"{host}/serving-endpoints/romledighet/invocations",
             data=body,
-            headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
+            headers={
+                "Authorization": f"Bearer {token}",
+                "Content-Type": "application/json",
+            },
         )
         with urllib.request.urlopen(request, timeout=60) as response:
             return json.load(response)

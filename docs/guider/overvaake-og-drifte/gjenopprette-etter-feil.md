@@ -160,5 +160,5 @@ For streaming-pipelines: la jobben kjøre én batch til etter resetten og bekref
 
 - [Feilsøke med logger](logging.md)
 - [Sette opp Auto Loader](../hente-inn-data/auto-loader.md)
-- [Sette opp Slack-alarmer](slack-alarmer.md)
+- [Sette opp Slack-varsler](slack-varsler.md)
 - [Databricks Workflows — Repair and rerun](https://docs.databricks.com/aws/en/jobs/repair-job-failures)

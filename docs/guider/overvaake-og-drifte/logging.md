@@ -228,7 +228,7 @@ ID         Start Time           ...  Status     Result State
 ## Relatert innhold
 
 - [Gjenopprette etter feil i pipelines](gjenopprette-etter-feil.md)
-- [Sette opp Slack-alarmer](slack-alarmer.md)
+- [Sette opp Slack-varsler](slack-varsler.md)
 - [Varsling og alarmer](../../referanse/varsling-og-alarmer.md)
 - [Monitoring and observability for Lakeflow Jobs (Databricks-dokumentasjon)](https://docs.databricks.com/aws/en/jobs/monitor)
 - [Troubleshoot and repair job failures (Databricks-dokumentasjon)](https://docs.databricks.com/aws/en/jobs/repair-job-failures)

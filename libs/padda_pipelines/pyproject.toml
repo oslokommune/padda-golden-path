@@ -1,7 +1,0 @@
-[project]
-name = "padda.pipelines"
-version = "0.1.0"
-description = "lib for pipelines som del av golden path for Padda"
-readme = "README.md"
-requires-python = ">=3.13"
-dependencies = []

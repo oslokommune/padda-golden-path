@@ -1,10 +1,21 @@
 # Padda Golden Path
 
+```text
+ _________________________________
+|                                 |
+| Don't panic! Share your data!   |
+|___  ____________________________|
+    \/
+  @..@
+ (----)
+(>____<)
+^^ ~~ ^^
+```
+
 Golden paths for **Padda** — the data platform for data engineers at Oslo kommune. This repo contains:
 
 - Zensical documentation (`docs/`) published to GitHub Pages
 - Reference implementations of Databricks pipelines (`examples/`)
-- Shared Python libraries (`libs/padda.common`, `libs/padda.pipelines`)
 - Padda Asset Bundle Templates (`bundle-templates/`)
 
 Official documentation: https://oslokommune.github.io/padda-golden-path/
@@ -26,7 +37,7 @@ uv sync --extra docs
 ## Commands
 
 ```bash
-# Run tests (the root workspace has no tests yet; examples with their own
+# Run tests (the root project has no tests; examples with their own
 # uv project run their own suite — see the example's README for prerequisites)
 cd examples/vscode-demo && uv run pytest
 
@@ -52,26 +63,19 @@ databricks bundle validate
 
 ## Architecture
 
-### uv workspace
-
-The project uses uv as package manager with a workspace setup. The root `pyproject.toml` defines workspace members:
-- `libs/padda.pipelines` — pipeline utilities
-- `libs/padda.common` — shared utilities (logging, config)
-
 ### Databricks Asset Bundles (DAB)
 
-`databricks.yml` at the root aggregates example bundles via `include`. Each example (`examples/api_ingest/`, `examples/excel_ingest/`) has its own `bundle.yml` with job definitions, cluster configuration, and variables.
+`databricks.yml` at the root aggregates example bundles via `include`; today it includes
+only `examples/excel_ingest/bundle.yml`. `examples/vscode-demo/` is a standalone bundle
+with its own `databricks.yml` and is not part of the root bundle.
 
 The pattern follows the **medallion architecture**: Bronze (raw data from landing zone) → Silver (cleaned) → Gold (business-ready).
 
 ### Examples
 
-Each example under `examples/` is a self-contained pipeline with:
-- `src/` — Python source code
-- `tests/` — pytest tests
-- `notebooks/` — Databricks notebooks
-- `resources/` — YAML job definitions
-- `bundle.yml` — DAB configuration
+Two examples live under `examples/`:
+- `excel_ingest/` — a notebook-based bundle: `bundle.yml`, `notebooks/`, README
+- `vscode-demo/` — a wheel-based bundle with its own uv project: `databricks.yml`, `src/`, `notebooks/`, `resources/`, and `test_transform.py`
 
 ### Documentation
 
@@ -92,16 +96,20 @@ Docs are deployed to GitHub Pages via the `pages` workflow on push to main.
 - Ruff with preview mode, double quotes, LF line endings
 - Google-style docstrings
 - Lint rules: E, F, W, I (isort), B (bugbear), UP (pyupgrade)
-- First-party imports: `common`, `pipelines`, `etl_job`, `golden_path`
 
 ## GitHub Actions
 
-Four workflows run on this repo:
+Nine workflows run on this repo:
 
 - **pr.yaml** — on every PR: format check → lint → DAB validate → DAB plan. Uses GitHub OIDC for Databricks auth (no hardcoded secrets).
 - **pages.yml** — on push to `main`: deploys Zensical docs to GitHub Pages.
 - **docs-review.yml** — on PRs that touch `docs/`: Claude (via AWS Bedrock) reviews changes against Diataxis, flags duplicates, checks `zensical.toml` navigation, and comments on style deviations. Posts inline comments plus a sticky summary comment.
-- **databricks-feed-watcher.yml** — weekdays at 07:00 UTC (manual trigger also available): fetches the Databricks release-notes RSS feed, asks Claude to judge whether each new entry is relevant to this repo, `padda-iac`, or `padda-databrikker`, and posts relevant items to Slack.
+- **databricks-feed-watcher.yml** — weekdays at 06:00 UTC (manual trigger also available): fetches the Databricks release-notes RSS feed, asks Claude to judge whether each new entry is relevant to this repo, `padda-iac`, or `padda-databrikker`, and posts relevant items to Slack.
+- **collect-metrics.yml** — Mondays at 06:00 UTC: counts jobs, pipelines, and tables per medallion layer across the workspaces in each Databricks account and uploads JSONL to a Unity Catalog volume for the `platform_metrics` pipeline in `padda-databrikker`.
+- **collect-aws-cost.yml** — Mondays at 06:00 UTC: queries AWS Cost Explorer per cost-allocation tag and uploads JSONL to the same volume.
+- **collect-dora.yml** — daily at 06:30 UTC: records this repo's merged PRs as DORA deployment and lead-time events, uploaded to the same volume. Copied verbatim to every platform repo.
+- **weekly-report.yml** — Mondays at 08:00 UTC: posts a Slack summary of PRs merged in `padda-golden-path`, `padda-iac`, and `padda-databrikker`.
+- **sat-upstream.yml** — Mondays at 07:00 UTC: syncs `bundles/sat-tool/` with the upstream Databricks Security Analysis Tool and opens a PR when it has moved.
 
 The Claude-powered workflows run on AWS Bedrock via OIDC (no Anthropic API key). The feed watcher additionally uses a GitHub App for read-only cross-repo access.
 

@@ -2,14 +2,6 @@
 requires = ["hatchling>=1.25"]
 build-backend = "hatchling.build"
 
-[tool.uv]
-
-[tool.uv.workspace]
-members = [
-  "libs/padda.pipelines",
-  "libs/padda.common"
-]
-
 [project]
 name = "golden-path"
 version = "0.0.1"

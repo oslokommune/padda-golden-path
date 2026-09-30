@@ -24,7 +24,7 @@ Sørg for at du har:
   plattformen](../../om-plattformen/konsepter/maskinlaering.md), slik at du
   vet hva som havner hvor
 
-Guiden forutsetter at du kjenner [Ta i bruk bundles](../bearbeide-data/ta-i-bruk-bundles.md).
+Guiden forutsetter at du kjenner [Ta i bruk bundles](../utvikle-og-deploye/ta-i-bruk-bundles.md).
 
 ## Trinn 1: Generer bundlen med ML-eksempelet
 

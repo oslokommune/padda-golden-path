@@ -24,5 +24,5 @@ deploye kode, deretter fasene i en datapipeline fra innhenting til drift.
 - **[Maskinlæring](maskinlaering/trene-og-registrere-modell.md)** — trene og registrere modeller, batch-inferens, serving-endepunkt
 - **[Dele og hente ut data](dele-og-hente-ut/dokumentere-dataprodukt.md)** — dokumentere
   dataprodukter, Power BI
-- **[Overvåke og drifte](overvaake-og-drifte/slack-alarmer.md)** — alarmer, logger,
+- **[Overvåke og drifte](overvaake-og-drifte/slack-varsler.md)** — varsler, logger,
   gjenoppretting, datakvalitet, kostnader

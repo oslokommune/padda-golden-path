@@ -23,7 +23,7 @@ Notification destinations opprettes og endres av en
 admingruppe. Når destinasjonen finnes, kan alle i workspacet bruke den. Konfigurasjonen
 lagres kryptert i workspacet. Jobber, pipelines og alarmer peker på destinasjonen med
 ID-en dens, som du finner med `databricks notification-destinations list`. Se
-[Sette opp Slack-alarmer](../guider/overvaake-og-drifte/slack-alarmer.md) for oppsettet.
+[Sette opp Slack-varsler](../guider/overvaake-og-drifte/slack-varsler.md) for oppsettet.
 
 ## Varsler på jobber
 
@@ -188,7 +188,7 @@ jobs](https://docs.databricks.com/aws/en/jobs/tasks/alert).
 
 **Guider:**
 
-- [Sette opp Slack-alarmer](../guider/overvaake-og-drifte/slack-alarmer.md) — opprette en
+- [Sette opp Slack-varsler](../guider/overvaake-og-drifte/slack-varsler.md) — opprette en
   notification destination for Slack
 - [Feilsøke med logger](../guider/overvaake-og-drifte/logging.md) og [Gjenopprette etter
   feil i pipelines](../guider/overvaake-og-drifte/gjenopprette-etter-feil.md) — når

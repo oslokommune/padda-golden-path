@@ -91,9 +91,7 @@ Skal prediksjonene oppdateres oftere enn modellen trenes, del jobben i to: én
 jobb med `generate_data`, `build_features` og `train`, og én med
 `build_features` og `predict`. Begge kan bruke samme `environments`-blokk. I
 development-modus er triggere alltid på pause; i prod aktiveres de. Se [Ta i
-I development-modus er triggere alltid på pause; i prod aktiveres de. Se [Ta i
 bruk bundles](../utvikle-og-deploye/ta-i-bruk-bundles.md#sette-root_path-permissions-og-run_as-for-prod)
-for `run_as` i prod.
 for `run_as` i prod.
 
 ## Trinn 4: Bytt modellversjon

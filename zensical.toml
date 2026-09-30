@@ -40,6 +40,7 @@ nav = [
       { "Serverless compute" = "om-plattformen/konsepter/serverless-compute.md" },
       { "Declarative Automation Bundles" = "om-plattformen/konsepter/databricks-bundles.md" },
       { "Datakvalitet" = "om-plattformen/konsepter/datakvalitet.md" },
+      { "Maskinlæring" = "om-plattformen/konsepter/maskinlaering.md" },
     ]},
   ]},
   { "Kom i gang" = [
@@ -68,6 +69,11 @@ nav = [
       { "Laste opp Python-biblioteker" = "guider/bearbeide-data/laste-opp-python-biblioteker.md" },
       { "Ta i bruk bundles" = "guider/bearbeide-data/ta-i-bruk-bundles.md" },
     ]},
+    { "Maskinlæring" = [
+      { "Trene og registrere en modell" = "guider/maskinlaering/trene-og-registrere-modell.md" },
+      { "Kjøre batch-inferens" = "guider/maskinlaering/batch-inferens.md" },
+      { "Publisere serving-endepunkt" = "guider/maskinlaering/publisere-serving-endepunkt.md" },
+    ]},
     { "Dele og hente ut data" = [
       { "Koble til Power BI" = "guider/dele-og-hente-ut/koble-til-power-bi.md" },
       { "Versjonskontrollere Power BI-rapporter" = "guider/dele-og-hente-ut/versjonskontrollere-power-bi-rapporter.md" },
@@ -94,6 +100,7 @@ nav = [
     { "Anbefalte språk" = "referanse/anbefalte-spraak.md" },
     { "Varsling og alarmer" = "referanse/varsling-og-alarmer.md" },
     { "Declarative Automation Bundles" = "referanse/databricks-bundles.md" },
+    { "MLflow og modellregister" = "referanse/mlflow-og-modellregister.md" },
     { "SAM-deploy" = "referanse/sam-deploy.md" },
     { "Lagring og ytelse" = "referanse/lagring-og-ytelse.md" },
     { "Datakvalitet" = "referanse/datakvalitet.md" },

@@ -1,0 +1,16 @@
+# The Unity Catalog schema owned by this bundle. Tables, the registered model
+# and predictions all live here, so `bundle destroy` removes everything.
+# Grants to the consumer group live in code so "who may read predictions" is
+# reviewable. Jobs reference the schema by resource name so development-mode
+# prefixes (dev_<user>_...) are respected.
+resources:
+  schemas:
+    example_ml_schema:
+      name: ${var.ml_schema}
+      catalog_name: ${var.catalog}
+      comment: Meeting-room availability example (Padda MLflow golden path)
+      grants:
+        - principal: ${var.ml_consumer_group}
+          privileges:
+            - USE_SCHEMA
+            - SELECT

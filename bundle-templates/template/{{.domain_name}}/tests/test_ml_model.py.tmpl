@@ -1,0 +1,74 @@
+"""Tests for the PyTorch model helpers (no Spark, no MLflow)."""
+
+from __future__ import annotations
+
+import numpy as np
+import torch
+
+from {{template `package_name` .}}.ml.model import (
+    FloatArray,
+    TrainParams,
+    build_model,
+    evaluate,
+    predict_proba,
+    train_model,
+)
+
+
+def _separable(n: int = 400, n_features: int = 4, seed: int = 0) -> tuple[FloatArray, FloatArray]:
+    rng = np.random.default_rng(seed)
+    x = rng.normal(size=(n, n_features)).astype("float32")
+    y = (x[:, 0] + 0.5 * x[:, 1] > 0).astype("float32")
+    return x, y
+
+
+class TestBuildModel:
+    """``build_model`` returns a probability-emitting network of stock layers."""
+
+    def test_outputs_probabilities_with_shape_n_by_1(self) -> None:
+        """Output is one probability per row."""
+        model = build_model(n_features=4, seed=1)
+        model.eval()
+        x, _ = _separable(n=10)
+        out = model(torch.from_numpy(x))
+        assert out.shape == (10, 1)
+        assert bool(((out >= 0) & (out <= 1)).all())
+
+    def test_only_stock_torch_layers(self) -> None:
+        """No custom classes, so the pickled model loads anywhere torch is installed."""
+        model = build_model(n_features=4, seed=1)
+        for module in model.modules():
+            assert type(module).__module__.startswith("torch.nn")
+
+
+class TestTrainModel:
+    """``train_model`` learns a separable toy problem."""
+
+    def test_loss_decreases(self) -> None:
+        """Mean epoch loss goes down."""
+        x, y = _separable()
+        model = build_model(n_features=4, seed=1)
+        losses = train_model(model, x, y, TrainParams(epochs=30, lr=0.01, seed=1))
+        assert len(losses) == 30
+        assert losses[-1] < losses[0]
+
+    def test_learns_separable_data(self) -> None:
+        """AUC and accuracy are high on linearly separable data."""
+        x, y = _separable()
+        model = build_model(n_features=4, seed=1)
+        train_model(model, x, y, TrainParams(epochs=60, lr=0.01, seed=1))
+        metrics = evaluate(model, x, y)
+        assert metrics["auc"] > 0.9
+        assert metrics["accuracy"] > 0.8
+
+
+class TestPredictProba:
+    """``predict_proba`` returns a flat float32 array."""
+
+    def test_returns_flat_float_array(self) -> None:
+        """One float32 probability per input row."""
+        x, _ = _separable(n=7)
+        model = build_model(n_features=4, seed=1)
+        probs = predict_proba(model, x)
+        assert probs.shape == (7,)
+        assert probs.dtype == np.float32

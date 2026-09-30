@@ -68,6 +68,20 @@
         ]
       }
     },
+    "include_ml_workflow": {
+      "type": "string",
+      "default": "no",
+      "enum": ["no", "yes"],
+      "description": "Include the MLflow example (PyTorch training job, Unity Catalog model registry, batch inference, optional serving endpoint)?",
+      "order": 21,
+      "skip_prompt_if": {
+        "properties": {
+          "setup_type": {
+            "const": "minimal"
+          }
+        }
+      }
+    },
     "empower_vscode": {
       "type": "string",
       "default": "yes",

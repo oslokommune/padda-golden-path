@@ -1,0 +1,72 @@
+"""Tests for the feature contract and the pure helpers around it."""
+
+from __future__ import annotations
+
+from datetime import date
+
+import pandas as pd
+import pytest
+
+from {{template `package_name` .}}.ml.data import BUILDINGS, slug
+from {{template `package_name` .}}.ml.features import (
+    FEATURE_COLUMNS,
+    LABEL_COLUMN,
+    feature_sql,
+    split_by_date,
+)
+
+
+class TestFeatureContract:
+    """``FEATURE_COLUMNS`` is the contract shared by training and inference."""
+
+    def test_one_hot_column_per_building(self) -> None:
+        """Each building has a one-hot feature column."""
+        for building in BUILDINGS:
+            assert f"bygg_{slug(building)}" in FEATURE_COLUMNS
+
+    def test_label_is_not_a_feature(self) -> None:
+        """The label never leaks into the features."""
+        assert LABEL_COLUMN not in FEATURE_COLUMNS
+
+
+class TestFeatureSql:
+    """``feature_sql`` emits the contract columns from the two source tables."""
+
+    def test_selects_every_feature_and_reads_both_tables(self) -> None:
+        """All feature columns, both tables and the horizon end date appear."""
+        sql = feature_sql(
+            "cat", "sch", data_start=date(2026, 6, 1), data_end=date(2026, 8, 23), horizon_days=7
+        )
+        for column in FEATURE_COLUMNS:
+            assert column in sql
+        assert "cat.sch.rom" in sql
+        assert "cat.sch.bookinger" in sql
+        assert "DATE'2026-08-30'" in sql  # data_end + horizon
+        assert LABEL_COLUMN in sql
+
+    def test_rejects_horizon_beyond_one_week(self) -> None:
+        """Lag features only cover one week ahead."""
+        with pytest.raises(ValueError, match="horizon_days"):
+            feature_sql("c", "s", date(2026, 6, 1), date(2026, 8, 23), horizon_days=8)
+
+
+class TestSplitByDate:
+    """``split_by_date`` keeps the last dates for validation."""
+
+    @staticmethod
+    def _frame() -> pd.DataFrame:
+        days = pd.date_range("2026-06-01", periods=30, freq="D").date
+        return pd.DataFrame({"dato": days, "x": range(30)})
+
+    def test_last_days_go_to_validation(self) -> None:
+        """Validation holds the last N dates and starts after training ends."""
+        train, val = split_by_date(self._frame(), validation_days=7)
+        assert len(val) == 7
+        assert len(train) == 23
+        assert train["dato"].max() < val["dato"].min()
+
+    def test_all_rows_kept(self) -> None:
+        """No row is lost in the split."""
+        frame = self._frame()
+        train, val = split_by_date(frame, validation_days=10)
+        assert len(train) + len(val) == len(frame)

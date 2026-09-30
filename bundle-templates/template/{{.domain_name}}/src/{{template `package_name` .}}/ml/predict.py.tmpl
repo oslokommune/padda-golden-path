@@ -1,0 +1,72 @@
+"""Batch-inference task: load the padda model and score unlabelled slots."""
+
+from __future__ import annotations
+
+import logging
+from dataclasses import dataclass
+from datetime import UTC, datetime
+from typing import TYPE_CHECKING
+
+import mlflow
+import numpy as np
+import pandas as pd
+
+from {{template `package_name` .}}.ml.features import (
+    FEATURE_COLUMNS,
+    FEATURES_TABLE,
+    KEY_COLUMNS,
+    LABEL_COLUMN,
+    PREDICTIONS_TABLE,
+)
+from {{template `package_name` .}}.ml.registry import padda
+
+if TYPE_CHECKING:
+    from pyspark.sql import SparkSession
+
+logger = logging.getLogger(__name__)
+
+
+@dataclass(frozen=True)
+class PredictConfig:
+    """Where to read features and which registered model to load."""
+
+    catalog: str
+    schema: str
+    model_name: str  # full Unity Catalog name catalog.schema.model
+
+
+def run_prediction(spark: SparkSession, cfg: PredictConfig) -> int:
+    """Score every feature row without a label and return the number of rows written."""
+    mlflow.set_registry_uri("databricks-uc")
+    client = mlflow.MlflowClient()
+    version = client.get_model_version_by_alias(cfg.model_name, padda)
+    model = mlflow.pyfunc.load_model(f"models:/{cfg.model_name}@{padda}")
+
+    features = spark.table(f"{cfg.catalog}.{cfg.schema}.{FEATURES_TABLE}").toPandas()
+    to_score = features[features[LABEL_COLUMN].isna()].reset_index(drop=True)
+    if to_score.empty:
+        logger.warning("no unlabelled rows to score in %s", FEATURES_TABLE)
+        probabilities = np.array([], dtype="float32")
+    else:
+        raw = model.predict(to_score[FEATURE_COLUMNS].astype("float32"))
+        probabilities = np.asarray(raw, dtype="float32").reshape(-1)
+
+    predictions = to_score[KEY_COLUMNS].copy()
+    predictions["tidspunkt"] = pd.to_datetime(predictions["dato"]) + pd.to_timedelta(
+        predictions["time"], unit="h"
+    )
+    predictions["sannsynlighet_booket"] = probabilities.astype("float64")
+    predictions["modellversjon"] = int(version.version)
+    predictions["predikert_tidspunkt"] = datetime.now(UTC)
+
+    target = f"{cfg.catalog}.{cfg.schema}.{PREDICTIONS_TABLE}"
+    spark.createDataFrame(predictions).write.mode("overwrite").option(
+        "overwriteSchema", "true"
+    ).saveAsTable(target)
+    logger.info(
+        "wrote %d predictions to %s with model version %s",
+        len(predictions),
+        target,
+        version.version,
+    )
+    return len(predictions)

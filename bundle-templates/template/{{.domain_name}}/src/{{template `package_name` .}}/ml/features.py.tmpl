@@ -1,0 +1,124 @@
+"""Feature contract for the room-availability model.
+
+``FEATURE_COLUMNS`` is the single source of truth for what the model consumes,
+in order. The SQL produced by ``feature_sql`` writes exactly those numeric
+columns (plus keys and the label) so training, batch inference and a serving
+endpoint all see the same contract. Rows beyond the last day of booking data
+get a NULL label; those are the rows batch inference scores.
+"""
+
+from __future__ import annotations
+
+from datetime import timedelta
+from typing import TYPE_CHECKING
+
+from {{template `package_name` .}}.ml.data import BUILDINGS, WORK_HOURS, slug
+
+if TYPE_CHECKING:
+    from datetime import date
+
+    import pandas as pd
+
+ROOMS_TABLE = "rom"
+BOOKINGS_TABLE = "bookinger"
+FEATURES_TABLE = "romledighet_features"
+PREDICTIONS_TABLE = "romledighet_prediksjoner"
+
+KEY_COLUMNS: list[str] = ["rom_id", "dato", "time"]
+LABEL_COLUMN = "er_booket"
+BUILDING_COLUMNS: list[str] = [f"bygg_{slug(b)}" for b in BUILDINGS]
+FEATURE_COLUMNS: list[str] = [
+    "ukedag",
+    "time_num",
+    "etasje",
+    "kapasitet",
+    "har_video",
+    "booket_forrige_uke",
+    "andel_booket_siste_4_uker",
+    *BUILDING_COLUMNS,
+]
+
+MAX_HORIZON_DAYS = 7
+
+
+def feature_sql(
+    catalog: str, schema: str, data_start: date, data_end: date, horizon_days: int = 7
+) -> str:
+    """Return SQL building one row per room per hour through ``data_end + horizon_days``.
+
+    ``data_end`` is the last day with booking data. Slots after it have
+    ``er_booket = NULL`` and are what batch inference scores. Lag features look
+    back at the same room, hour and weekday, so the horizon can be at most
+    seven days without leaking unknown labels into the lags.
+    """
+    if not 1 <= horizon_days <= MAX_HORIZON_DAYS:
+        msg = f"horizon_days must be between 1 and {MAX_HORIZON_DAYS}, got {horizon_days}"
+        raise ValueError(msg)
+    grid_end = data_end + timedelta(days=horizon_days)
+    building_cols = ",\n  ".join(
+        f"CAST(s.bygg = '{b}' AS DOUBLE) AS {col}"
+        for b, col in zip(BUILDINGS, BUILDING_COLUMNS, strict=True)
+    )
+    # Identifiers come from bundle variables and constants, not user input.
+    return f"""
+WITH slots AS (
+  SELECT r.rom_id, r.bygg, r.etasje, r.kapasitet, r.har_video, d.dato, h.time
+  FROM {catalog}.{schema}.{ROOMS_TABLE} r
+  CROSS JOIN (SELECT explode(sequence(DATE'{data_start}', DATE'{grid_end}')) AS dato) d
+  CROSS JOIN (SELECT explode(sequence({min(WORK_HOURS)}, {max(WORK_HOURS)})) AS time) h
+),
+labelled AS (
+  SELECT
+    s.rom_id, s.bygg, s.etasje, s.kapasitet, s.har_video, s.dato, s.time,
+    CASE
+      WHEN s.dato > DATE'{data_end}' THEN NULL
+      WHEN COUNT(b.booking_id) > 0 THEN 1.0
+      ELSE 0.0
+    END AS {LABEL_COLUMN}
+  FROM slots s
+  LEFT JOIN {catalog}.{schema}.{BOOKINGS_TABLE} b
+    ON b.rom_id = s.rom_id
+   AND b.start < timestamp(s.dato) + make_interval(0, 0, 0, 0, s.time + 1)
+   AND b.slutt > timestamp(s.dato) + make_interval(0, 0, 0, 0, s.time)
+  GROUP BY s.rom_id, s.bygg, s.etasje, s.kapasitet, s.har_video, s.dato, s.time
+),
+lagged AS (
+  SELECT
+    l.*,
+    COALESCE(
+      LAG(l.{LABEL_COLUMN}, 7) OVER (PARTITION BY l.rom_id, l.time ORDER BY l.dato), 0.0
+    ) AS booket_forrige_uke,
+    COALESCE(
+      AVG(l.{LABEL_COLUMN}) OVER (
+        PARTITION BY l.rom_id, l.time, weekday(l.dato)
+        ORDER BY l.dato ROWS BETWEEN 4 PRECEDING AND 1 PRECEDING
+      ), 0.0
+    ) AS andel_booket_siste_4_uker
+  FROM labelled l
+)
+SELECT
+  s.rom_id, s.dato, s.time,
+  CAST(weekday(s.dato) AS DOUBLE) AS ukedag,
+  CAST(s.time AS DOUBLE) AS time_num,
+  CAST(s.etasje AS DOUBLE) AS etasje,
+  CAST(s.kapasitet AS DOUBLE) AS kapasitet,
+  CAST(s.har_video AS DOUBLE) AS har_video,
+  s.booket_forrige_uke,
+  s.andel_booket_siste_4_uker,
+  {building_cols},
+  s.{LABEL_COLUMN}
+FROM lagged s
+"""  # noqa: S608
+
+
+def split_by_date(
+    frame: pd.DataFrame, validation_days: int, date_column: str = "dato"
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Split by time: the last ``validation_days`` distinct dates become validation."""
+    dates = sorted(frame[date_column].unique())
+    if validation_days >= len(dates):
+        msg = "validation_days must be smaller than the number of distinct dates"
+        raise ValueError(msg)
+    cutoff = dates[-validation_days]
+    is_val = frame[date_column] >= cutoff
+    return frame.loc[~is_val].copy(), frame.loc[is_val].copy()

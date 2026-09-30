@@ -1,0 +1,132 @@
+"""Tests for the synthetic booking generator (pure pandas, no Spark)."""
+
+from __future__ import annotations
+
+from datetime import date
+
+import pandas as pd
+
+from {{template `package_name` .}}.ml.data import (
+    BUILDINGS,
+    WORK_HOURS,
+    GeneratorConfig,
+    booking_probability,
+    generate_bookings,
+    generate_rooms,
+    slug,
+)
+
+
+def _small_cfg(**overrides: int | date) -> GeneratorConfig:
+    params: dict[str, int | date] = {
+        "n_rooms": 5,
+        "weeks": 2,
+        "start_date": date(2026, 6, 1),
+        "seed": 7,
+    }
+    params.update(overrides)
+    return GeneratorConfig(**params)  # type: ignore[arg-type]
+
+
+class TestSlug:
+    """``slug`` turns display names into column-safe identifiers."""
+
+    def test_norwegian_letters_are_ascii(self) -> None:
+        """Norwegian letters map to ASCII and spaces to underscores."""
+        assert slug("Rådhuset") == "radhuset"
+        assert slug("Søndre Ås") == "sondre_as"
+
+
+class TestRooms:
+    """``generate_rooms`` builds the ``rom`` table."""
+
+    def test_room_count_and_unique_ids(self) -> None:
+        """One row per configured room with unique ids."""
+        rooms = generate_rooms(_small_cfg())
+        assert len(rooms) == 5
+        assert rooms["rom_id"].is_unique
+
+    def test_buildings_come_from_known_list(self) -> None:
+        """Every room sits in a known building."""
+        rooms = generate_rooms(_small_cfg())
+        assert set(rooms["bygg"]).issubset(set(BUILDINGS))
+
+    def test_deterministic_for_same_seed(self) -> None:
+        """The same seed gives the same rooms."""
+        a = generate_rooms(_small_cfg())
+        b = generate_rooms(_small_cfg())
+        pd.testing.assert_frame_equal(a, b)
+
+
+class TestBookingProbability:
+    """``booking_probability`` encodes the signal the model should learn."""
+
+    def test_probability_in_open_unit_interval(self) -> None:
+        """Probabilities never reach 0 or 1."""
+        for weekday in range(7):
+            for hour in WORK_HOURS:
+                p = booking_probability(weekday, hour, 8, True, BUILDINGS[0])
+                assert 0.0 < p < 1.0
+
+    def test_weekday_core_hours_busier_than_weekend_evening(self) -> None:
+        """A small video room mid-week at 10 beats a big room on Sunday at 17."""
+        busy = booking_probability(2, 10, 6, True, BUILDINGS[0])
+        quiet = booking_probability(6, 17, 20, False, BUILDINGS[-1])
+        assert busy > quiet
+
+
+class TestBookings:
+    """``generate_bookings`` builds the ``bookinger`` table."""
+
+    def test_columns(self) -> None:
+        """The table has the documented columns in order."""
+        cfg = _small_cfg()
+        bookings = generate_bookings(generate_rooms(cfg), cfg)
+        assert list(bookings.columns) == [
+            "booking_id",
+            "rom_id",
+            "start",
+            "slutt",
+            "enhet",
+            "opprettet",
+        ]
+
+    def test_bookings_inside_generated_period_and_work_hours(self) -> None:
+        """Bookings fall inside the configured weeks and working hours."""
+        cfg = _small_cfg()
+        bookings = generate_bookings(generate_rooms(cfg), cfg)
+        assert bookings["start"].dt.date.min() >= cfg.start_date
+        assert bookings["start"].dt.date.max() < cfg.end_date_exclusive
+        assert bookings["start"].dt.hour.min() >= min(WORK_HOURS)
+        assert bookings["slutt"].dt.hour.max() <= max(WORK_HOURS) + 1
+
+    def test_no_overlapping_bookings_per_room(self) -> None:
+        """A room never has two bookings at the same time."""
+        cfg = _small_cfg()
+        bookings = generate_bookings(generate_rooms(cfg), cfg)
+        for _, group in bookings.sort_values("start").groupby("rom_id"):
+            starts = group["start"].to_numpy()
+            ends = group["slutt"].to_numpy()
+            assert (starts[1:] >= ends[:-1]).all()
+
+    def test_booking_rate_is_plausible(self) -> None:
+        """Between 15 and 60 percent of working hours are booked."""
+        cfg = _small_cfg(n_rooms=10, weeks=4)
+        rooms = generate_rooms(cfg)
+        bookings = generate_bookings(rooms, cfg)
+        slots = cfg.n_rooms * cfg.weeks * 7 * len(WORK_HOURS)
+        booked_hours = (bookings["slutt"] - bookings["start"]).dt.total_seconds().sum() / 3600
+        assert 0.15 < booked_hours / slots < 0.6
+
+    def test_created_before_start(self) -> None:
+        """Bookings are created before they start."""
+        cfg = _small_cfg()
+        bookings = generate_bookings(generate_rooms(cfg), cfg)
+        assert (bookings["opprettet"] < bookings["start"]).all()
+
+    def test_deterministic_for_same_seed(self) -> None:
+        """The same seed gives the same bookings."""
+        cfg = _small_cfg()
+        a = generate_bookings(generate_rooms(cfg), cfg)
+        b = generate_bookings(generate_rooms(cfg), cfg)
+        pd.testing.assert_frame_equal(a, b)

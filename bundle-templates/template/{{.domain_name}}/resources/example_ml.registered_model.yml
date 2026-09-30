@@ -1,0 +1,14 @@
+# The registered model in Unity Catalog. The training task registers new
+# versions into it and moves the `padda` / `utmaner_padda` aliases. EXECUTE
+# lets the consumer group load the model for inference.
+resources:
+  registered_models:
+    example_ml_model:
+      name: romledighet
+      catalog_name: ${var.catalog}
+      schema_name: ${resources.schemas.example_ml_schema.name}
+      comment: Predicts whether a meeting room is booked at a given hour
+      grants:
+        - principal: ${var.ml_consumer_group}
+          privileges:
+            - EXECUTE

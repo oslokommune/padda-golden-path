@@ -1,0 +1,8 @@
+# MLflow experiment that collects training runs. Declared as a resource so the
+# training task gets a stable experiment id from the bundle instead of
+# creating one by name at runtime. It lives directly under the deploying
+# user's folder: MLflow requires the parent folder to exist already.
+resources:
+  experiments:
+    example_ml_experiment:
+      name: /Users/${workspace.current_user.userName}/${bundle.name}-ml-example

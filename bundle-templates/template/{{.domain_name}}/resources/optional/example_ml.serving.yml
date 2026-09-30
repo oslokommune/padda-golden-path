@@ -1,0 +1,25 @@
+# OPTIONAL: real-time serving endpoint for the room-availability model.
+#
+# Not included by default. Enable it when a consumer needs on-demand
+# predictions (an app, a Lambda, another team via API):
+#   1. add "- resources/optional/*.yml" to `include` in databricks.yml
+#   2. deploy with --var ml_model_version=<version that carries the padda alias>
+#   3. call it with a JSON body of FEATURE_COLUMNS rows (see the docs guide
+#      "Publisere modell som serving-endepunkt").
+# Endpoints pin a version, not an alias. Scale-to-zero keeps idle cost near
+# zero but adds minutes of cold start.
+resources:
+  model_serving_endpoints:
+    example_ml_endpoint:
+      name: romledighet
+      config:
+        served_entities:
+          - entity_name: ${var.catalog}.${resources.schemas.example_ml_schema.name}.${resources.registered_models.example_ml_model.name}
+            entity_version: ${var.ml_model_version}
+            workload_size: Small
+            scale_to_zero_enabled: true
+      tags:
+        - key: CostTeam
+          value: padda
+        - key: CostProcess
+          value: Serve

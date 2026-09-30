@@ -1,0 +1,81 @@
+# Serverless job: synthetic data -> features -> train (MLflow, Unity Catalog
+# registry, alias) -> batch inference. Runs on serverless environment version 6.
+# Compute has no internet access, so torch and its dependencies are installed
+# with --no-index from the bundle's wheels volume (see
+# resources/example_ml.volume.yml and scripts/upload_ml_wheels.sh).
+# Manual runs only: the weekly trigger is paused.
+resources:
+  jobs:
+    example_ml_job:
+      name: example_ml_job
+      description: >-
+        MLflow golden path example. Trains a PyTorch room-availability model on
+        synthetic bookings and scores the coming week in batch.
+      email_notifications:
+        on_failure:
+          - dataspeilet@oslo.kommune.no
+      notification_settings:
+        no_alert_for_skipped_runs: true
+      trigger:
+        pause_status: PAUSED
+        periodic:
+          interval: 1
+          unit: WEEKS
+      environments:
+        - environment_key: ml
+          spec:
+            # Serverless environment version 6 (Python 3.12, mlflow-skinny 3.12,
+            # pandas, numpy, scikit-learn preinstalled). torch and its missing
+            # dependencies (sympy, networkx, mpmath) come from the wheels volume.
+            # --no-index keeps pip from trying to reach PyPI, which is blocked.
+            environment_version: "6"
+            dependencies:
+              - "--no-index"
+              - "--find-links /Volumes/${var.catalog}/${resources.schemas.example_ml_schema.name}/${resources.volumes.example_ml_wheels.name}"
+              - ../dist/*.whl
+      tasks:
+        - task_key: generate_data
+          environment_key: ml
+          python_wheel_task:
+            package_name: {{template `package_name` .}}
+            entry_point: ml_generate_data
+            named_parameters:
+              catalog: ${var.catalog}
+              schema: ${resources.schemas.example_ml_schema.name}
+        - task_key: build_features
+          depends_on:
+            - task_key: generate_data
+          environment_key: ml
+          python_wheel_task:
+            package_name: {{template `package_name` .}}
+            entry_point: ml_build_features
+            named_parameters:
+              catalog: ${var.catalog}
+              schema: ${resources.schemas.example_ml_schema.name}
+        - task_key: train
+          depends_on:
+            - task_key: build_features
+          environment_key: ml
+          python_wheel_task:
+            package_name: {{template `package_name` .}}
+            entry_point: ml_train
+            named_parameters:
+              catalog: ${var.catalog}
+              schema: ${resources.schemas.example_ml_schema.name}
+              model-name: ${var.catalog}.${resources.schemas.example_ml_schema.name}.${resources.registered_models.example_ml_model.name}
+              experiment-id: ${resources.experiments.example_ml_experiment.id}
+        - task_key: predict
+          depends_on:
+            - task_key: train
+          environment_key: ml
+          python_wheel_task:
+            package_name: {{template `package_name` .}}
+            entry_point: ml_predict
+            named_parameters:
+              catalog: ${var.catalog}
+              schema: ${resources.schemas.example_ml_schema.name}
+              model-name: ${var.catalog}.${resources.schemas.example_ml_schema.name}.${resources.registered_models.example_ml_model.name}
+      performance_target: STANDARD
+      tags:
+        CostTeam: padda
+        CostProcess: ML

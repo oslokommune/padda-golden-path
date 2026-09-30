@@ -1,0 +1,126 @@
+"""Job entry points (wired up as wheel console scripts).
+
+Each task reads ``--catalog`` and ``--schema``; ``train`` and ``predict`` also
+take ``--model-name`` (full Unity Catalog name) and ``train`` takes
+``--experiment-id``. The bundle passes resource names, so development-mode
+prefixes are respected without code changes.
+"""
+
+from __future__ import annotations
+
+import argparse
+import logging
+from typing import TYPE_CHECKING
+
+from pyspark.sql import SparkSession
+
+from {{template `package_name` .}}.ml import data as synthetic
+from {{template `package_name` .}}.ml.features import (
+    BOOKINGS_TABLE,
+    FEATURES_TABLE,
+    ROOMS_TABLE,
+    feature_sql,
+)
+from {{template `package_name` .}}.ml.predict import PredictConfig, run_prediction
+from {{template `package_name` .}}.ml.train import TrainConfig, run_training
+
+if TYPE_CHECKING:
+    import pandas as pd
+
+logger = logging.getLogger(__name__)
+
+
+def _parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--catalog", required=True)
+    parser.add_argument("--schema", required=True)
+    return parser
+
+
+def _spark() -> SparkSession:
+    return SparkSession.builder.getOrCreate()
+
+
+def _write(spark: SparkSession, frame: pd.DataFrame, table: str) -> None:
+    spark.createDataFrame(frame).write.mode("overwrite").option(
+        "overwriteSchema", "true"
+    ).saveAsTable(table)
+    logger.info("wrote %d rows to %s", len(frame), table)
+
+
+def generate_data() -> None:
+    """Entry point: write synthetic rooms and bookings."""
+    logging.basicConfig(level=logging.INFO)
+    parser = _parser()
+    parser.add_argument("--weeks", type=int, default=12)
+    parser.add_argument("--rooms", type=int, default=20)
+    parser.add_argument("--seed", type=int, default=42)
+    args, _ = parser.parse_known_args()
+    cfg = synthetic.GeneratorConfig(n_rooms=args.rooms, weeks=args.weeks, seed=args.seed)
+    rooms = synthetic.generate_rooms(cfg)
+    bookings = synthetic.generate_bookings(rooms, cfg)
+    spark = _spark()
+    _write(spark, rooms, f"{args.catalog}.{args.schema}.{ROOMS_TABLE}")
+    _write(spark, bookings, f"{args.catalog}.{args.schema}.{BOOKINGS_TABLE}")
+
+
+def build_features() -> None:
+    """Entry point: build the feature table from rooms and bookings."""
+    logging.basicConfig(level=logging.INFO)
+    parser = _parser()
+    parser.add_argument("--horizon-days", type=int, default=7)
+    args, _ = parser.parse_known_args()
+    spark = _spark()
+    bounds = spark.sql(
+        f"SELECT MIN(DATE(start)) AS data_start, MAX(DATE(start)) AS data_end "  # noqa: S608
+        f"FROM {args.catalog}.{args.schema}.{BOOKINGS_TABLE}"
+    ).first()
+    if bounds is None or bounds["data_start"] is None:
+        msg = f"{args.catalog}.{args.schema}.{BOOKINGS_TABLE} is empty; run generate_data first"
+        raise RuntimeError(msg)
+    sql = feature_sql(
+        args.catalog,
+        args.schema,
+        data_start=bounds["data_start"],
+        data_end=bounds["data_end"],
+        horizon_days=args.horizon_days,
+    )
+    target = f"{args.catalog}.{args.schema}.{FEATURES_TABLE}"
+    spark.sql(sql).write.mode("overwrite").option("overwriteSchema", "true").saveAsTable(target)
+    logger.info(
+        "wrote features to %s (data %s..%s)", target, bounds["data_start"], bounds["data_end"]
+    )
+
+
+def train() -> None:
+    """Entry point: train, log to MLflow, register and set alias."""
+    logging.basicConfig(level=logging.INFO)
+    parser = _parser()
+    parser.add_argument("--model-name", required=True)
+    parser.add_argument("--experiment-id", required=True)
+    parser.add_argument("--epochs", type=int, default=40)
+    args, _ = parser.parse_known_args()
+    result = run_training(
+        _spark(),
+        TrainConfig(
+            catalog=args.catalog,
+            schema=args.schema,
+            model_name=args.model_name,
+            experiment_id=args.experiment_id,
+            epochs=args.epochs,
+        ),
+    )
+    logger.info("training done: %s", result)
+
+
+def predict() -> None:
+    """Entry point: batch inference with the padda model."""
+    logging.basicConfig(level=logging.INFO)
+    parser = _parser()
+    parser.add_argument("--model-name", required=True)
+    args, _ = parser.parse_known_args()
+    rows = run_prediction(
+        _spark(),
+        PredictConfig(catalog=args.catalog, schema=args.schema, model_name=args.model_name),
+    )
+    logger.info("prediction done: %d rows", rows)

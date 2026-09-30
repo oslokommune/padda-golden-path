@@ -163,4 +163,3 @@ et snitt rundt 0,5 og versjonsnummeret aliaset peker på.
 - [Publisere en modell som serving-endepunkt](publisere-serving-endepunkt.md)
 - [MLflow og modellregister (referanse)](../../referanse/mlflow-og-modellregister.md)
 - [Maskinlæring på plattformen](../../om-plattformen/konsepter/maskinlaering.md)
-- [Dele data via Unity Catalog](../dele-og-hente-ut/unity-catalog.md)

@@ -29,7 +29,7 @@ databricks bundle init /sti/til/padda-golden-path/bundle-templates
 
 Du blir spurt om Unity Catalog-navn, workspace-host for stage og prod,
 domene-navn, domene-beskrivelse og hvilken `setup_type` du vil bruke (`default`,
-`minimal` eller `tailored`). Se
+`minimal` eller `tailored`). Med `default` eller `tailored` se
 [bundle-templates/README.md](https://github.com/oslokommune/padda-golden-path/blob/main/bundle-templates/README.md)
 for hva de ulike valgene betyr.
 

@@ -28,6 +28,10 @@ Bygg ferdigbehandlede dataprodukter som kan konsumeres av andre — i Power BI, 
 
 Bruk notebooks til å utforske data, bygge modeller og teste hypoteser. Arbeidet skjer i et sikkert miljø.
 
+## Maskinlæring
+
+Tren modeller i jobber, hold styr på kjøringene med MLflow, og registrer modellene i Unity Catalog med samme tilgangsstyring som tabeller. Prediksjoner skrives til tabeller i batch, og modeller kan publiseres som endepunkter når et annet system trenger svar på forespørsel. Se [Maskinlæring på plattformen](../konsepter/maskinlaering.md).
+
 ---
 
 !!! info "SYE er først ut"

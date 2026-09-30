@@ -38,3 +38,19 @@ This file only provides template directives; it is skipped for the actual output
   {{end}}
 
 {{end}}
+
+{{/* The MLflow example is opt-in and never part of a minimal setup. */}}
+{{if not (eq .include_ml_workflow "yes")}}
+  {{skip "{{.domain_name}}/resources/example_ml.schema.yml"}}
+  {{skip "{{.domain_name}}/resources/example_ml.volume.yml"}}
+  {{skip "{{.domain_name}}/resources/example_ml.experiment.yml"}}
+  {{skip "{{.domain_name}}/resources/example_ml.registered_model.yml"}}
+  {{skip "{{.domain_name}}/resources/example_ml.job.yml"}}
+  {{skip "{{.domain_name}}/resources/optional"}}
+  {{skip "{{.domain_name}}/scripts"}}
+  {{skip "{{.domain_name}}/src/*/ml"}}
+  {{skip "{{.domain_name}}/tests/test_ml_data.py"}}
+  {{skip "{{.domain_name}}/tests/test_ml_features.py"}}
+  {{skip "{{.domain_name}}/tests/test_ml_model.py"}}
+  {{skip "{{.domain_name}}/tests/test_ml_registry.py"}}
+{{end}}

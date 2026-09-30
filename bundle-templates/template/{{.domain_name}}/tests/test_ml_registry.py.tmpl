@@ -1,0 +1,36 @@
+"""Tests for the padda/utmaner_padda decision (pure function)."""
+
+from __future__ import annotations
+
+import pytest
+
+from {{template `package_name` .}}.ml.registry import CHALLENGER, padda, choose_alias
+
+
+class TestChooseAlias:
+    """``choose_alias`` implements the promotion rule."""
+
+    def test_first_model_becomes_padda(self) -> None:
+        """With no padda, an adequate model is promoted."""
+        assert choose_alias(new_auc=0.7, padda_auc=None) == padda
+
+    def test_better_model_becomes_padda(self) -> None:
+        """A better model replaces the padda."""
+        assert choose_alias(new_auc=0.8, padda_auc=0.7) == padda
+
+    def test_equal_model_becomes_padda(self) -> None:
+        """An equally good model is promoted (newer wins ties)."""
+        assert choose_alias(new_auc=0.7, padda_auc=0.7) == padda
+
+    def test_worse_model_becomes_utmaner_padda(self) -> None:
+        """A worse model becomes the utmaner_padda."""
+        assert choose_alias(new_auc=0.6, padda_auc=0.7) == CHALLENGER
+
+    def test_model_below_floor_never_becomes_padda(self) -> None:
+        """A model no better than chance is never promoted."""
+        assert choose_alias(new_auc=0.4, padda_auc=None, min_auc=0.5) == CHALLENGER
+
+    def test_rejects_invalid_auc(self) -> None:
+        """AUC outside [0, 1] is an error."""
+        with pytest.raises(ValueError, match="new_auc"):
+            choose_alias(new_auc=1.5, padda_auc=None)

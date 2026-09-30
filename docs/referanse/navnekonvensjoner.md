@@ -115,6 +115,21 @@ Python-biblioteker](../guider/utvikle-og-deploye/laste-opp-python-biblioteker.md
 | Ressursfiler                | `resources/<navn>.job.yml`, `resources/<navn>.pipeline.yml` | `resources/folkeregister.pipeline.yml` |
 | Targets                     | Miljønavnet                                                 | `stage`, `prod`                        |
 
+Ressurser for maskinlæring følger samme stil:
+
+| Ressurs                          | Konvensjon                                                                    | Eksempel                                        |
+|----------------------------------|-------------------------------------------------------------------------------|-------------------------------------------------|
+| ML-skjema                        | Bruksområdet, eid av bundlen (skjema per bruksområde)                         | `moteromsbooking`                               |
+| Registrert modell                | `snake_case` som beskriver hva modellen forutsier                             | `romledighet`                                   |
+| Alias                            | `padda` for versjonen i bruk, `utmaner_padda` for en kandidat                 | `models:/<katalog>.<skjema>.romledighet@padda` |
+| Eksperiment                      | `/Users/<deployer>/<bundle-navn>-<navn>`, rett under brukermappen             | `/Users/ola@oslo.kommune.no/moteromsbooking-ml-example` |
+| Serving-endepunkt                | Samme navn som modellen                                                       | `romledighet`                                   |
+| Ressursnøkler                    | `<navn>_model`, `<navn>_experiment`, `<navn>_endpoint`, `<navn>_wheels`       | `example_ml_model`                              |
+| Ressursfiler                     | `resources/<navn>.registered_model.yml`, `<navn>.experiment.yml`, `<navn>.serving.yml`, `<navn>.volume.yml` | `resources/example_ml.serving.yml` |
+
+I `development`-mode får skjema og registrert modell prefikset `dev_<brukernavn>_`.
+Se [MLflow og modellregister](mlflow-og-modellregister.md).
+
 Ressursnøkkelen og `name`-feltet på jobber og pipelines holdes like, slik at navnet i
 Databricks-grensesnittet er det samme som i koden. I `development`-mode legger Databricks
 selv til prefikset `[dev <brukernavn>]` på alle ressurser.

@@ -30,6 +30,7 @@ This template solves common pain points in Databricks project setup:
     | `setup_type` | Type of setup (`default`, `minimal` or `custom`) | `default` | |
     | `include_example_jobs` | Whether to include example pipelines and jobs | `yes/no` | `setup_type` = `custom` |
     | `include_dab_recipes` | Whether to include just recipes for Databricks Bundle commands | `yes/no` | `setup_type` = `custom` |
+    | `include_ml_workflow` | Whether to include the MLflow example (PyTorch training job, Unity Catalog model registry, batch inference, optional serving endpoint) | `yes/no` | `setup_type` != `minimal` |
 
     > Previously, specifying a `package_name` was required. The `package_name` is now automatically generated from the `domain_name` by replacing dashes (`-`) with underscores (`_`) following Python package naming conventions.
 
@@ -39,6 +40,7 @@ This template solves common pain points in Databricks project setup:
     | --------- | ------- | ------- |
     | `include_example_jobs` | `yes` | `no` |
     | `include_dab_recipes` | `yes` | `no` |
+    | `include_ml_workflow` | `no` | `no` |
 
 
 ## Developing the Template

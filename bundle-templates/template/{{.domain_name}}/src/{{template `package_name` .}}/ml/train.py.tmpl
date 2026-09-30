@@ -1,0 +1,121 @@
+"""Training task: features table -> MLflow run -> registered model version -> alias."""
+
+from __future__ import annotations
+
+import logging
+from dataclasses import dataclass
+from typing import TYPE_CHECKING
+
+import mlflow
+from mlflow.models import infer_signature
+
+from {{template `package_name` .}}.ml.features import FEATURE_COLUMNS, FEATURES_TABLE, LABEL_COLUMN, split_by_date
+from {{template `package_name` .}}.ml.model import (
+    FloatArray,
+    TrainParams,
+    build_model,
+    evaluate,
+    predict_proba,
+    train_model,
+)
+from {{template `package_name` .}}.ml.registry import AUC_METRIC, choose_alias, current_padda_auc, set_alias
+
+if TYPE_CHECKING:
+    import pandas as pd
+    from pyspark.sql import SparkSession
+
+logger = logging.getLogger(__name__)
+
+
+@dataclass(frozen=True)
+class TrainConfig:
+    """Where to read features, where to register, and how long to train."""
+
+    catalog: str
+    schema: str
+    model_name: str  # full Unity Catalog name catalog.schema.model
+    experiment_id: str
+    epochs: int = 40
+    learning_rate: float = 0.005
+    validation_days: int = 14
+    seed: int = 0
+
+
+@dataclass(frozen=True)
+class TrainResult:
+    """What a training run produced."""
+
+    run_id: str
+    model_version: str
+    alias: str
+    val_auc: float
+
+
+def run_training(spark: SparkSession, cfg: TrainConfig) -> TrainResult:
+    """Train on the feature table, log to MLflow, register the model and set its alias."""
+    features = spark.table(f"{cfg.catalog}.{cfg.schema}.{FEATURES_TABLE}").toPandas()
+    labelled = features[features[LABEL_COLUMN].notna()]
+    train_df, val_df = split_by_date(labelled, validation_days=cfg.validation_days)
+    x_train, y_train = _arrays(train_df)
+    x_val, y_val = _arrays(val_df)
+    logger.info("training rows=%d validation rows=%d", len(train_df), len(val_df))
+
+    mlflow.set_registry_uri("databricks-uc")
+    mlflow.set_experiment(experiment_id=cfg.experiment_id)
+    with mlflow.start_run(run_name="romledighet-train") as run:
+        mlflow.log_params(
+            {
+                "epochs": cfg.epochs,
+                "learning_rate": cfg.learning_rate,
+                "validation_days": cfg.validation_days,
+                "n_features": len(FEATURE_COLUMNS),
+                "train_rows": len(train_df),
+                "validation_rows": len(val_df),
+            }
+        )
+        model = build_model(n_features=len(FEATURE_COLUMNS), seed=cfg.seed)
+        params = TrainParams(epochs=cfg.epochs, lr=cfg.learning_rate, seed=cfg.seed)
+        losses = train_model(model, x_train, y_train, params)
+        for step, loss in enumerate(losses):
+            mlflow.log_metric("train_loss", loss, step=step)
+        metrics = evaluate(model, x_val, y_val)
+        mlflow.log_metrics({AUC_METRIC: metrics["auc"], "val_accuracy": metrics["accuracy"]})
+
+        example = train_df[FEATURE_COLUMNS].head(5).astype("float32")
+        signature = infer_signature(example, predict_proba(model, example.to_numpy()))
+        info = mlflow.pytorch.log_model(
+            model,
+            name="model",
+            signature=signature,
+            input_example=example,
+            registered_model_name=cfg.model_name,
+        )
+
+    version = info.registered_model_version
+    if version is None:
+        msg = f"{cfg.model_name} was not registered; check CREATE_MODEL on the schema"
+        raise RuntimeError(msg)
+    client = mlflow.MlflowClient()
+    padda_auc = current_padda_auc(client, cfg.model_name)
+    alias = choose_alias(metrics["auc"], padda_auc)
+    set_alias(client, cfg.model_name, alias, version)
+    logger.info(
+        "registered %s version %s as %s (val_auc=%.3f, padda_auc=%s)",
+        cfg.model_name,
+        version,
+        alias,
+        metrics["auc"],
+        padda_auc,
+    )
+    return TrainResult(
+        run_id=run.info.run_id,
+        model_version=str(version),
+        alias=alias,
+        val_auc=metrics["auc"],
+    )
+
+
+def _arrays(frame: pd.DataFrame) -> tuple[FloatArray, FloatArray]:
+    x = frame[FEATURE_COLUMNS].to_numpy(dtype="float32")
+    y = frame[LABEL_COLUMN].to_numpy(dtype="float32")
+    return x, y

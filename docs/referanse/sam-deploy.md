@@ -70,6 +70,18 @@ Alle ressursnavn må starte med workspace-navnet ditt som prefiks. Permission bo
 !!! warning "Deploy feiler uten riktige prefikser"
     Permission boundary blokkerer opprettelse av ressurser som ikke matcher disse prefiksmønstrene. Navnene må starte med riktig prefiks.
 
+### ECR-repositorier for container-baserte tjenester
+
+Workspaces med `enable_ecr_namespace` i `sam_deploy`-modulen får ett ECR-repositorium per tjeneste. Repositoriet opprettes automatisk av ECR første gang workflowen pusher et image, via en *repository creation template* som plattformteamet eier i Terraform. Templaten setter lifecycle-policy (behold siste 10 images), pull-tilgang for Lambda og kostnadstagger.
+
+| Hva | Verdi |
+|---|---|
+| Repositorienavn | `<workspace-name>-sam/<tjeneste>` (skråstrek er påkrevd) |
+| Image-tag | commit-SHA |
+| Eksempel | `sye-prod-sam/nno:3f2a9c1` |
+
+Ny tjeneste med Dockerfile trenger ingen endring i `padda-iac`. Deploy-rollen kan ikke slette repositorier.
+
 ## Permission boundary
 
 Hver IAM-rolle i en SAM-template **må** inkludere en permission boundary. Boundary-ARN-en sendes automatisk av deploy-workflowen som `PermissionsBoundaryArn`-parameteren:

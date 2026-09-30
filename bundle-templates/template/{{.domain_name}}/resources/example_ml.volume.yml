@@ -1,0 +1,14 @@
+# Unity Catalog volume that holds the third-party wheels the job installs.
+# Serverless compute on this platform has no internet access, so torch and its
+# dependencies are downloaded locally and uploaded here with
+# scripts/upload_ml_wheels.sh; the job then installs with --no-index from this
+# path. The volume lives in the bundle-owned schema so `bundle destroy`
+# removes it together with everything else.
+resources:
+  volumes:
+    example_ml_wheels:
+      name: wheels
+      catalog_name: ${var.catalog}
+      schema_name: ${resources.schemas.example_ml_schema.name}
+      volume_type: MANAGED
+      comment: Python wheels for the ML example job (compute has no internet access)

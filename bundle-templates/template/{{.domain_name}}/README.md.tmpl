@@ -20,6 +20,21 @@ Comprehensive documentation can be found in the [documentation](https://padda.da
 
 - **[Getting Started](https://padda.data.oslo.systems/kom-i-gang/dev-setup/)**
 
+{{if eq .include_ml_workflow "yes" -}}
+## MLflow example
+
+`resources/example_ml.*.yml` define a serverless job that trains a PyTorch
+room-availability model on synthetic bookings, registers it in Unity Catalog
+with a `padda` alias, and scores the coming week in batch. Code lives in
+`src/{{template `package_name` .}}/ml/`, tests in `tests/test_ml_*.py`.
+
+Compute has no internet access, so run `scripts/upload_ml_wheels.sh <target> <profile>`
+once after the first `databricks bundle deploy` to put torch and its
+dependencies on the bundle's wheels volume. The optional serving endpoint in
+`resources/optional/` is documented in the platform guide
+"Publisere modell som serving-endepunkt".
+
+{{end -}}
 ## Troubleshooting
 
 - Refer to the [Databricks documentation](https://docs.databricks.com/dev-tools/bundles/index.html) for bundle-specific questions

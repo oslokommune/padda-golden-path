@@ -3,6 +3,11 @@ bundle:
 
 include:
   - "resources/*.yml"
+{{- if eq .include_ml_workflow "yes"}}
+  # Enable the ML serving endpoint by adding the line below (see
+  # resources/optional/example_ml.serving.yml):
+  # - "resources/optional/*.yml"
+{{- end}}
 
 artifacts:
   platform:
@@ -21,6 +26,20 @@ variables:
     description: Unity Catalog catalog for tables and schemas.
   schema:
     description: Default schema for tables.
+{{- if eq .include_ml_workflow "yes"}}
+  ml_schema:
+    description: Bundle-owned schema for the ML example (tables, wheels volume, registered model, predictions).
+    default: ml_example
+  ml_consumer_group:
+    description: Principal granted USE_SCHEMA/SELECT on the ML schema and EXECUTE on the model.
+    default: account users
+  ml_model_version:
+    description: >-
+      Registered model version served by the optional endpoint in
+      resources/optional/. Only read when that file is included; set with
+      --var ml_model_version=N.
+    default: "1"
+{{- end}}
 
 targets:
 

@@ -40,6 +40,7 @@ nav = [
       { "Serverless compute" = "om-plattformen/konsepter/serverless-compute.md" },
       { "Declarative Automation Bundles" = "om-plattformen/konsepter/databricks-bundles.md" },
       { "Datakvalitet" = "om-plattformen/konsepter/datakvalitet.md" },
+      { "Maskinlæring" = "om-plattformen/konsepter/maskinlaering.md" },
     ]},
   ]},
   { "Kom i gang" = [
@@ -69,6 +70,11 @@ nav = [
       { "Deduplisere data i silver" = "guider/bearbeide-data/deduplisere-data.md" },
       { "Håndtere rader som ikke lar seg konvertere" = "guider/bearbeide-data/haandtere-ugyldige-rader.md" },
     ]},
+    { "Maskinlæring" = [
+      { "Trene og registrere en modell" = "guider/maskinlaering/trene-og-registrere-modell.md" },
+      { "Kjøre batch-inferens" = "guider/maskinlaering/batch-inferens.md" },
+      { "Publisere serving-endepunkt" = "guider/maskinlaering/publisere-serving-endepunkt.md" },
+    ]},
     { "Dele og hente ut data" = [
       { "Dokumentere et dataprodukt" = "guider/dele-og-hente-ut/dokumentere-dataprodukt.md" },
       { "Koble Power BI til Databricks" = "guider/dele-og-hente-ut/koble-til-power-bi.md" },
@@ -96,6 +102,7 @@ nav = [
       { "Landing zone" = "referanse/landing-zone.md" },
       { "SQL Warehouse" = "referanse/sql-warehouse.md" },
       { "Backup" = "referanse/backup.md" },
+      { "MLflow og modellregister" = "referanse/mlflow-og-modellregister.md" },
     ]},
     { "Teamets kode og konfigurasjon" = [
       { "Declarative Automation Bundles" = "referanse/databricks-bundles.md" },

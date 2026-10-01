@@ -7,7 +7,8 @@ diataxis: reference
 # Declarative Automation Bundles
 
 Denne referansen dokumenterer bundle-konfigurasjonen og eksemplene brukt på
-plattformen.
+plattformen. Eksempelbundlene ligger under `bundles` i
+[`padda-databrikker`](https://github.com/oslokommune/padda-databrikker/tree/main/bundles).
 
 ## Mappestruktur
 
@@ -199,7 +200,7 @@ Jobbdefinisjoner ligger i `resources/*.yml` og refereres via `include` i
 | Task-type           | Bruk                                          | Eksempel       |
 |---------------------|:----------------------------------------------|:---------------|
 | `notebook_task`     | Kjører en Databricks-notebook                 | `excel_ingest` |
-| `python_wheel_task` | Kjører en entry point fra en installert wheel | `vscode-demo`  |
+| `python_wheel_task` | Kjører en entry point fra en installert wheel | `vscode_demo`  |
 | `spark_python_task` | Kjører et Python-script direkte               | —              |
 
 ### Compute-konfigurasjon

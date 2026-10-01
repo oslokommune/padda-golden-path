@@ -1,5 +1,0 @@
-bundle:
-  name: goldenpath-examples
-
-include:
-  - examples/excel_ingest/bundle.yml

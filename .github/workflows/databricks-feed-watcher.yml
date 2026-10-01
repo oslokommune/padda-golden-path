@@ -115,7 +115,7 @@ jobs:
 
               - padda-golden-path (this repo) — platform documentation
               - .repos/padda-iac — infrastructure (Terraform)
-              - .repos/padda-databrikker — SAM/Lambda examples
+              - .repos/padda-databrikker — reference implementation: Databricks bundles and SAM/Lambda examples
 
             Read the new entries from /tmp/new-entries.json. Each entry has
             id, title, link, pub_date, categories, and summary.

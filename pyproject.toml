@@ -32,6 +32,5 @@ dev = [
 ]
 
 [tool.pytest.ini_options]
-# bundle-templates contains templated (non-runnable) test files, and
-# examples/vscode-demo is a standalone uv project with its own environment.
-addopts = "--ignore=bundle-templates --ignore=examples/vscode-demo"
+# bundle-templates contains templated (non-runnable) test files.
+addopts = "--ignore=bundle-templates"

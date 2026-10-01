@@ -6,7 +6,10 @@ diataxis: how-to
 
 # Importere Excel til Unity Catalog
 
-Denne guiden viser hvordan du laster opp en Excel-fil til et Unity Catalog Volume og deretter skriver den som en Delta-tabell (som i `examples/excel_ingest`, bundle-navn "Ingest Excel").
+Denne guiden viser hvordan du laster opp en Excel-fil til et Unity Catalog Volume og
+deretter skriver den som en Delta-tabell. Bundlen
+[`bundles/excel_ingest`](https://github.com/oslokommune/padda-databrikker/tree/main/bundles/excel_ingest)
+i `padda-databrikker` gjør det samme og brukes som eksempel i trinn 3.
 
 ## Forutsetninger
 - Du har en katalog og et schema du kan skrive til (f.eks. `eksempelteam_dev_green.bronze_default`).
@@ -28,10 +31,14 @@ databricks fs cp \
 ```
 
 
-## 3) Kjør bundle-eksempelet (Ingest Excel)
-I repoet ligger et DAB-eksempel som leser Excel og skriver en Delta-tabell:
+## 3) Kjør bundle-eksempelet
+
+Klon [`padda-databrikker`](https://github.com/oslokommune/padda-databrikker) og kjør bundlen
+som leser Excel og skriver en Delta-tabell:
+
 ```bash
-cd examples/excel_ingest
+git clone git@github.com:oslokommune/padda-databrikker.git
+cd padda-databrikker/bundles/excel_ingest
 databricks bundle deploy
 databricks bundle run ingest_excel_job \
   -v excel_input_path=dbfs:/Volumes/<catalog>/<schema>/excel_test/min_fil.xlsx \

@@ -15,8 +15,8 @@
 Golden paths for **Padda** — the data platform for data engineers at Oslo kommune. This repo contains:
 
 - Zensical documentation (`docs/`) published to GitHub Pages
-- Reference implementations of Databricks pipelines (`examples/`)
 - Padda Asset Bundle Templates (`bundle-templates/`)
+- A bundle for the Databricks Security Analysis Tool (`bundles/sat-tool/`), synced from upstream
 
 Official documentation: https://oslokommune.github.io/padda-golden-path/
 
@@ -37,10 +37,6 @@ uv sync --extra docs
 ## Commands
 
 ```bash
-# Run tests (the root project has no tests; examples with their own
-# uv project run their own suite — see the example's README for prerequisites)
-cd examples/vscode-demo && uv run pytest
-
 # Lint and format
 uvx ruff check . --fix
 uvx ruff format .
@@ -56,26 +52,12 @@ uv run --extra docs zensical serve
 
 # Build docs (writes to site/)
 uv run --extra docs zensical build
-
-# Validate Declarative Automation Bundles
-databricks bundle validate
 ```
 
 ## Architecture
 
-### Databricks Asset Bundles (DAB)
-
-`databricks.yml` at the root aggregates example bundles via `include`; today it includes
-only `examples/excel_ingest/bundle.yml`. `examples/vscode-demo/` is a standalone bundle
-with its own `databricks.yml` and is not part of the root bundle.
-
-The pattern follows the **medallion architecture**: Bronze (raw data from landing zone) → Silver (cleaned) → Gold (business-ready).
-
-### Examples
-
-Two examples live under `examples/`:
-- `excel_ingest/` — a notebook-based bundle: `bundle.yml`, `notebooks/`, README
-- `vscode-demo/` — a wheel-based bundle with its own uv project: `databricks.yml`, `src/`, `notebooks/`, `resources/`, and `test_transform.py`
+Example bundles live in [`padda-databrikker`](https://github.com/oslokommune/padda-databrikker),
+the reference implementation of the golden path.
 
 ### Documentation
 
@@ -101,7 +83,7 @@ Docs are deployed to GitHub Pages via the `pages` workflow on push to main.
 
 Nine workflows run on this repo:
 
-- **pr.yaml** — on every PR: format check → lint → DAB validate → DAB plan. Uses GitHub OIDC for Databricks auth (no hardcoded secrets).
+- **pr.yaml** — on every PR: ruff format check and lint.
 - **pages.yml** — on push to `main`: deploys Zensical docs to GitHub Pages.
 - **docs-review.yml** — on PRs that touch `docs/`: Claude (via AWS Bedrock) reviews changes against Diataxis, flags duplicates, checks `zensical.toml` navigation, and comments on style deviations. Posts inline comments plus a sticky summary comment.
 - **databricks-feed-watcher.yml** — weekdays at 06:00 UTC (manual trigger also available): fetches the Databricks release-notes RSS feed, asks Claude to judge whether each new entry is relevant to this repo, `padda-iac`, or `padda-databrikker`, and posts relevant items to Slack.
@@ -115,4 +97,5 @@ The Claude-powered workflows run on AWS Bedrock via OIDC (no Anthropic API key).
 
 ## pytest configuration
 
-Root pytest ignores `bundle-templates/` (templated, non-runnable test files) and `examples/vscode-demo/` (standalone uv project with its own environment) via `addopts` in `pyproject.toml`. The vscode-demo tests require Databricks Connect and workspace authentication — see `examples/vscode-demo/README.md`.
+Root pytest ignores `bundle-templates/` (templated, non-runnable test files) via `addopts`
+in `pyproject.toml`.

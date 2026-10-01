@@ -20,7 +20,7 @@ Denne guiden viser hvordan du legger en wheel-fil (f.eks. `openpyxl`) på et UC 
   ```
 
 !!! info "ARM vs. x86_64"
-    Databricks-klustre forventer vanligvis Linux `x86_64`-wheels, mens mange utviklere jobber på Mac med ARM64. Dette er uproblematisk for universelle wheels som `py3-none-any`, men pakker med "native" kode må matches mot riktig plattform og Python-versjon.
+    Databricks-clustere forventer vanligvis Linux `x86_64`-wheels, mens mange utviklere jobber på Mac med ARM64. Dette er uproblematisk for universelle wheels som `py3-none-any`, men pakker med "native" kode må matches mot riktig plattform og Python-versjon.
 
     Hvis du trenger en plattformspesifikk wheel, last den ned eksplisitt for Linux `x86_64` i stedet for å bruke det maskinen din foreslår:
 
@@ -34,7 +34,7 @@ Denne guiden viser hvordan du legger en wheel-fil (f.eks. `openpyxl`) på et UC 
       -d wheels/
     ```
 
-    Bytt ut `313` med Python-versjonen som matcher Databricks-runtimen din. En `macosx_arm64`-wheel vil ikke kunne installeres på klusteret.
+    Bytt ut `313` med Python-versjonen som matcher Databricks-runtimen din. En `macosx_arm64`-wheel vil ikke kunne installeres på clusteret.
 
 ## 2) Opprett en mappe for dependencies i Volume
 - I UI: Catalog → velg katalog/schema → Volumes → lag Volume `wheels`.
@@ -52,7 +52,12 @@ databricks fs cp -r \
 ```
 
 ## 4) Bruk wheel i notebooks/kode
-- I `examples/excel_ingest/notebooks/01_ingest_excel.py` (bundle-navn "Ingest Excel") installeres wheelene lokalt på driveren fra Volume. Sett variablene `openpyxl_whl_path` og `et_xmlfile_whl_path` til Volume-stiene (f.eks. `dbfs:/Volumes/<catalog>/<schema>/wheels/deps/openpyxl-3.1.5-py2.py3-none-any.whl`).
+
+- I [`bundles/excel_ingest/notebooks/01_ingest_excel.py`](https://github.com/oslokommune/padda-databrikker/blob/main/bundles/excel_ingest/notebooks/01_ingest_excel.py)
+  i `padda-databrikker` installeres wheelene lokalt på driveren
+  fra Volume. Sett variablene `openpyxl_whl_path` og `et_xmlfile_whl_path` til
+  Volume-stiene (f.eks. `dbfs:/Volumes/<catalog>/<schema>/wheels/deps/openpyxl-3.1.5-py2.py3-none-any.whl`).
+
 - Notebooken gjør deretter:
   ```python
   local_whls = [
@@ -82,4 +87,4 @@ databricks fs cp -r \
 ## Tips
 - Hold en egen `deps`-mappe per prosjekt/schema for å slippe navnekollisjoner.
 - Versjoner filer tydelig (f.eks. `openpyxl-3.1.5-py2.py3-none-any.whl`).
-- Kluster som skal installere fra volume må defineres med: `data_security_mode`: `SINGLE_USER` eller `USER_ISOLATION`.
+- Clustere som skal installere fra volume må defineres med: `data_security_mode`: `SINGLE_USER` eller `USER_ISOLATION`.

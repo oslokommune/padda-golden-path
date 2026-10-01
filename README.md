@@ -16,7 +16,6 @@ Golden paths for **Padda** — the data platform for data engineers at Oslo komm
 
 - Zensical documentation (`docs/`) published to GitHub Pages
 - Padda Asset Bundle Templates (`bundle-templates/`)
-- A bundle for the Databricks Security Analysis Tool (`bundles/sat-tool/`), synced from upstream
 
 Official documentation: https://oslokommune.github.io/padda-golden-path/
 
@@ -81,7 +80,7 @@ Docs are deployed to GitHub Pages via the `pages` workflow on push to main.
 
 ## GitHub Actions
 
-Nine workflows run on this repo:
+Eight workflows run on this repo:
 
 - **pr.yaml** — on every PR: ruff format check and lint.
 - **pages.yml** — on push to `main`: deploys Zensical docs to GitHub Pages.
@@ -91,7 +90,6 @@ Nine workflows run on this repo:
 - **collect-aws-cost.yml** — Mondays at 06:00 UTC: queries AWS Cost Explorer per cost-allocation tag and uploads JSONL to the same volume.
 - **collect-dora.yml** — daily at 06:30 UTC: records this repo's merged PRs as DORA deployment and lead-time events, uploaded to the same volume. Copied verbatim to every platform repo.
 - **weekly-report.yml** — Mondays at 08:00 UTC: posts a Slack summary of PRs merged in `padda-golden-path`, `padda-iac`, and `padda-databrikker`.
-- **sat-upstream.yml** — Mondays at 07:00 UTC: syncs `bundles/sat-tool/` with the upstream Databricks Security Analysis Tool and opens a PR when it has moved.
 
 The Claude-powered workflows run on AWS Bedrock via OIDC (no Anthropic API key). The feed watcher additionally uses a GitHub App for read-only cross-repo access.
 

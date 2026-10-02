@@ -215,4 +215,4 @@ As you improve individual pieces, patterns will emerge that suggest organization
 
 ---
 
-*Source: [Diataxis Framework](https://diataxis.fr/)*
+*Source: [Diátaxis](https://diataxis.fr/) by Daniele Procida, [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). This summary is shared under the same licence.*

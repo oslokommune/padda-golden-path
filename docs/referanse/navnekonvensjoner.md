@@ -44,13 +44,13 @@ får `dev` som miljøledd.
 
 ### Kataloger
 
-| Mønster                 | Eksempel                  | Innhold                                                                                                                      |
-|-------------------------|---------------------------|------------------------------------------------------------------------------------------------------------------------------|
+| Mønster                 | Eksempel                   | Innhold                                                                                                                      |
+|-------------------------|----------------------------|------------------------------------------------------------------------------------------------------------------------------|
 | `<org>_<miljø>_<farge>` | `dig_eksempel_stage_green` | Data. Én katalog per farge — se [Klassifisering av sensitivitet](../om-plattformen/konsepter/klassifisering-sensitivitet.md) |
 | `<org>_<miljø>_utils`   | `dig_eksempel_stage_utils` | Delte hjelperessurser uten sensitivitetsfarge                                                                                |
 
 - `<org>` er teamets eller virksomhetens korte navn, eventuelt med etatsprefiks: for
-  eksempel `sye` eller `dig_eksempel`.
+  eksempel `sye` eller `dig_eksempelteam`.
 - `<miljø>` er `dev`, `stage` eller `prod`.
 - `<farge>` er `green`, `yellow` eller `red`.
 

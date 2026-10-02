@@ -17,7 +17,7 @@ Golden paths for **Padda** — the data platform for data engineers at Oslo komm
 - Zensical documentation (`docs/`) published to GitHub Pages
 - Padda Asset Bundle Templates (`bundle-templates/`)
 
-Official documentation: https://oslokommune.github.io/padda-golden-path/
+Official documentation: https://padda.data.oslo.systems/
 
 ## Getting started
 

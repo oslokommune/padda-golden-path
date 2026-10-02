@@ -3,7 +3,10 @@
 These files are used by the `docs-review.yml` GitHub Actions workflow to provide
 Claude with detailed Diataxis documentation framework guidance when reviewing PRs.
 
-Source: [Diataxis Framework](https://diataxis.fr/)
+Source: [Diátaxis](https://diataxis.fr/) by Daniele Procida, licensed under
+[CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). The files in
+this directory are condensed summaries of that work and are shared under the
+same license.
 
 ## Files
 

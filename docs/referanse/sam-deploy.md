@@ -76,11 +76,11 @@ med det faktiske workspace-navnet ditt (f.eks. `dig-eksempelteam-stage`).
 
 Workspaces med `enable_ecr_namespace` i `sam_deploy`-modulen får ett ECR-repositorium per tjeneste. Repositoriet opprettes automatisk av ECR første gang workflowen pusher et image, via en *repository creation template* som plattformteamet eier i Terraform. Templaten setter lifecycle-policy (behold siste 10 images), pull-tilgang for Lambda og kostnadstagger.
 
-| Hva | Verdi |
-|---|---|
+| Hva             | Verdi                                                    |
+|-----------------|----------------------------------------------------------|
 | Repositorienavn | `<workspace-name>-sam/<tjeneste>` (skråstrek er påkrevd) |
-| Image-tag | commit-SHA |
-| Eksempel | `sye-prod-sam/nno:3f2a9c1` |
+| Image-tag       | commit-SHA                                               |
+| Eksempel        | `dig-eksempelteam-stage-sam/min-tjeneste:abc1234`        |
 
 Ny tjeneste med Dockerfile trenger ingen endring i `padda-iac`. Deploy-rollen kan ikke slette repositorier.
 

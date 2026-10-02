@@ -32,8 +32,8 @@ understrek.
 ## Workspaces og miljøer
 
 Et workspace har et kort navn med små bokstaver og bindestrek, ofte `<org>-<miljø>`, for
-eksempel `sye-stage`. Workspace-navnet inngår i navnet på mange andre ressurser: landing
-zone-bøtta, sendere, service principals og serverless-funksjoner.
+eksempel `dig-eksempelteam-stage`. Workspace-navnet inngår i navnet på mange andre
+ressurser: landing zone-bøtta, sendere, service principals og serverless-funksjoner.
 
 Miljøene heter **sandbox**, **stage** og **prod** — se
 [Arkitektur](../om-plattformen/konsepter/arkitektur.md#bearbeiding-ett-workspace-per-team-og-milj).

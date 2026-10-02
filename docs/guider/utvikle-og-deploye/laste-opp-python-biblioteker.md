@@ -45,10 +45,7 @@ Denne guiden viser hvordan du legger en wheel-fil (f.eks. `openpyxl`) på et UC 
 ### Med Databricks CLI
 ```bash
 cd wheels
-databricks fs cp -r \
-  --profile DEFAULT \
-  ./ \
-  dbfs:/Volumes/padda_catalog_1234567890123456/wheels/deps/
+databricks fs cp -r --profile DEFAULT . dbfs:/Volumes/<catalog>/<schema>/wheels/deps
 ```
 
 ## 4) Bruk wheel i notebooks/kode

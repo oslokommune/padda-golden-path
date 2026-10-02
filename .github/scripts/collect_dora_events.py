@@ -30,7 +30,7 @@ Required environment variables:
   DATABRICKS_CLIENT_ID        Collector SP application id (selects the SP; not secret)
   DATABRICKS_OIDC_TOKEN       GitHub OIDC JWT (audience = the account ID)
   DATABRICKS_HOST             Workspace host hosting this environment's volume
-  DATABRICKS_METRICS_CATALOG  Catalog (padda_dev_green / dig_eksempelteam_stage_green)
+  DATABRICKS_METRICS_CATALOG  Catalog (e.g. padda_dev_green or <org>_stage_green)
 """
 
 import json

@@ -26,7 +26,7 @@ Required environment variables:
   DATABRICKS_CLIENT_ID        Collector SP application id (selects the SP; not secret)
   DATABRICKS_OIDC_TOKEN       GitHub OIDC JWT (audience = the account ID)
   DATABRICKS_HOST             Workspace host hosting this environment's volume
-  DATABRICKS_METRICS_CATALOG  Catalog (padda_dev_green / dig_eksempelteam_stage_green)
+  DATABRICKS_METRICS_CATALOG  Catalog (e.g. padda_dev_green or <org>_stage_green)
   ACCOUNT_LABEL               Label stored in the records, e.g. dev / prod
 """
 
@@ -247,7 +247,7 @@ def count_tables_by_tier(
     system views don't inflate the n/a group.
 
     Volume folders: some teams ship data products as FOLDERS in a volume
-    (e.g. dig_eksempelteam_prod_green.gold_default's volume). Every volume in
+    (e.g. <org>_prod_green.gold_default's volume). Every volume in
     every schema is inventoried; each top-level folder is counted into
     ``silver_folders`` / ``gold_folders`` with the usual tier resolution:
     folder name, else volume name, else the schema's tier. Folders resolving

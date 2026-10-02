@@ -57,7 +57,9 @@ CI/CD-pipelinen oppdager automatisk alle mapper på dybde 1 under `sam/` og depl
 
 ## Navnekonvensjoner
 
-Alle ressursnavn må starte med workspace-navnet ditt som prefiks. Permission boundary støtter både `-` og `_` som separator etter workspace-navnet. Erstatt `<workspace-name>` med det faktiske workspace-navnet ditt (f.eks. `dig-eksempelteam-stage`).
+Alle ressursnavn må starte med workspace-navnet ditt som prefiks. Permission boundary
+støtter både `-` og `_` som separator etter workspace-navnet. Erstatt `<workspace-name>`
+med det faktiske workspace-navnet ditt (f.eks. `dig-eksempelteam-stage`).
 
 | Ressurs | Tillatte prefikser | Eksempel |
 |---------|-------------------|----------|
@@ -199,15 +201,15 @@ flowchart TD
 
 Følgende er konfigurert som GitHub Environment-variabler/-secrets for `stage`-miljøet:
 
-| Variabel                   | Beskrivelse                                     |
-|----------------------------|-------------------------------------------------|
-| `AWS_REGION`               | AWS-region (`eu-west-1`)                        |
-| `SAM_S3_BUCKET`            | S3-bøtte for SAM-artifakter                     |
-| `CFN_ROLE_ARN`             | CloudFormation execution role ARN               |
-| `PERMISSIONS_BOUNDARY_ARN` | Permission boundary policy ARN                  |
-| `DEPLOY_ROLE_ARN`          | OIDC deploy role ARN                            |
-| `WORKSPACE_NAME`           | Workspace-navn (f.eks. `dig-eksempelteam-stage`) |
-| `ECR_REPOSITORY`           | ECR-repository-navn for container images        |
+| Variabel                   | Beskrivelse                              |
+|----------------------------|------------------------------------------|
+| `AWS_REGION`               | AWS-region (`eu-west-1`)                 |
+| `SAM_S3_BUCKET`            | S3-bøtte for SAM-artifakter              |
+| `CFN_ROLE_ARN`             | CloudFormation execution role ARN        |
+| `PERMISSIONS_BOUNDARY_ARN` | Permission boundary policy ARN           |
+| `DEPLOY_ROLE_ARN`          | OIDC deploy role ARN                     |
+| `WORKSPACE_NAME`           | Workspace-navn                           |
+| `ECR_REPOSITORY`           | ECR-repository-navn for container images |
 
 ## Lokal testing
 

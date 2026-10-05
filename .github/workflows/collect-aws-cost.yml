@@ -8,10 +8,12 @@ name: Collect AWS Cost
 # Runs once per GitHub environment (dev, prod) via the matrix below. Each
 # environment supplies its own config as environment variables, including
 # which AWS account to read cost from.
-#   vars: AWS_ACCOUNT_ID, DATABRICKS_ACCOUNT_ID, DATABRICKS_CLIENT_ID,
-#         DATABRICKS_HOST, DATABRICKS_METRICS_CATALOG
+#   secrets: AWS_ACCOUNT_ID, DATABRICKS_ACCOUNT_ID, DATABRICKS_CLIENT_ID,
+#            DATABRICKS_HOST, DATABRICKS_METRICS_CATALOG
+#   (environment secrets rather than variables so the values are masked in
+#   the public run logs; none of them is a credential)
 #
-# Auth, no stored secrets:
+# Auth, no stored credentials:
 #   AWS        — GitHub OIDC via aws-actions/configure-aws-credentials, assuming
 #                the read-only `metrics-cost-reader` role (padda-iac
 #                tf/*/…/metrics_collector_cost_oidc.tf) that only allows
@@ -59,7 +61,7 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/metrics-cost-reader
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/metrics-cost-reader
           aws-region: eu-west-1
 
       - name: Mint Databricks OIDC token
@@ -67,18 +69,18 @@ jobs:
         run: |
           TOKEN=$(curl -sS \
             -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
-            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=${{ vars.DATABRICKS_ACCOUNT_ID }}" \
+            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=${{ secrets.DATABRICKS_ACCOUNT_ID }}" \
             | jq -r '.value')
           echo "::add-mask::$TOKEN"
           echo "token=$TOKEN" >> "$GITHUB_OUTPUT"
 
       - name: Collect AWS cost
         env:
-          DATABRICKS_ACCOUNT_ID: ${{ vars.DATABRICKS_ACCOUNT_ID }}
-          DATABRICKS_CLIENT_ID: ${{ vars.DATABRICKS_CLIENT_ID }}
+          DATABRICKS_ACCOUNT_ID: ${{ secrets.DATABRICKS_ACCOUNT_ID }}
+          DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_CLIENT_ID }}
           DATABRICKS_OIDC_TOKEN: ${{ steps.oidc.outputs.token }}
-          DATABRICKS_HOST: ${{ vars.DATABRICKS_HOST }}
-          DATABRICKS_METRICS_CATALOG: ${{ vars.DATABRICKS_METRICS_CATALOG }}
+          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+          DATABRICKS_METRICS_CATALOG: ${{ secrets.DATABRICKS_METRICS_CATALOG }}
           ACCOUNT_LABEL: ${{ matrix.environment }}
           LOOKBACK_DAYS: ${{ inputs.lookback_days || '14' }}
         run: python .github/scripts/collect_aws_cost.py

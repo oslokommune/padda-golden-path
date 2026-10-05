@@ -16,7 +16,7 @@ PRs — no cross-repo token plumbing.
 Auth: GitHub OIDC federation (RFC 8693 token-exchange). The workflow mints an
 OIDC token with the Databricks account as audience and passes it in; client_id
 selects the collector SP, whose federation policy in padda-iac authorizes the
-exchange. No stored secret.
+exchange. No stored credential.
 
 Single environment per run. The workflow runs this once per GitHub environment
 (dev, prod); each run uploads the repo's events to that environment's own
@@ -27,7 +27,7 @@ Required environment variables:
   GITHUB_TOKEN                Workflow's built-in token (default in GH Actions)
   GITHUB_REPOSITORY           Set automatically by GitHub Actions
   DATABRICKS_ACCOUNT_ID       Databricks account ID for this environment
-  DATABRICKS_CLIENT_ID        Collector SP application id (selects the SP; not secret)
+  DATABRICKS_CLIENT_ID        Collector SP application id (selects the SP)
   DATABRICKS_OIDC_TOKEN       GitHub OIDC JWT (audience = the account ID)
   DATABRICKS_HOST             Workspace host hosting this environment's volume
   DATABRICKS_METRICS_CATALOG  Catalog (e.g. padda_dev_green or <org>_stage_green)
@@ -71,7 +71,7 @@ def get_databricks_token(account_id: str, client_id: str, oidc_token: str) -> st
 
     RFC 8693 token exchange: the GitHub Actions OIDC JWT is the subject_token;
     client_id selects the collector SP, whose federation policy in padda-iac
-    authorizes the exchange. No stored secret.
+    authorizes the exchange. No stored credential.
     """
     import urllib.parse
 
@@ -218,7 +218,7 @@ def upload_to_volume(
 
 
 def main() -> int:
-    # .strip() guards against trailing whitespace/newlines in GitHub vars,
+    # .strip() guards against trailing whitespace/newlines in GitHub secrets,
     # which otherwise corrupt the client_id / account_id sent to Databricks.
     repo = (os.environ.get("GITHUB_REPOSITORY") or "").strip()
     github_token = (os.environ.get("GITHUB_TOKEN") or "").strip()
@@ -265,7 +265,7 @@ def main() -> int:
     filename = f"dora-{repo_slug}-{collection_ts}.jsonl"
 
     print(
-        f"Authenticating to Databricks (account {account_id}) via GitHub OIDC",
+        "Authenticating to Databricks via GitHub OIDC",
         flush=True,
     )
     token = get_databricks_token(account_id, client_id, oidc_token)

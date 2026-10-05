@@ -173,9 +173,9 @@ def query_cost(
 
 def main() -> int:
     # Single environment per run. The workflow invokes this once per GitHub
-    # environment (dev, prod); the vars resolve to that environment's own
-    # Databricks account and catalog, and the ambient AWS credentials to that
-    # environment's AWS account.
+    # environment (dev, prod); the environment secrets resolve to that
+    # environment's own Databricks account and catalog, and the ambient AWS
+    # credentials to that environment's AWS account.
     account_id = (os.environ.get("DATABRICKS_ACCOUNT_ID") or "").strip()
     client_id = (os.environ.get("DATABRICKS_CLIENT_ID") or "").strip()
     oidc_token = (os.environ.get("DATABRICKS_OIDC_TOKEN") or "").strip()
@@ -215,10 +215,7 @@ def main() -> int:
     aws_account_id = boto3.client("sts").get_caller_identity()["Account"]
     ce = boto3.client("ce", region_name=CE_REGION)
 
-    print(
-        f"Collecting AWS cost for account {aws_account_id} ({account_label}), "
-        f"{start} to {end} (exclusive)"
-    )
+    print(f"Collecting AWS cost for {account_label}, {start} to {end} (exclusive)")
     records = query_cost(
         ce,
         start,
@@ -250,10 +247,7 @@ def main() -> int:
         print("No cost records returned")
         return 0
 
-    print(
-        f"Authenticating to {account_label} Databricks account "
-        f"({account_id}) via GitHub OIDC"
-    )
+    print(f"Authenticating to {account_label} Databricks account via GitHub OIDC")
     token = get_account_token(account_id, client_id, oidc_token)
 
     filename = f"aws-cost-{now.strftime('%Y%m%dT%H%M%SZ')}.jsonl"

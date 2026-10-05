@@ -12,12 +12,14 @@ name: Collect DORA Events
 # Runs once per GitHub environment (dev, prod) via the matrix. Each environment
 # supplies its own config as environment variables; only the catalog varies the
 # upload path.
-#   vars: DATABRICKS_ACCOUNT_ID, DATABRICKS_CLIENT_ID, DATABRICKS_HOST,
-#         DATABRICKS_METRICS_CATALOG
+#   secrets: DATABRICKS_ACCOUNT_ID, DATABRICKS_CLIENT_ID, DATABRICKS_HOST,
+#            DATABRICKS_METRICS_CATALOG
+#   (environment secrets rather than variables so the values are masked in
+#   the public run logs; none of them is a credential)
 #
 # Auth: GitHub OIDC federation (RFC 8693 token-exchange) — the job mints an OIDC
 # token with the Databricks account as audience; client_id selects the collector
-# SP, whose federation policy in padda-iac authorizes it. No stored secret.
+# SP, whose federation policy in padda-iac authorizes it. No stored credential.
 
 on:
   schedule:
@@ -63,19 +65,17 @@ jobs:
         run: |
           TOKEN=$(curl -sS \
             -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
-            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=${{ vars.DATABRICKS_ACCOUNT_ID }}" \
+            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=${{ secrets.DATABRICKS_ACCOUNT_ID }}" \
             | jq -r '.value')
-          echo "OIDC token claims (iss/aud/sub):"
-          echo "$TOKEN" | cut -d. -f2 | python3 -c "import sys,base64,json; p=sys.stdin.read().strip(); p+='='*(-len(p)%4); c=json.loads(base64.urlsafe_b64decode(p)); print(json.dumps({k:c.get(k) for k in ('iss','aud','sub')}, indent=2))"
           echo "::add-mask::$TOKEN"
           echo "token=$TOKEN" >> "$GITHUB_OUTPUT"
 
       - name: Collect DORA events
         env:
           GITHUB_TOKEN: ${{ github.token }}
-          DATABRICKS_ACCOUNT_ID: ${{ vars.DATABRICKS_ACCOUNT_ID }}
-          DATABRICKS_CLIENT_ID: ${{ vars.DATABRICKS_CLIENT_ID }}
+          DATABRICKS_ACCOUNT_ID: ${{ secrets.DATABRICKS_ACCOUNT_ID }}
+          DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_CLIENT_ID }}
           DATABRICKS_OIDC_TOKEN: ${{ steps.oidc.outputs.token }}
-          DATABRICKS_HOST: ${{ vars.DATABRICKS_HOST }}
-          DATABRICKS_METRICS_CATALOG: ${{ vars.DATABRICKS_METRICS_CATALOG }}
+          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+          DATABRICKS_METRICS_CATALOG: ${{ secrets.DATABRICKS_METRICS_CATALOG }}
         run: python .github/scripts/collect_dora_events.py

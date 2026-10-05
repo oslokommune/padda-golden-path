@@ -13,7 +13,7 @@ No AWS hop — auth to storage is the federated Databricks token.
 Auth: GitHub OIDC federation (RFC 8693 token-exchange). The workflow mints an
 OIDC token with the Databricks account as audience and passes it in; client_id
 selects the collector SP, whose federation policy in padda-iac authorizes the
-exchange. No stored secret.
+exchange. No stored credential.
 
 Single environment per run. The workflow runs this once per GitHub environment
 (dev, prod); each run inventories that environment's own Databricks account and
@@ -23,7 +23,7 @@ LANDING_VOLUME / COLLECTION convention below.
 
 Required environment variables:
   DATABRICKS_ACCOUNT_ID       Databricks account ID for this environment
-  DATABRICKS_CLIENT_ID        Collector SP application id (selects the SP; not secret)
+  DATABRICKS_CLIENT_ID        Collector SP application id (selects the SP)
   DATABRICKS_OIDC_TOKEN       GitHub OIDC JWT (audience = the account ID)
   DATABRICKS_HOST             Workspace host hosting this environment's volume
   DATABRICKS_METRICS_CATALOG  Catalog (e.g. padda_dev_green or <org>_stage_green)
@@ -127,6 +127,25 @@ def get_account_token(account_id: str, client_id: str, oidc_token: str) -> str:
 # ---------------------------------------------------------------------------
 
 
+class ApiError(RuntimeError):
+    """A Databricks REST call failed.
+
+    The message carries the full URL and response body for the uploaded
+    error record; ``status`` alone is safe to print in the public run log.
+    """
+
+    def __init__(self, message: str, status: int) -> None:
+        super().__init__(message)
+        self.status = status
+
+
+def _log_summary(exc: Exception) -> str:
+    """Describe a failure without leaking URLs or response bodies to the log."""
+    if isinstance(exc, ApiError):
+        return f"HTTP {exc.status}"
+    return type(exc).__name__
+
+
 def _get(url: str, token: str, params: dict | None = None) -> dict:
     """Authenticated GET against a Databricks REST endpoint."""
     headers = {"Authorization": f"Bearer {token}"}
@@ -134,7 +153,9 @@ def _get(url: str, token: str, params: dict | None = None) -> dict:
         url += "?" + "&".join(f"{k}={v}" for k, v in params.items())
     resp = http.request("GET", url, headers=headers, timeout=60)
     if resp.status != 200:
-        raise RuntimeError(f"GET {url} failed ({resp.status}): {resp.data.decode()}")
+        raise ApiError(
+            f"GET {url} failed ({resp.status}): {resp.data.decode()}", resp.status
+        )
     return json.loads(resp.data.decode())
 
 
@@ -184,7 +205,9 @@ def list_workspaces(account_id: str, token: str) -> list[dict]:
     return raw if isinstance(raw, list) else raw.get("workspaces", [])
 
 
-def count_jobs(workspace_url: str, token: str, errors: list[str]) -> int | None:
+def count_jobs(
+    workspace_url: str, token: str, errors: list[str], label: str
+) -> int | None:
     """Count all jobs in a workspace.
 
     Returns None (not -1) when the API call fails, so an unreachable workspace
@@ -195,12 +218,14 @@ def count_jobs(workspace_url: str, token: str, errors: list[str]) -> int | None:
         jobs = _get_paginated(f"{workspace_url}/api/2.1/jobs/list", token, "jobs")
         return len(jobs)
     except RuntimeError as exc:
-        print(f"  Warning: could not list jobs for {workspace_url}: {exc}")
+        print(f"  Warning: could not list jobs for {label} ({_log_summary(exc)})")
         errors.append(f"jobs: {exc}")
         return None
 
 
-def count_pipelines(workspace_url: str, token: str, errors: list[str]) -> int | None:
+def count_pipelines(
+    workspace_url: str, token: str, errors: list[str], label: str
+) -> int | None:
     """Count all DLT pipelines in a workspace.
 
     Returns None on failure (see :func:`count_jobs`).
@@ -211,7 +236,7 @@ def count_pipelines(workspace_url: str, token: str, errors: list[str]) -> int | 
         )
         return len(pipelines)
     except RuntimeError as exc:
-        print(f"  Warning: could not list pipelines for {workspace_url}: {exc}")
+        print(f"  Warning: could not list pipelines for {label} ({_log_summary(exc)})")
         errors.append(f"pipelines: {exc}")
         return None
 
@@ -232,7 +257,7 @@ def _list_directory(workspace_url: str, token: str, path: str) -> list[dict]:
 
 
 def count_tables_by_tier(
-    workspace_url: str, token: str, errors: list[str]
+    workspace_url: str, token: str, errors: list[str], label: str
 ) -> dict[str, int | None]:
     """Count tables per medallion tier, plus data-product volume folders.
 
@@ -272,7 +297,7 @@ def count_tables_by_tier(
             f"{workspace_url}/api/2.1/unity-catalog/catalogs", token, "catalogs"
         )
     except RuntimeError as exc:
-        print(f"  Warning: could not list catalogs for {workspace_url}: {exc}")
+        print(f"  Warning: could not list catalogs for {label} ({_log_summary(exc)})")
         errors.append(f"catalogs: {exc}")
         return all_unknown
 
@@ -366,22 +391,25 @@ def collect_account_metrics(
     timestamp: str,
 ) -> list[dict]:
     """Collect metrics for all workspaces in one Databricks account."""
-    print(f"Listing workspaces for {account_label} ({account_id})")
+    print(f"Listing workspaces for {account_label}")
     workspaces = list_workspaces(account_id, account_token)
     print(f"  Found {len(workspaces)} workspaces")
 
     records = []
-    for ws in workspaces:
+    for index, ws in enumerate(workspaces, start=1):
         ws_name = ws.get("workspace_name", ws.get("deployment_name", "unknown"))
         ws_id = ws.get("workspace_id", "")
         deployment = ws.get("deployment_name", "")
         workspace_url = f"https://{deployment}.cloud.databricks.com"
 
-        print(f"  Collecting metrics for {ws_name} ({workspace_url})")
+        # The run log is public, so refer to workspaces by position only; the
+        # uploaded records carry the name and any errors.
+        label = f"workspace {index}/{len(workspaces)}"
+        print(f"  Collecting metrics for {label}")
         errors: list[str] = []
-        num_jobs = count_jobs(workspace_url, account_token, errors)
-        num_pipelines = count_pipelines(workspace_url, account_token, errors)
-        table_counts = count_tables_by_tier(workspace_url, account_token, errors)
+        num_jobs = count_jobs(workspace_url, account_token, errors, label)
+        num_pipelines = count_pipelines(workspace_url, account_token, errors, label)
+        table_counts = count_tables_by_tier(workspace_url, account_token, errors, label)
 
         records.append({
             "collection_timestamp": timestamp,
@@ -442,9 +470,10 @@ def upload_to_volume(
 
 def main() -> int:
     # Single environment per run. The workflow invokes this once per GitHub
-    # environment (dev, prod); the vars resolve to that environment's own
-    # account, workspace, and catalog. Auth is GitHub OIDC federation — the
-    # workflow passes a Databricks-audience OIDC token, no stored secret.
+    # environment (dev, prod); the environment secrets resolve to that
+    # environment's own account, workspace, and catalog. Auth is GitHub OIDC
+    # federation — the workflow passes a Databricks-audience OIDC token, no
+    # stored credential.
     account_id = os.environ.get("DATABRICKS_ACCOUNT_ID")
     client_id = os.environ.get("DATABRICKS_CLIENT_ID")
     oidc_token = os.environ.get("DATABRICKS_OIDC_TOKEN")
@@ -469,7 +498,7 @@ def main() -> int:
 
     timestamp = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
 
-    print(f"Authenticating to {account_label} account ({account_id}) via GitHub OIDC")
+    print(f"Authenticating to {account_label} account via GitHub OIDC")
     token = get_account_token(account_id, client_id, oidc_token)
     records = collect_account_metrics(account_id, account_label, token, timestamp)
 

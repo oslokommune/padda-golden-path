@@ -61,8 +61,8 @@ S3. Den enkelheten tjener flere formål på én gang:
   sporbart.
 
 Ikke alt trenger å gå denne veien. Mindre datasett som lastes opp manuelt, for eksempel
-Excel-filer, kan legges rett på et Unity Catalog Volume, se [Importere Excel til Unity
-Catalog](../../guider/hente-inn-data/importere-excel-til-uc.md).
+Excel-filer, kan legges rett på et Unity Catalog Volume, se [Importere Excel til
+Databricks](../../guider/hente-inn-data/importere-excel-til-databricks.md).
 
 ## Fra landing zone til bronze
 
@@ -160,7 +160,7 @@ bevisst valg om å gi fra deg den muligheten.
 - [Laste opp filer til landing zone](../../guider/hente-inn-data/laste-opp-til-landing-zone.md)
 - [Hente data via API](../../guider/hente-inn-data/hente-data-via-api.md)
 - [Sette opp Auto Loader](../../guider/hente-inn-data/auto-loader.md)
-- [Importere Excel til Unity Catalog](../../guider/hente-inn-data/importere-excel-til-uc.md)
+- [Importere Excel til Databricks](../../guider/hente-inn-data/importere-excel-til-databricks.md)
 
 **Referanser:**
 

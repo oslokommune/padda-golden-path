@@ -63,7 +63,7 @@ nav = [
       { "Laste opp filer til landing zone" = "guider/hente-inn-data/laste-opp-til-landing-zone.md" },
       { "Sette opp Auto Loader" = "guider/hente-inn-data/auto-loader.md" },
       { "Hente data via API" = "guider/hente-inn-data/hente-data-via-api.md" },
-      { "Importere Excel til Unity Catalog" = "guider/hente-inn-data/importere-excel-til-uc.md" },
+      { "Importere Excel til Databricks" = "guider/hente-inn-data/importere-excel-til-databricks.md" },
     ]},
     { "Bearbeide data" = [
       { "Skrive transformasjoner" = "guider/bearbeide-data/skrive-transformasjoner.md" },

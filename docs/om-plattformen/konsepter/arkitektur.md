@@ -59,7 +59,7 @@ allerede er prosessert.
 
 Ikke alle data trenger å gå denne veien. Mindre datasett som lastes opp manuelt, for
 eksempel en Excel-fil, kan legges rett på et Unity Catalog Volume — se [Importere Excel
-til Unity Catalog](../../guider/hente-inn-data/importere-excel-til-uc.md).
+til Databricks](../../guider/hente-inn-data/importere-excel-til-databricks.md).
 
 ### Når plattformen må hente data selv
 

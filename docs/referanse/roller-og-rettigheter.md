@@ -47,7 +47,9 @@ De to plattformovergripende gruppene, som foreløpig bare finnes for DIG:
 
 Workspace-admin har Catalog Owner-rettigheter og administrerer
 workspace-ressurser, Access Control Lists (ACL-er) for jobber og brukergrupper
-på workspace-nivå.
+på workspace-nivå. Deler teamet data med OpenSharing, har gruppa i tillegg
+`CREATE SHARE` og `USE RECIPIENT` på metastoren, se [Dele data med en annen
+Databricks-konto](../guider/dele-og-hente-ut/dele-med-annen-databricks-konto.md).
 
 ### Dataanalytiker
 

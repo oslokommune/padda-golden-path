@@ -98,6 +98,9 @@ verk. Hvordan det skjer, avhenger av hvor mottakeren er:
 - **I et annet workspace** er ikke katalogen synlig før Dataspeilet har knyttet den til
   mottakerens workspace. Deling på tvers av team er derfor en bestilling, et bevisst steg
   som følger av at workspacet er plattformens [enhet for isolasjon](arkitektur.md#bearbeiding-ett-workspace-per-team-og-milj).
+- **I en annen Databricks-konto** deler teamet tabellene med OpenSharing, etter at
+  Dataspeilet har opprettet mottakeren, se [Dele data med en annen
+  Databricks-konto](../../guider/dele-og-hente-ut/dele-med-annen-databricks-konto.md).
 - **Utenfor plattformen** bør konsumenter møte dataene som ferdige dataprodukter, for
   eksempel via Power BI eller
   [Fabric-plattformen](../overordnet/velg-riktig-plattform.md), ikke ved å slippes inn i

@@ -101,6 +101,19 @@ stil som skjemaer og tabeller. Volum for innkommende filer hører hjemme i
 `landing_default`. Volumer med Python-pakker er beskrevet i [Laste opp
 Python-biblioteker](../guider/utvikle-og-deploye/laste-opp-python-biblioteker.md).
 
+### Shares og mottakere
+
+Shares og mottakere i OpenSharing er felles for hele plattformen, så navnene må være
+unike på tvers av team:
+
+| Ressurs              | Mønster               | Eksempel                          |
+|----------------------|-----------------------|-----------------------------------|
+| Share                | `<org>_<dataprodukt>` | `dig_eksempel_paddeobservasjoner` |
+| Mottaker (recipient) | `<mottaker>_<miljø>`  | `padderegisteret_prod`            |
+
+Mottakere opprettes av Dataspeilet, se [Dele data med en annen
+Databricks-konto](../guider/dele-og-hente-ut/dele-med-annen-databricks-konto.md).
+
 ## Bundles, jobber og pipelines
 
 | Ressurs                     | Konvensjon                                                  | Eksempel                               |

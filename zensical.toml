@@ -77,6 +77,7 @@ nav = [
     ]},
     { "Dele og hente ut data" = [
       { "Dokumentere et dataprodukt" = "guider/dele-og-hente-ut/dokumentere-dataprodukt.md" },
+      { "Dele data med en annen Databricks-konto" = "guider/dele-og-hente-ut/dele-med-annen-databricks-konto.md" },
       { "Koble Power BI til Databricks" = "guider/dele-og-hente-ut/koble-til-power-bi.md" },
       { "Versjonskontrollere Power BI-rapporter" = "guider/dele-og-hente-ut/versjonskontrollere-power-bi-rapporter.md" },
       { "Oppdatere Power BI-modeller automatisk" = "guider/dele-og-hente-ut/oppdatere-power-bi-modeller-automatisk.md" },

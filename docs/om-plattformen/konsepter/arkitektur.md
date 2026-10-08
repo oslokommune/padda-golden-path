@@ -135,6 +135,9 @@ dokumenterte, forvaltede datasett i gold-laget. Disse konsumeres typisk gjennom:
 - **Fabric-plattformen**, [kommunens plattform for datadeling](https://oslokommune.sharepoint.com/sites/KOM-6aace/SitePages/Data-Oslo(1).aspx)
   — data kan flyte begge veier mellom plattformene
 
+- **OpenSharing**, for team som bruker Databricks i en annen konto, se [Dele data med en
+  annen Databricks-konto](../../guider/dele-og-hente-ut/dele-med-annen-databricks-konto.md)
+
 ## Avveininger og begrensninger
 
 Arkitekturen prioriterer noen hensyn på bekostning av andre:

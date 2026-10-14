@@ -30,7 +30,8 @@ Sørg for at du har:
 - Tabellene i prod-katalogen, dokumentert slik at mottakeren forstår dem, se [Dokumentere
   et dataprodukt](dokumentere-dataprodukt.md).
 - En kontaktperson hos mottakeren som kan hente sharing ID-en deres og opprette katalogen
-  hos dem.
+  hos dem. Det siste krever rettigheter en metastore- eller kontoadmin hos mottakeren må
+  gi, se [Hos mottakeren](#hos-mottakeren).
 - En workspace-admin på teamet til trinn 2 og 3, enten deg selv eller noen som kan gjøre
   det for deg, se [Roller og
   rettigheter](../../referanse/roller-og-rettigheter.md#workspace-admin).
@@ -102,19 +103,25 @@ tabellen.
 ## Hos mottakeren
 
 Mottakeren gjør sharen tilgjengelig ved å opprette en katalog for den. Det krever
-rettighetene `CREATE CATALOG` og `USE PROVIDER` i Unity Catalog hos mottakeren. Send
-gjerne dette til kontaktpersonen:
+rettighetene `CREATE CATALOG` og `USE PROVIDER` på metastoren hos mottakeren. Send gjerne
+begge trinnene under til kontaktpersonen.
+
+Først må en metastore- eller kontoadmin hos mottakeren gi rettighetene til riktig person
+eller gruppe:
+
+```sql
+GRANT CREATE CATALOG, USE PROVIDER ON METASTORE TO <bruker-eller-gruppe>;
+```
+
+Deretter kan kontaktpersonen opprette katalogen:
 
 ```sql
 CREATE CATALOG padda_paddeobservasjoner
   USING SHARE dig_oslo_kommune.dig_eksempel_paddeobservasjoner;
-
-SELECT * FROM padda_paddeobservasjoner.gold_default.padder_per_dag LIMIT 10;
 ```
 
 Katalogen er skrivebeskyttet, og mottakeren styrer selv hvem hos dem som får lese den,
-med vanlige grants. Delte views og materialized views leses best fra et SQL Warehouse
-eller serverless compute.
+med vanlige grants.
 
 ## Endre eller stoppe delingen
 
@@ -135,8 +142,13 @@ siden andre team kan dele med samme konto.
 
     - Har mottakeren workspaces i flere regioner eller kontoer, har de flere sharing ID-er.
       ID-en må komme fra workspacet de skal lese fra.
-    - Kontaktpersonen må ha `CREATE CATALOG` og `USE PROVIDER` i Unity Catalog hos
-      mottakeren for å se leverandører og opprette katalogen.
+    - Kontaktpersonen må ha `USE PROVIDER` på metastoren hos mottakeren for å se
+      leverandører, se [Hos mottakeren](#hos-mottakeren).
+
+??? failure "Mottakeren får `User is not an owner of Provider` ved `CREATE CATALOG`"
+
+    Be en metastore- eller kontoadmin hos mottakeren gi `CREATE CATALOG` og
+    `USE PROVIDER`, se [Hos mottakeren](#hos-mottakeren).
 
 ??? failure "Tabellen kan ikke legges til i sharen"
 

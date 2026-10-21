@@ -28,6 +28,9 @@ ml_build_features = "{{template `package_name` .}}.ml.tasks:build_features"
 ml_train = "{{template `package_name` .}}.ml.tasks:train"
 ml_predict = "{{template `package_name` .}}.ml.tasks:predict"
 {{- end}}
+{{- if eq .include_freshness_alert "yes"}}
+freshness_alert = "{{template `package_name` .}}.freshness.tasks:main"
+{{- end}}
 
 [dependency-groups]
 dev = [

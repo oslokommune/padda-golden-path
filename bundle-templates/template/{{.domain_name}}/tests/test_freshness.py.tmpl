@@ -1,0 +1,192 @@
+"""Tests for the freshness alert (pure Python, no Spark)."""
+
+from __future__ import annotations
+
+from datetime import UTC, datetime, timedelta
+
+import pytest
+
+from {{template `package_name` .}}.freshness.alert import (
+    Observation,
+    WatchedTable,
+    build_report,
+    describe,
+    parse_args,
+    parse_threshold,
+)
+
+NOW = datetime(2026, 10, 21, 7, 0, tzinfo=UTC)
+TAXI = WatchedTable("dev_catalog.default.bronze_nyctaxi", "load_date", timedelta(hours=26))
+
+
+class TestParseThreshold:
+    """``parse_threshold`` reads ``<n>m``, ``<n>h`` and ``<n>d``."""
+
+    @pytest.mark.parametrize(
+        ("text", "expected"),
+        [
+            ("30m", timedelta(minutes=30)),
+            ("26h", timedelta(hours=26)),
+            ("8d", timedelta(days=8)),
+        ],
+    )
+    def test_valid_units(self, text: str, expected: timedelta) -> None:
+        """Minutes, hours and days are supported."""
+        assert parse_threshold(text) == expected
+
+    @pytest.mark.parametrize("text", ["0h", "26", "26s", "1.5h", "-1d", "h", ""])
+    def test_rejects_invalid(self, text: str) -> None:
+        """Zero, missing or unknown units and non-integers are rejected."""
+        with pytest.raises(ValueError, match="freshness threshold"):
+            parse_threshold(text)
+
+
+class TestParseArgs:
+    """``parse_args`` reads one ``--table`` per watched table."""
+
+    def test_repeated_tables(self) -> None:
+        """Each ``--table`` becomes one watched table, in order."""
+        argv = ["--table", "c.s.a", "load_date", "26h", "--table", "c.s.b", "loaded_at", "30m"]
+        assert parse_args(argv) == [
+            WatchedTable("c.s.a", "load_date", timedelta(hours=26)),
+            WatchedTable("c.s.b", "loaded_at", timedelta(minutes=30)),
+        ]
+
+    @pytest.mark.parametrize(
+        "argv",
+        [
+            [],
+            ["--table", "c.s.a", "load_date"],
+            ["--table", "c.s.a", "load_date", "26h", "--table", "c.s.b"],
+        ],
+    )
+    def test_rejects_missing_or_incomplete_tables(self, argv: list[str]) -> None:
+        """At least one table is required, each with exactly three values."""
+        with pytest.raises(SystemExit):
+            parse_args(argv)
+
+    def test_invalid_threshold_is_a_usage_error(self, capsys: pytest.CaptureFixture[str]) -> None:
+        """An invalid threshold fails argument parsing and names the table."""
+        with pytest.raises(SystemExit):
+            parse_args(["--table", "c.s.a", "load_date", "26"])
+        assert "c.s.a" in capsys.readouterr().err
+
+
+class TestDescribeThreshold:
+    """Thresholds are shown in the unit they are usually written in."""
+
+    @pytest.mark.parametrize(
+        ("threshold", "expected"),
+        [
+            (timedelta(minutes=30), "30m"),
+            (timedelta(minutes=90), "90m"),
+            (timedelta(hours=26), "26h"),
+            (timedelta(days=8), "8d"),
+        ],
+    )
+    def test_threshold_unit(self, threshold: timedelta, expected: str) -> None:
+        """Days if whole days, else hours if whole hours, else minutes."""
+        table = WatchedTable("c.s.t", "load_date", threshold)
+        assert describe(Observation(table, latest=None), NOW).endswith(f"threshold {expected}")
+
+
+class TestDescribe:
+    """``describe`` gives the log line for one watched table."""
+
+    def test_checked_table(self) -> None:
+        """Name, latest load timestamp, age and threshold."""
+        observation = Observation(TAXI, latest=datetime(2026, 10, 21, 4, 45, tzinfo=UTC))
+        assert describe(observation, NOW) == (
+            "dev_catalog.default.bronze_nyctaxi: latest load timestamp 2026-10-21 04:45 UTC,"
+            " age 2h 15m, threshold 26h"
+        )
+
+    def test_empty_table(self) -> None:
+        """An empty table has no latest load timestamp or age."""
+        observation = Observation(TAXI, latest=None)
+        assert describe(observation, NOW) == (
+            "dev_catalog.default.bronze_nyctaxi: no rows, threshold 26h"
+        )
+
+    def test_could_not_check(self) -> None:
+        """An uncheckable table shows the reason."""
+        observation = Observation(TAXI, latest=None, error="table not found")
+        assert describe(observation, NOW) == (
+            "dev_catalog.default.bronze_nyctaxi: could not check: table not found"
+        )
+
+
+class TestBuildReport:
+    """``build_report`` lists every problem, or returns ``None`` when all is fresh."""
+
+    def test_fresh_table_has_no_report(self) -> None:
+        """A table loaded within its threshold is fresh."""
+        observation = Observation(TAXI, latest=datetime(2026, 10, 21, 5, 0, tzinfo=UTC))
+        assert build_report([observation], NOW) is None
+
+    def test_exactly_at_threshold_is_fresh(self) -> None:
+        """An age equal to the threshold is still fresh."""
+        observation = Observation(TAXI, latest=NOW - timedelta(hours=26))
+        assert build_report([observation], NOW) is None
+
+    def test_stale_table_is_reported(self) -> None:
+        """The report names the table, latest load timestamp, age and threshold."""
+        observation = Observation(TAXI, latest=datetime(2026, 10, 19, 5, 0, tzinfo=UTC))
+        report = build_report([observation], NOW)
+        assert report is not None
+        assert (
+            "dev_catalog.default.bronze_nyctaxi: latest load timestamp "
+            "2026-10-19 05:00 UTC, age 2d 2h, threshold 26h"
+        ) in report
+
+    def test_just_over_threshold_is_stale(self) -> None:
+        """One minute over the threshold is stale."""
+        observation = Observation(TAXI, latest=NOW - timedelta(hours=26, minutes=1))
+        assert build_report([observation], NOW) is not None
+
+    def test_empty_table_is_stale(self) -> None:
+        """A table without rows is reported as stale with "no rows"."""
+        report = build_report([Observation(TAXI, latest=None)], NOW)
+        assert report is not None
+        assert "dev_catalog.default.bronze_nyctaxi: no rows, threshold 26h" in report
+
+    def test_could_not_check_is_reported_with_reason(self) -> None:
+        """A table that could not be checked is reported with the reason."""
+        observation = Observation(TAXI, latest=None, error="table not found")
+        report = build_report([observation], NOW)
+        assert report is not None
+        assert "Could not check" in report
+        assert "dev_catalog.default.bronze_nyctaxi: table not found" in report
+        assert "no rows" not in report
+
+    def test_all_problems_in_one_report(self) -> None:
+        """Stale and uncheckable tables are listed separately; fresh ones are left out."""
+        fresh = WatchedTable("c.s.fresh", "load_date", timedelta(hours=1))
+        empty = WatchedTable("c.s.empty", "load_date", timedelta(minutes=30))
+        missing = WatchedTable("c.s.missing", "load_date", timedelta(days=1))
+        report = build_report(
+            [
+                Observation(fresh, latest=NOW - timedelta(minutes=5)),
+                Observation(TAXI, latest=datetime(2026, 10, 19, 5, 0, tzinfo=UTC)),
+                Observation(empty, latest=None),
+                Observation(missing, latest=None, error="table not found"),
+            ],
+            NOW,
+        )
+        assert report is not None
+        assert report.splitlines() == [
+            "Freshness alert: 3 of 4 watched tables are stale or could not be checked.",
+            "",
+            "Stale (no new data within the freshness threshold):",
+            (
+                "- dev_catalog.default.bronze_nyctaxi: latest load timestamp"
+                " 2026-10-19 05:00 UTC, age 2d 2h, threshold 26h"
+            ),
+            "- c.s.empty: no rows, threshold 30m",
+            "",
+            (
+                "Could not check (wrong table or column name, column not TIMESTAMP,"
+                " or missing SELECT permission):"
+            ),
+            "- c.s.missing: table not found",
+        ]

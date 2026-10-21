@@ -40,6 +40,10 @@ variables:
       --var ml_model_version=N.
     default: "1"
 {{- end}}
+{{- if eq .include_freshness_alert "yes"}}
+  slack_destination_id:
+    description: ID of the Slack notification destination for job failure alerts.
+{{- end}}
 
 targets:
 
@@ -58,6 +62,9 @@ targets:
     variables:
       catalog: dev_catalog
       schema: default
+{{- if eq .include_freshness_alert "yes"}}
+      slack_destination_id: REPLACE_WITH_DESTINATION_ID
+{{- end}}
 
   # The 'prod' target, used for production deployment.
   prod:
@@ -77,3 +84,6 @@ targets:
     variables:
       catalog: prod_catalog
       schema: production
+{{- if eq .include_freshness_alert "yes"}}
+      slack_destination_id: REPLACE_WITH_DESTINATION_ID
+{{- end}}

@@ -33,6 +33,7 @@ This template solves common pain points in Databricks project setup:
     | `setup_type` | Type of setup (`default`, `minimal` or `tailored`) | `default` | |
     | `include_example_jobs` | Whether to include example pipelines and jobs | `yes/no` | `setup_type` = `tailored` |
     | `include_ml_workflow` | Whether to include the MLflow example (PyTorch training job, Unity Catalog model registry, batch inference, optional serving endpoint) | `yes/no` | `setup_type` != `minimal` |
+    | `include_freshness_alert` | Whether to include a scheduled job that fails, and notifies Slack, when watched tables have not received new data within their freshness threshold | `yes/no` | `setup_type` != `minimal` |
     | `empower_vscode` | Whether to include VS Code settings and extension recommendations | `yes/no` | `setup_type` = `tailored` |
 
     > Previously, specifying a `package_name` was required. The `package_name` is now automatically generated from the `domain_name` by replacing dashes (`-`) with underscores (`_`) following Python package naming conventions.
@@ -43,6 +44,7 @@ This template solves common pain points in Databricks project setup:
     | --------- | ------- | ------- |
     | `include_example_jobs` | `yes` | `no` |
     | `include_ml_workflow` | `no` | `no` |
+    | `include_freshness_alert` | `no` | `no` |
     | `empower_vscode` | `yes` | `no` |
 
 

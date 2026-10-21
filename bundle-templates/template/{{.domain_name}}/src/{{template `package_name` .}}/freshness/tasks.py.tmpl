@@ -1,0 +1,62 @@
+"""Job entry point (wired up as the ``freshness_alert`` wheel console script)."""
+
+from __future__ import annotations
+
+import logging
+from datetime import UTC, datetime, timedelta
+
+from pyspark.sql import SparkSession
+from pyspark.sql import functions as F
+from pyspark.sql.types import TimestampType
+
+from {{template `package_name` .}}.freshness.alert import (
+    Observation,
+    WatchedTable,
+    build_report,
+    describe,
+    is_stale,
+    parse_args,
+)
+
+logger = logging.getLogger(__name__)
+
+_EPOCH = datetime(1970, 1, 1, tzinfo=UTC)
+
+
+class FreshnessAlertError(RuntimeError):
+    """At least one watched table is stale or could not be checked."""
+
+
+def observe(spark: SparkSession, table: WatchedTable) -> Observation:
+    """Return the newest load timestamp of a table, or why it could not be checked."""
+    try:
+        frame = spark.table(table.name).select(F.col(table.column))
+        data_type = frame.schema[0].dataType
+        if not isinstance(data_type, TimestampType):
+            error = (
+                f"column {table.column} is {data_type.simpleString().upper()}, expected TIMESTAMP"
+            )
+            return Observation(table, latest=None, error=error)
+        # Epoch microseconds do not depend on the Spark session time zone.
+        row = frame.agg(F.unix_micros(F.max(table.column)).alias("latest")).first()
+    except Exception as exc:
+        lines = str(exc).strip().splitlines()
+        return Observation(table, latest=None, error=lines[0] if lines else type(exc).__name__)
+    micros = None if row is None else row["latest"]
+    latest = None if micros is None else _EPOCH + timedelta(microseconds=micros)
+    return Observation(table, latest=latest)
+
+
+def main() -> None:
+    """Entry point: check every watched table, then fail if any has a problem."""
+    logging.basicConfig(level=logging.INFO)
+    tables = parse_args()
+    spark = SparkSession.builder.getOrCreate()
+    observations = [observe(spark, table) for table in tables]
+    now = datetime.now(UTC)
+    for observation in observations:
+        ok = observation.error is None and not is_stale(observation, now)
+        logger.info("%s: %s", "fresh" if ok else "PROBLEM", describe(observation, now))
+    report = build_report(observations, now)
+    if report is not None:
+        raise FreshnessAlertError(report)

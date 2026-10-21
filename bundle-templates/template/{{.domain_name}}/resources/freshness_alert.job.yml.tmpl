@@ -1,0 +1,40 @@
+# Fails, and notifies Slack, when a watched table has not received new data
+# within its freshness threshold. 'mode: development' pauses the schedule in stage.
+resources:
+  jobs:
+    freshness_alert:
+      name: freshness_alert
+
+      schedule:
+        quartz_cron_expression: "0 0 7 * * ?"
+        timezone_id: Europe/Oslo
+        pause_status: UNPAUSED
+
+      webhook_notifications:
+        on_failure:
+          - id: ${var.slack_destination_id}
+      notification_settings:
+        no_alert_for_skipped_runs: true
+
+      tasks:
+        - task_key: freshness_alert
+          timeout_seconds: 600
+          python_wheel_task:
+            package_name: {{template `package_name` .}}
+            entry_point: freshness_alert
+            # One '--table <table> <TIMESTAMP load timestamp column> <threshold>'
+            # per watched table. Threshold: <n>m, <n>h or <n>d, i.e. the
+            # expected update interval plus a margin.
+            parameters:
+              - --table
+              - ${var.catalog}.${var.schema}.bronze_nyctaxi
+              - load_date
+              - 26h
+          environment_key: default
+
+      environments:
+        - environment_key: default
+          spec:
+            client: "5"
+            dependencies:
+              - ../dist/*.whl

@@ -11,9 +11,6 @@ readme = "README.md"
 # https://docs.databricks.com/aws/en/release-notes/serverless/environment-version/
 # https://docs.databricks.com/aws/en/release-notes/runtime/17.3lts
 requires-python = ">=3.12"
-{{- if ne .include_ml_workflow "yes"}}
-scripts = { "main" = "{{template `package_name` .}}.main:main" }
-{{- end}}
 classifiers = ["Programming Language :: Python :: 3.12", "Programming Language :: Python :: 3.13", "Operating System :: OS Independent"]
 dependencies = [{{if eq .include_ml_workflow "yes"}}
     "mlflow-skinny>=3.0",
@@ -22,10 +19,10 @@ dependencies = [{{if eq .include_ml_workflow "yes"}}
     "scikit-learn>=1.4",
     "torch>=2.4",
 {{end}}]
-{{- if eq .include_ml_workflow "yes"}}
 
 [project.scripts]
 main = "{{template `package_name` .}}.main:main"
+{{- if eq .include_ml_workflow "yes"}}
 ml_generate_data = "{{template `package_name` .}}.ml.tasks:generate_data"
 ml_build_features = "{{template `package_name` .}}.ml.tasks:build_features"
 ml_train = "{{template `package_name` .}}.ml.tasks:train"

@@ -9,8 +9,8 @@ diataxis: how-to
 Denne guiden viser hvordan du tar i bruk ferskhetsvarselet i en bundle som er generert med
 `include_freshness_alert: yes`. Ferskhetsvarselet er en jobb som feiler når en overvåket
 tabell ikke har fått nye data innenfor ferskhetsgrensen sin, og feilen sendes til Slack.
-Når du er ferdig, kjører jobben etter en tidsplan du kan endre, og sier fra om tabeller
-med for gamle data.
+Når du er ferdig og har skrudd på tidsplanen, kjører jobben av seg selv og sier fra om
+tabeller med for gamle data.
 
 Har teamet en eldre bundle, finnes valget `include_freshness_alert` når dere genererer en
 ny bundle fra malen.
@@ -69,10 +69,12 @@ som lastes inn én gang i døgnet, kan for eksempel ha `25h`. Grensen skrives so
 positivt heltall fulgt av `m`, `h` eller `d`. Formatet er beskrevet i [Varsling og
 alarmer](../../referanse/varsling-og-alarmer.md#overvakede-tabeller).
 
-## Trinn 3: Juster tidsplanen ved behov
+## Trinn 3: Skru på tidsplanen
 
-Som standard kjører jobben hver dag kl. 07:00. Skal tabellene sjekkes oftere eller på et
-annet tidspunkt, endrer du cron-uttrykket i samme fil:
+Tidsplanen står på pause som standard, så jobben kjører bare når noen starter den. For at
+tabellene skal sjekkes av seg selv, setter du `pause_status` til `UNPAUSED` i samme fil.
+Tidsplanen blir da aktiv i både stage og prod. Standardtidsplanen er hver dag kl. 07:00.
+Skal tabellene sjekkes oftere eller på et annet tidspunkt, endrer du cron-uttrykket:
 
 ```yaml
       schedule:
@@ -86,8 +88,7 @@ flere varsler til problemet er løst.
 
 ## Trinn 4: Deploy til stage og test
 
-Tidsplanen er aktiv også i stage, men du trenger ikke vente på den. Kjør jobben selv
-for å teste. Testen under bruker
+Du trenger ikke vente på tidsplanen. Kjør jobben selv for å teste. Testen under bruker
 eksempeltabellen `bronze_nyctaxi`. Overvåker du andre tabeller, kjører du jobbene som
 fyller dem i stedet for eksempelpipelinen.
 
@@ -140,7 +141,7 @@ service principalen i `run_as`.
     ```
 
 - I prod-workspacet ligger jobben `freshness_alert` under **Jobs & Pipelines** med en
-  aktiv tidsplan, og destinasjonen står oppført for **Failure** under **Job
+  aktiv tidsplan hvis du skrudde den på i trinn 3, og destinasjonen står oppført for **Failure** under **Job
   notifications**.
 
 ## Feilsøking
@@ -188,7 +189,8 @@ eksempelpipelinen i bundle-malen gjør:
 
 ```python
 return (
-    spark.readStream.format("delta")
+    spark.readStream
+    .format("delta")
     .load(autoloader_path)
     .withColumn("load_date", F.current_timestamp())
     .select("*", "_metadata")

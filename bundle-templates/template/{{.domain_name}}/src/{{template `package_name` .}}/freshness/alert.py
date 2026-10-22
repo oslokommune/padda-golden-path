@@ -29,7 +29,7 @@ class WatchedTable:
 
 @dataclass(frozen=True)
 class Observation:
-    """Newest load timestamp in UTC (None if no rows), or why it could not be checked."""
+    """Newest load timestamp (UTC, None if no rows), or why it could not be checked."""
 
     table: WatchedTable
     latest: datetime | None
@@ -66,7 +66,8 @@ def parse_args(argv: Sequence[str] | None = None) -> list[WatchedTable]:
         values = entry.split()
         if len(values) != 3:
             parser.error(
-                f"{entry!r}: expected <table> <load timestamp column> <freshness threshold>"
+                f"{entry!r}: expected"
+                " <table> <load timestamp column> <freshness threshold>"
             )
         name, column, threshold = values
         try:
@@ -81,7 +82,9 @@ def _format_duration(duration: timedelta) -> str:
     days, minutes = divmod(minutes, 24 * 60)
     hours, minutes = divmod(minutes, 60)
     parts = [
-        f"{value}{unit}" for value, unit in ((days, "d"), (hours, "h"), (minutes, "m")) if value
+        f"{value}{unit}"
+        for value, unit in ((days, "d"), (hours, "h"), (minutes, "m"))
+        if value
     ]
     return " ".join(parts) or "0m"
 
@@ -118,7 +121,9 @@ def build_report(observations: Sequence[Observation], now: datetime) -> str | No
     """Return every problem in one report, or None if all tables are fresh."""
     checked = [o for o in observations if o.error is None]
     stale = [f"- {describe(o, now)}" for o in checked if is_stale(o, now)]
-    unchecked = [f"- {o.table.name}: {o.error}" for o in observations if o.error is not None]
+    unchecked = [
+        f"- {o.table.name}: {o.error}" for o in observations if o.error is not None
+    ]
     if not stale and not unchecked:
         return None
     problems = len(stale) + len(unchecked)

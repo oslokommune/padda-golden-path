@@ -42,8 +42,10 @@ dependencies on the bundle's wheels volume. The optional serving endpoint in
 `resources/freshness_alert.job.yml` defines a scheduled serverless job that
 checks when each watched table last received new data. If that is longer ago
 than the table's freshness threshold, or the table cannot be checked, the job
-fails and the failure notification goes to Slack. The job runs daily at 07:00
-by default; change `schedule` in that file to run it at other times.
+fails and the failure notification goes to Slack. The daily 07:00 schedule is
+paused by default, so the job only runs when started; set `pause_status` to
+`UNPAUSED` under `schedule` in that file to run it on the schedule, and change
+the cron expression to run it at other times.
 Watched tables are listed as job parameters in the same file; replace the
 generated entry with your own tables. Code lives in
 `src/{{template `package_name` .}}/freshness/`, tests in `tests/test_freshness.py`.

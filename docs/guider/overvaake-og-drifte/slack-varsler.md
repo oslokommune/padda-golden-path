@@ -33,8 +33,8 @@ Sørg for at du har:
 4. Kopier URL-en under **Webhook URLs for Your Workspace**. Den begynner med
    `https://hooks.slack.com/services/`.
 
-Jobber med `pause_status: UNPAUSED` i tidsplanen, som ferskhetsvarselet, kjører etter
-tidsplanen også i stage og varsler derfra. Vil du ha meldingene fra stage i en annen kanal
+Jobber med `pause_status: UNPAUSED` i tidsplanen kjører etter tidsplanen også i stage og
+varsler derfra. Vil du ha meldingene fra stage i en annen kanal
 enn prod, legger du til en egen webhook for stage i samme app.
 
 !!! warning "URL-en til webhooken er en hemmelighet"

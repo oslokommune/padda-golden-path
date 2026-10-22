@@ -27,7 +27,13 @@ resources:
             # Threshold: <n>m, <n>h or <n>d, i.e. the expected update interval
             # plus a margin.
             parameters:
+{{- if eq .include_example_jobs "yes"}}
               - ${var.catalog}.${var.schema}.bronze_nyctaxi load_date 26h
+{{- else}}
+              # TODO: Replace with your own watched tables. Until then the job
+              # fails with "could not check".
+              - ${var.catalog}.${var.schema}.TODO_table TODO_load_timestamp_column 26h
+{{- end}}
           environment_key: default
 
       environments:

@@ -49,23 +49,30 @@ def parse_threshold(text: str) -> timedelta:
 
 
 def parse_args(argv: Sequence[str] | None = None) -> list[WatchedTable]:
-    """Return one watched table per ``--table <table> <column> <threshold>``."""
+    """Return one watched table per ``<table> <column> <threshold>`` entry."""
     parser = argparse.ArgumentParser(description="Fail when watched tables are stale.")
     parser.add_argument(
-        "--table",
-        nargs=3,
-        action="append",
-        required=True,
-        metavar=("TABLE", "COLUMN", "THRESHOLD"),
-        help="full table name, load timestamp column and freshness threshold (e.g. 26h)",
+        "entries",
+        nargs="+",
+        metavar="ENTRY",
+        help=(
+            "full table name, load timestamp column and freshness threshold (e.g. 26h),"
+            " separated by whitespace"
+        ),
     )
     args = parser.parse_args(argv)
     tables = []
-    for name, column, threshold in args.table:
+    for entry in args.entries:
+        values = entry.split()
+        if len(values) != 3:
+            parser.error(
+                f"{entry!r}: expected <table> <load timestamp column> <freshness threshold>"
+            )
+        name, column, threshold = values
         try:
             tables.append(WatchedTable(name, column, parse_threshold(threshold)))
         except ValueError as exc:
-            parser.error(f"{name}: {exc}")
+            parser.error(f"{entry!r}: {exc}")
     return tables
 
 

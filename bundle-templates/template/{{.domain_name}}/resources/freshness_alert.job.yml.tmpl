@@ -22,14 +22,12 @@ resources:
           python_wheel_task:
             package_name: {{template `package_name` .}}
             entry_point: freshness_alert
-            # One '--table <table> <TIMESTAMP load timestamp column> <threshold>'
-            # per watched table. Threshold: <n>m, <n>h or <n>d, i.e. the
-            # expected update interval plus a margin.
+            # One '<table> <TIMESTAMP load timestamp column> <threshold>' item
+            # per watched table, with the values separated by whitespace.
+            # Threshold: <n>m, <n>h or <n>d, i.e. the expected update interval
+            # plus a margin.
             parameters:
-              - --table
-              - ${var.catalog}.${var.schema}.bronze_nyctaxi
-              - load_date
-              - 26h
+              - ${var.catalog}.${var.schema}.bronze_nyctaxi load_date 26h
           environment_key: default
 
       environments:

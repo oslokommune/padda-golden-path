@@ -42,34 +42,41 @@ class TestParseThreshold:
 
 
 class TestParseArgs:
-    """``parse_args`` reads one ``--table`` per watched table."""
+    """``parse_args`` reads one ``<table> <column> <threshold>`` entry per watched table."""
 
-    def test_repeated_tables(self) -> None:
-        """Each ``--table`` becomes one watched table, in order."""
-        argv = ["--table", "c.s.a", "load_date", "26h", "--table", "c.s.b", "loaded_at", "30m"]
+    def test_one_entry_per_table(self) -> None:
+        """Each entry becomes one watched table, in order."""
+        argv = ["c.s.a load_date 26h", "c.s.b loaded_at 30m"]
         assert parse_args(argv) == [
             WatchedTable("c.s.a", "load_date", timedelta(hours=26)),
             WatchedTable("c.s.b", "loaded_at", timedelta(minutes=30)),
         ]
 
-    @pytest.mark.parametrize(
-        "argv",
-        [
-            [],
-            ["--table", "c.s.a", "load_date"],
-            ["--table", "c.s.a", "load_date", "26h", "--table", "c.s.b"],
-        ],
-    )
-    def test_rejects_missing_or_incomplete_tables(self, argv: list[str]) -> None:
-        """At least one table is required, each with exactly three values."""
+    def test_any_run_of_whitespace_separates_values(self) -> None:
+        """Values can be aligned with several spaces or tabs."""
+        assert parse_args(["  c.s.a    load_date\t26h "]) == [
+            WatchedTable("c.s.a", "load_date", timedelta(hours=26)),
+        ]
+
+    @pytest.mark.parametrize("entry", ["c.s.b load_date", "c.s.b load_date 26h extra"])
+    def test_rejects_wrong_number_of_values(
+        self, entry: str, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        """Every entry needs exactly three values; the error quotes the entry."""
         with pytest.raises(SystemExit):
-            parse_args(argv)
+            parse_args(["c.s.a load_date 26h", entry])
+        assert repr(entry) in capsys.readouterr().err
+
+    def test_rejects_no_entries(self) -> None:
+        """At least one watched table is required."""
+        with pytest.raises(SystemExit):
+            parse_args([])
 
     def test_invalid_threshold_is_a_usage_error(self, capsys: pytest.CaptureFixture[str]) -> None:
-        """An invalid threshold fails argument parsing and names the table."""
+        """An invalid threshold fails argument parsing and quotes the entry."""
         with pytest.raises(SystemExit):
-            parse_args(["--table", "c.s.a", "load_date", "26"])
-        assert "c.s.a" in capsys.readouterr().err
+            parse_args(["c.s.a load_date 26"])
+        assert "'c.s.a load_date 26'" in capsys.readouterr().err
 
 
 class TestDescribeThreshold:

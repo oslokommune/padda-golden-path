@@ -84,6 +84,7 @@ nav = [
     ]},
     { "Overvåke og drifte" = [
       { "Sette opp Slack-varsler" = "guider/overvaake-og-drifte/slack-varsler.md" },
+      { "Sette opp ferskhetsvarsel" = "guider/overvaake-og-drifte/ferskhetsvarsel.md" },
       { "Feilsøke med logger" = "guider/overvaake-og-drifte/logging.md" },
       { "Gjenopprette etter feil i pipelines" = "guider/overvaake-og-drifte/gjenopprette-etter-feil.md" },
       { "Installere og bruke DQX" = "guider/overvaake-og-drifte/bruke-dqx.md" },

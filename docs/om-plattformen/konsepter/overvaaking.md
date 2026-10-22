@@ -75,10 +75,20 @@ dette. For tabeller utenfor Declarative Pipelines gjør [eksempelbundlen med
 DQX](https://github.com/oslokommune/padda-databrikker/tree/main/bundles/datakvalitet_dqx)
 det samme, se [Installere og bruke DQX](../../guider/overvaake-og-drifte/bruke-dqx.md).
 
+Kvalitetssjekker i en kjøring har en blind flekk: en jobb som aldri kjører, feiler heller
+aldri. Stopper tidsplanen, eller kjører pipelinen grønt uten at det kommer nye data fra
+kilden, er det ingen kjøring som kan feile, og ingen får beskjed. Derfor måler
+[ferskhetsvarselet](../../referanse/varsling-og-alarmer.md#ferskhetsvarsel) tabellen, ikke
+kjøringen: det ser på når tabellen sist fikk nye data, og varsler når dataferskheten
+passerer en ferskhetsgrense teamet har satt. Ferskhetsvarselet er en egen jobb i bundlen,
+ikke en SQL-alarm. Dermed går det gjennom den samme varslingskjeden til Slack som de andre
+jobbene, og det trenger ikke et SQL Warehouse. Bundle-malen kan generere jobben, se
+[Sette opp ferskhetsvarsel](../../guider/overvaake-og-drifte/ferskhetsvarsel.md).
+
 For overvåking som ikke hører hjemme i en pipelinekjøring, finnes to verktøy til.
 [SQL-alarmer](../../referanse/varsling-og-alarmer.md#sql-alarmer) er SQL-spørringer som
-kjører på tidsplan og varsler når resultatet bryter en betingelse, for eksempel at data er
-eldre enn forventet. Databricks har også innebygd
+kjører på tidsplan og varsler når resultatet bryter en betingelse, for eksempel at en
+karantenetabell har fått nye rader. Databricks har også innebygd
 [dataprofilering](https://docs.databricks.com/aws/en/data-governance/unity-catalog/data-quality-monitoring/data-profiling/),
 tidligere kalt Lakehouse Monitoring, som teamet kan skru på for egne tabeller for å følge
 statistikk og endringer i datafordelinga over tid.
@@ -95,6 +105,7 @@ statistikk og endringer i datafordelinga over tid.
 **Guider:**
 
 - [Sette opp Slack-varsler](../../guider/overvaake-og-drifte/slack-varsler.md)
+- [Sette opp ferskhetsvarsel](../../guider/overvaake-og-drifte/ferskhetsvarsel.md)
 - [Feilsøke med logger](../../guider/overvaake-og-drifte/logging.md)
 - [Gjenopprette etter feil i pipelines](../../guider/overvaake-og-drifte/gjenopprette-etter-feil.md)
 - [Installere og bruke DQX](../../guider/overvaake-og-drifte/bruke-dqx.md)
@@ -103,5 +114,5 @@ statistikk og endringer i datafordelinga over tid.
 **Referanser:**
 
 - [Varsling og alarmer](../../referanse/varsling-og-alarmer.md) — varsler på jobber og
-  pipelines, SQL-alarmer
+  pipelines, SQL-alarmer og ferskhetsvarsel
 - [Datakvalitet](../../referanse/datakvalitet.md) — constraints, expectations og DQX

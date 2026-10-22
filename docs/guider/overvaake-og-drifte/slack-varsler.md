@@ -63,7 +63,10 @@ Gjenta trinnet for prod-workspacet. ID-en er forskjellig i hvert workspace.
 
 ## Trinn 3: Pek jobben på destinasjonen i bundlen
 
-Legg til en variabel i `databricks.yml`, og sett ID-en for hvert target:
+Legg til en variabel i `databricks.yml`, og sett ID-en for hvert target. Er bundlen
+generert med [ferskhetsvarselet](ferskhetsvarsel.md), finnes variabelen allerede med
+plassholderen `REPLACE_WITH_DESTINATION_ID`. Da bytter du bare ut verdiene, og de andre
+jobbene bruker den samme variabelen.
 
 ```yaml
 variables:
@@ -131,6 +134,9 @@ destinasjonen stå oppført for **Failure**.
 ??? failure "Ingen melding i Slack når jobben feiler"
 
     - Sjekk at ID-en i targeten hører til samme workspace som jobben kjører i.
+    - Sjekk at destinasjonen er av typen Slack. `databricks notification-destinations
+      list` viser typen i `destination_type`, som skal være `SLACK`. En destinasjon av
+      typen Webhook poster et format Slack ikke viser som melding.
     - Kjøringen kan ha blitt hoppet over i stedet for å feile. Slike kjøringer varsles
       ikke når `no_alert_for_skipped_runs` er satt.
     - Feiler en task og prøver på nytt, kommer jobbvarselet først når hele kjøringen har
@@ -146,6 +152,18 @@ destinasjonen stå oppført for **Failure**.
     transformasjoner](../bearbeide-data/skrive-transformasjoner.md#trinn-4-legg-transformasjonen-inn-i-innlastingsjobben).
     Da feiler jobben når pipelinen feiler, og jobbvarselet sendes.
 
+??? failure "Feilmelding ved deploy: `Invalid webhook id`"
+
+    Verdien av `slack_destination_id` er ikke en gyldig ID, for eksempel fordi
+    plassholderen fra bundle-malen står igjen:
+
+    ```text
+    Error: cannot create resources.jobs.freshness_alert: Invalid webhook id 'REPLACE_WITH_DESTINATION_ID' in on_failure. Webhook IDs must be valid UUIDs. (400 INVALID_PARAMETER_VALUE)
+    ```
+
+    `databricks bundle validate` godtar verdien, så feilen kommer først ved deploy. Sett
+    ID-en fra trinn 2 i targeten, og deploy på nytt.
+
 ??? failure "Finner ikke fanen Notifications under Settings"
 
     Fanen vises bare for workspace-admins. Be en workspace-admin på teamet om å gjøre
@@ -157,6 +175,7 @@ destinasjonen stå oppført for **Failure**.
 
 - [Feilsøke med logger](logging.md)
 - [Gjenopprette etter feil i pipelines](gjenopprette-etter-feil.md)
+- [Sette opp ferskhetsvarsel](ferskhetsvarsel.md) — varsel når en tabell ikke får nye data
 
 **Forklaringer og referanser:**
 

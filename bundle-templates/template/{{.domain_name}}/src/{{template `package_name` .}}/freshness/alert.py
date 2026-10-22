@@ -37,12 +37,12 @@ class Observation:
 
 
 def parse_threshold(text: str) -> timedelta:
-    """Parse a freshness threshold such as ``30m``, ``26h`` or ``8d``."""
+    """Parse a freshness threshold such as ``30m``, ``25h`` or ``8d``."""
     match = re.fullmatch(r"([0-9]+)([mhd])", text)
     if match is None or int(match[1]) == 0:
         msg = (
             f"invalid freshness threshold {text!r}: expected a positive whole number "
-            "followed by m, h or d, e.g. 30m, 26h or 8d"
+            "followed by m, h or d, e.g. 30m, 25h or 8d"
         )
         raise ValueError(msg)
     return timedelta(**{_THRESHOLD_UNITS[match[2]]: int(match[1])})
@@ -56,7 +56,7 @@ def parse_args(argv: Sequence[str] | None = None) -> list[WatchedTable]:
         nargs="+",
         metavar="ENTRY",
         help=(
-            "full table name, load timestamp column and freshness threshold (e.g. 26h),"
+            "full table name, load timestamp column and freshness threshold (e.g. 25h),"
             " separated by whitespace"
         ),
     )

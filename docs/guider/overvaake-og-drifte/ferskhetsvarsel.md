@@ -58,14 +58,14 @@ skilt av mellomrom:
 
 ```yaml
             parameters:
-              - ${var.catalog}.${var.schema}.bronze_nyctaxi load_date 26h
+              - ${var.catalog}.${var.schema}.bronze_nyctaxi load_date 25h
 ```
 
 Bytt ut eksempeltabellen, eller `TODO_table` hvis bundlen ble generert uten
 eksempeljobbene, med tabellene dine. Legg til én linje per tabell.
 
 Sett ferskhetsgrensen til hvor ofte tabellen skal få nye data, pluss en margin. En tabell
-som lastes inn én gang i døgnet, kan for eksempel ha `26h`. Grensen skrives som et
+som lastes inn én gang i døgnet, kan for eksempel ha `25h`. Grensen skrives som et
 positivt heltall fulgt av `m`, `h` eller `d`. Formatet er beskrevet i [Varsling og
 alarmer](../../referanse/varsling-og-alarmer.md#overvakede-tabeller).
 
@@ -135,7 +135,7 @@ jobben kjører som service principalen i `run_as`.
   overvåket tabell, for eksempel:
 
     ```text
-    INFO:<pakke>.freshness.tasks:fresh: <katalog>.default.bronze_nyctaxi: latest load timestamp 2026-10-21 13:02 UTC, age 7m, threshold 26h
+    INFO:<pakke>.freshness.tasks:fresh: <katalog>.default.bronze_nyctaxi: latest load timestamp 2026-10-21 13:02 UTC, age 7m, threshold 25h
     ```
 
 - I prod-workspacet ligger jobben `freshness_alert` under **Jobs & Pipelines** med en

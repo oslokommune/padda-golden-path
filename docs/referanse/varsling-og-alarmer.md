@@ -226,8 +226,8 @@ Hver overvåket tabell er én parameter på tasken, med tre verdier skilt av mel
 
 ```yaml
 parameters:
-  - ${var.catalog}.${var.schema}.bronze_nyctaxi load_date 26h
-  - ${var.catalog}.${var.schema}.raw_nyctaxi load_date 26h
+  - ${var.catalog}.${var.schema}.bronze_nyctaxi load_date 25h
+  - ${var.catalog}.${var.schema}.raw_nyctaxi load_date 25h
 ```
 
 - Alle tre verdiene er påkrevd. Det finnes ingen standardverdier.
@@ -236,7 +236,7 @@ parameters:
 - Kolonnen med innlastingstidspunkt må ha typen `TIMESTAMP`. En kolonne av typen `DATE`
   eller `TIMESTAMP_NTZ` kan ikke sjekkes.
 - Ferskhetsgrensen er et positivt heltall fulgt av `m` (minutter), `h` (timer) eller `d`
-  (døgn), for eksempel `30m`, `26h` eller `8d`.
+  (døgn), for eksempel `30m`, `25h` eller `8d`.
 
 En parameter som ikke har nøyaktig tre verdier, eller som har en ugyldig ferskhetsgrense,
 feiler jobben før noen tabell er sjekket. Feilmeldingen siterer parameteren.

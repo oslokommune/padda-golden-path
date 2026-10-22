@@ -148,15 +148,10 @@ service principalen i `run_as`.
 
 ??? failure "Feilmelding ved deploy: `Invalid webhook id 'REPLACE_WITH_DESTINATION_ID'`"
 
-    `slack_destination_id` har fortsatt plassholderen i targeten du deployer til:
-
-    ```text
-    Error: cannot create resources.jobs.freshness_alert: Invalid webhook id 'REPLACE_WITH_DESTINATION_ID' in on_failure. Webhook IDs must be valid UUIDs. (400 INVALID_PARAMETER_VALUE)
-    ```
-
-    `databricks bundle validate` godtar plassholderen, så feilen kommer først ved deploy.
-    Andre ressurser i bundlen kan være deployet før feilen. Sett ID-en som i trinn 1, og
-    deploy på nytt.
+    `slack_destination_id` har fortsatt plassholderen i targeten du deployer til. Sett
+    ID-en som i trinn 1, og deploy på nytt. Andre ressurser i bundlen kan være deployet
+    før feilen. Hele feilmeldingen, og hvorfor `databricks bundle validate` ikke fanger
+    den, står i [feilsøkingen i Sette opp Slack-varsler](slack-varsler.md#feilsking).
 
 ??? failure "Tabellen står under `Could not check`"
 
@@ -171,16 +166,15 @@ service principalen i `run_as`.
 
 ??? failure "Ingen melding i Slack når jobben feiler"
 
-    Sjekk at destinasjonen er av typen Slack. `databricks notification-destinations list`
-    viser typen i `destination_type`, som skal være `SLACK`. En destinasjon av typen
-    Webhook poster et format Slack ikke viser som melding. Se også feilsøkingen i [Sette
-    opp Slack-varsler](slack-varsler.md).
+    Følg [feilsøkingen i Sette opp Slack-varsler](slack-varsler.md#feilsking). Den
+    dekker feil type destinasjon, ID fra feil workspace og andre grunner til at varselet
+    uteblir. Ferskhetsvarselet bruker samme mekanisme som jobbvarslene der.
 
 ??? failure "Ikke noe varsel, selv om kilden ikke har levert nye data"
 
-    En full refresh av tabellen skriver innlastingstidspunktet på nytt for alle rader,
-    også når kilden ikke har nye data. Da ser tabellen fersk ut, og varselet går ikke
-    før ferskhetsgrensen er passert på nytt.
+    Tabellen har trolig hatt en full refresh, som skriver innlastingstidspunktet på nytt
+    for alle rader. Se [Begrensninger](../../referanse/varsling-og-alarmer.md#begrensninger)
+    i referansen for ferskhetsvarselet.
 
 ## Legge til en kolonne med innlastingstidspunkt
 

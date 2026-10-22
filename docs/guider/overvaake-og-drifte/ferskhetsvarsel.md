@@ -9,8 +9,8 @@ diataxis: how-to
 Denne guiden viser hvordan du tar i bruk ferskhetsvarselet i en bundle som er generert med
 `include_freshness_alert: yes`. Ferskhetsvarselet er en jobb som feiler når en overvåket
 tabell ikke har fått nye data innenfor ferskhetsgrensen sin, og feilen sendes til Slack.
-Når du er ferdig, kjører jobben hver morgen i prod og sier fra om tabeller med for gamle
-data.
+Når du er ferdig, kjører jobben etter en tidsplan du kan endre, og sier fra om tabeller
+med for gamle data.
 
 Har teamet en eldre bundle, finnes valget `include_freshness_alert` når dere genererer en
 ny bundle fra malen.
@@ -71,7 +71,7 @@ alarmer](../../referanse/varsling-og-alarmer.md#overvakede-tabeller).
 
 ## Trinn 3: Juster tidsplanen ved behov
 
-Jobben kjører hver dag kl. 07:00 norsk tid. Skal tabellene sjekkes oftere eller på et
+Som standard kjører jobben hver dag kl. 07:00. Skal tabellene sjekkes oftere eller på et
 annet tidspunkt, endrer du cron-uttrykket i samme fil:
 
 ```yaml
@@ -86,7 +86,8 @@ flere varsler til problemet er løst.
 
 ## Trinn 4: Deploy til stage og test
 
-I stage står tidsplanen på pause, så der kjører du jobben selv. Testen under bruker
+Tidsplanen er aktiv også i stage, men du trenger ikke vente på den. Kjør jobben selv
+for å teste. Testen under bruker
 eksempeltabellen `bronze_nyctaxi`. Overvåker du andre tabeller, kjører du jobbene som
 fyller dem i stedet for eksempelpipelinen.
 
@@ -126,8 +127,8 @@ fyller dem i stedet for eksempelpipelinen.
 ## Trinn 5: Deploy til prod
 
 Deploy bundlen til prod slik teamet vanligvis gjør, se [Deploye til produksjon med GitHub
-Actions](../utvikle-og-deploye/deploye-til-produksjon.md). I prod er tidsplanen aktiv, og
-jobben kjører som service principalen i `run_as`.
+Actions](../utvikle-og-deploye/deploye-til-produksjon.md). I prod kjører jobben som
+service principalen i `run_as`.
 
 ## Bekreft resultatet
 

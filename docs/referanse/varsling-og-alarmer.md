@@ -204,14 +204,15 @@ plassholder, `TODO_table`, som ikke kan sjekkes før den er byttet ut.
 | Felt         | Verdi                                                                                                         |
 |--------------|---------------------------------------------------------------------------------------------------------------|
 | Compute      | Serverless, miljøversjon 5                                                                                    |
-| Tidsplan     | Hver dag kl. 07:00, `Europe/Oslo` (`quartz_cron_expression: "0 0 7 * * ?"`)                                   |
+| Tidsplan     | Hver dag kl. 07:00 som standard, kan endres (`quartz_cron_expression: "0 0 7 * * ?"`)                         |
 | Varsling     | `webhook_notifications.on_failure` til `${var.slack_destination_id}`, med `no_alert_for_skipped_runs: true` |
 | E-post       | Ingen                                                                                                         |
 | Tidsavbrudd  | 600 sekunder for tasken                                                                                       |
 | Kjører som   | `run_as` på targeten: service principalen i prod, den som deployer i stage                                    |
 
-Stage-targeten har `mode: development`, som setter tidsplaner på pause. Ferskhetsvarselet
-kjører derfor bare av seg selv i prod. I stage kjører det bare når noen starter det.
+Tidsplanen har `pause_status: UNPAUSED`. Den er derfor aktiv også i stage, selv om
+stage-targeten har `mode: development`. Feil i stage varsler `slack_destination_id` for
+stage-targeten.
 
 Hver kjøring som finner et problem, sender ett varsel. Med daglig tidsplan blir det ett
 varsel per dag til problemet er løst.

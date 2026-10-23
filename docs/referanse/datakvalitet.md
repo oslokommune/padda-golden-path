@@ -70,7 +70,10 @@ DQX er et Python-rammeverk for datakvalitet med et sett av ferdiglagde sjekkfunk
 
 - `is_unique` — validerer at en kolonne eller sammensatt nøkkel er unik
 - `is_aggr_equal` — validerer at et aggregat er likt en forventet verdi
-- `is_data_fresh` — validerer at data ikke er eldre enn en gitt tidsgrense
+- `is_data_fresh` — validerer at data ikke er eldre enn en gitt tidsgrense. Uten DQX
+  dekker [ferskhetsvarselet](varsling-og-alarmer.md#ferskhetsvarsel) fra bundle-malen det
+  samme behovet, som en egen jobb som feiler når en tabell ikke har fått nye data
+  innenfor maksalderen
 
 ### Regler
 
@@ -95,6 +98,7 @@ Se offisiell dokumentasjon for [flere eksempler](https://databrickslabs.github.i
 **Guider:**
 
 - [DQX installasjon og bruk](../guider/overvaake-og-drifte/bruke-dqx.md)
+- [Sette opp ferskhetsvarsel](../guider/overvaake-og-drifte/ferskhetsvarsel.md)
 
 **Forklaringer:**
 

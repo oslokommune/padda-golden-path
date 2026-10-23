@@ -1,15 +1,15 @@
 ---
 title: Varsling og alarmer
-description: Varslingskanaler, varsler på jobber og pipelines, SQL-alarmer og feltene som konfigurerer dem i bundlen.
+description: Varslingskanaler, varsler på jobber og pipelines, SQL-alarmer, ferskhetsvarselet fra bundle-malen og feltene som konfigurerer dem i bundlen.
 diataxis: reference
 ---
 
 # Varsling og alarmer
 
-Plattformen har tre måter å varsle på: varsler fra jobber, varsler fra pipelines og
-SQL-alarmer. Teamet setter opp alle tre selv, i [bundlen](databricks-bundles.md) sammen
-med ressursen de gjelder. Hvorfor ansvaret er delt slik, står det om i
-[Overvåking](../om-plattformen/konsepter/overvaaking.md).
+Plattformen har fire måter å varsle på: varsler fra jobber, varsler fra pipelines,
+SQL-alarmer og ferskhetsvarselet fra bundle-malen. Teamet setter opp alle fire selv, i
+[bundlen](databricks-bundles.md) sammen med ressursen de gjelder. Hvorfor ansvaret er
+delt slik, står det om i [Overvåking](../om-plattformen/konsepter/overvaaking.md).
 
 ## Varslingskanaler
 
@@ -22,7 +22,8 @@ Notification destinations opprettes og endres av en
 [workspace-admin](roller-og-rettigheter.md#workspace-admin), det vil si teamets egen
 admingruppe. Når destinasjonen finnes, kan alle i workspacet bruke den. Konfigurasjonen
 lagres kryptert i workspacet. Jobber, pipelines og alarmer peker på destinasjonen med
-ID-en dens, som du finner med `databricks notification-destinations list`. Se
+ID-en dens, som du finner med `databricks notification-destinations list`. I en bundle kan
+en variabel slå opp ID-en fra navnet med `lookup: notification_destination`. Se
 [Sette opp Slack-varsler](../guider/overvaake-og-drifte/slack-varsler.md) for oppsettet.
 
 ## Varsler på jobber
@@ -179,6 +180,105 @@ pipelinen som fyller tabellen. Tasken evaluerer alarmen når jobben kjører, men
 egen tidsplan fortsetter uavhengig. Se [SQL alert task for
 jobs](https://docs.databricks.com/aws/en/jobs/tasks/alert).
 
+## Ferskhetsvarsel
+
+Ferskhetsvarselet er en jobb fra bundle-malen som feiler når en overvåket tabell ikke har
+fått nye data innenfor maksalderen sin. Feilen varsles som for andre jobber, med
+`webhook_notifications`. Oppsettet står i [Sette opp
+ferskhetsvarsel](../guider/overvaake-og-drifte/ferskhetsvarsel.md).
+
+### Malvalget `include_freshness_alert`
+
+| Egenskap    | Verdi |
+|-------------|-------|
+| Verdier     | `no` (standard), `yes` |
+| Spørres når | `setup_type` er `default` eller `tailored`; aldri for `minimal` |
+| Legger til  | Jobben `freshness_alert` i `resources/freshness_alert.job.yml`, pakken `src/<pakke>/freshness/`, testene `tests/test_freshness.py`, entry point `freshness_alert`, og variabelen `slack_destination_id` i `databricks.yml` |
+
+`slack_destination_id` slår opp destinasjonen med navnet `REPLACE_WITH_DESTINATION_NAME` i
+både `stage` og `prod`, så `databricks bundle validate` og `deploy` feiler til navnet er
+byttet ut.
+Med eksempeljobbene overvåker den genererte jobben tabellen `bronze_nyctaxi` fra
+eksempelpipelinen. Uten eksempeljobbene (`include_example_jobs: no`) overvåker den en
+plassholder, `TODO_table`, som ikke kan sjekkes før den er byttet ut.
+
+### Jobben
+
+| Felt         | Verdi                                                                                                         |
+|--------------|---------------------------------------------------------------------------------------------------------------|
+| Compute      | Serverless, miljøversjon 5                                                                                    |
+| Tidsplan     | Hver dag kl. 07:00 (`quartz_cron_expression: "0 0 7 * * ?"`), på pause som standard                           |
+| Varsling     | `webhook_notifications.on_failure` til `${var.slack_destination_id}`, med `no_alert_for_skipped_runs: true` |
+| E-post       | Ingen                                                                                                         |
+| Tidsavbrudd  | 600 sekunder for tasken                                                                                       |
+| Kjører som   | `run_as` på targeten: service principalen i prod, den som deployer i stage                                    |
+
+Tidsplanen har `pause_status: PAUSED`, så jobben kjører bare når noen starter den. Med
+`pause_status: UNPAUSED` kjører den etter tidsplanen i både stage og prod, selv om
+stage-targeten har `mode: development`. Feil i stage varsler `slack_destination_id` for
+stage-targeten.
+
+Hver kjøring som finner et problem, sender ett varsel. Med daglig tidsplan blir det ett
+varsel per dag til problemet er løst.
+
+### Overvåkede tabeller
+
+Hver overvåket tabell er én parameter på tasken, med tre verdier skilt av mellomrom:
+
+```text
+<fullt tabellnavn> <kolonne med innlastingstidspunkt> <maksalder>
+```
+
+```yaml
+parameters:
+  - ${var.catalog}.${var.schema}.bronze_nyctaxi load_date 25h
+  - ${var.catalog}.${var.schema}.raw_nyctaxi load_date 25h
+```
+
+- Alle tre verdiene er påkrevd. Det finnes ingen standardverdier.
+- Tabellnavnet er fullt kvalifisert, `katalog.skjema.tabell`. Med `${var.catalog}` peker
+  stage og prod på hver sin katalog.
+- Kolonnen med innlastingstidspunkt må ha typen `TIMESTAMP`. En kolonne av typen `DATE`
+  eller `TIMESTAMP_NTZ` kan ikke sjekkes.
+- Maksalderen er et positivt heltall fulgt av `m` (minutter), `h` (timer) eller `d`
+  (døgn), for eksempel `30m`, `25h` eller `8d`.
+
+En parameter som ikke har nøyaktig tre verdier, eller som har en ugyldig maksalder,
+feiler jobben før noen tabell er sjekket. Feilmeldingen siterer parameteren.
+
+### Måling og utfall
+
+Dataferskheten er tiden fra det nyeste innlastingstidspunktet i tabellen,
+`max(<kolonne>)`, til nå, regnet i UTC.
+
+| Situasjon                                                                              | Utfall                                                |
+|----------------------------------------------------------------------------------------|-------------------------------------------------------|
+| Dataferskheten er innenfor maksalderen                                                 | OK                                                    |
+| Dataferskheten er større enn maksalderen                                               | For gamle data, under `Stale` i feilmeldingen         |
+| Tabellen er tom (`max()` er NULL)                                                      | For gamle data, rapportert som `no rows`              |
+| Tabellen eller kolonnen finnes ikke, kolonnen har feil type, eller lesetilgang mangler | Kan ikke sjekkes, under `Could not check` med årsaken |
+
+Jobben sjekker alle tabellene før den rapporterer. For hver tabell logger den én
+INFO-linje med navn, nyeste innlastingstidspunkt, alder og maksalder, også når alle
+er OK. Har minst én tabell et problem, feiler jobben med én feilmelding som lister alle
+problemene, én linje per tabell. Tabeller med for gamle data og tabeller som ikke kan
+sjekkes, står i hver sin liste.
+
+Slack-meldingen sier bare at jobben feilet, med teksten `Task freshness_alert failed with
+message: Workload failed, see run output for details.` Hvilke tabeller som har problemer,
+står i kjøreresultatet (*run output*) til kjøringen.
+
+### Begrensninger
+
+- **Full refresh.** En full refresh skriver innlastingstidspunktet på nytt for alle rader,
+  også når kilden ikke har nye data. Tabellen ser da fersk ut, og varselet går ikke før
+  maksalderen er passert på nytt.
+- **Bare tabeller med kolonne med innlastingstidspunkt.** En tabell uten en slik kolonne
+  kan ikke overvåkes. Se [Sette opp
+  ferskhetsvarsel](../guider/overvaake-og-drifte/ferskhetsvarsel.md#legge-til-en-kolonne-med-innlastingstidspunkt).
+- **Bare nye bundles.** Valget finnes i bundle-malen og legges ikke inn i bundles som
+  allerede er generert.
+
 ## Relatert innhold
 
 **Forklaringer:**
@@ -190,6 +290,8 @@ jobs](https://docs.databricks.com/aws/en/jobs/tasks/alert).
 
 - [Sette opp Slack-varsler](../guider/overvaake-og-drifte/slack-varsler.md) — opprette en
   notification destination for Slack
+- [Sette opp ferskhetsvarsel](../guider/overvaake-og-drifte/ferskhetsvarsel.md) — ta i
+  bruk ferskhetsvarselet i en bundle generert med `include_freshness_alert: yes`
 - [Feilsøke med logger](../guider/overvaake-og-drifte/logging.md) og [Gjenopprette etter
   feil i pipelines](../guider/overvaake-og-drifte/gjenopprette-etter-feil.md) — når
   varselet har kommet

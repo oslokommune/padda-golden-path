@@ -36,6 +36,27 @@ dependencies on the bundle's wheels volume. The optional serving endpoint in
 "Publisere modell som serving-endepunkt".
 
 {{end -}}
+{{if eq .include_freshness_alert "yes" -}}
+## Freshness alert
+
+`resources/freshness_alert.job.yml` defines a scheduled serverless job that
+checks when each watched table last received new data. If that is longer ago
+than the table's max age, or the table cannot be checked, the job
+fails and the failure notification goes to Slack. The daily 07:00 schedule is
+paused by default, so the job only runs when started; set `pause_status` to
+`UNPAUSED` under `schedule` in that file to run it on the schedule, and change
+the cron expression to run it at other times.
+Watched tables are listed as job parameters in the same file; replace the
+generated entry with your own tables. Code lives in
+`src/{{template `package_name` .}}/freshness/`, tests in `tests/test_freshness.py`.
+
+Set the name of the Slack notification destination under `slack_destination_id`
+for each target in `databricks.yml` before the first `databricks bundle deploy`;
+validate and deploy fail while it is `REPLACE_WITH_DESTINATION_NAME`.
+See the platform guide
+"[Sette opp ferskhetsvarsel](https://padda.data.oslo.systems/guider/overvaake-og-drifte/ferskhetsvarsel/)".
+
+{{end -}}
 ## Troubleshooting
 
 - Refer to the [Databricks documentation](https://docs.databricks.com/dev-tools/bundles/index.html) for bundle-specific questions

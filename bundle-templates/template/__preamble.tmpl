@@ -54,3 +54,10 @@ This file only provides template directives; it is skipped for the actual output
   {{skip "{{.domain_name}}/tests/test_ml_model.py"}}
   {{skip "{{.domain_name}}/tests/test_ml_registry.py"}}
 {{end}}
+
+{{/* The freshness alert is opt-in and never part of a minimal setup. */}}
+{{if not (eq .include_freshness_alert "yes")}}
+  {{skip "{{.domain_name}}/resources/freshness_alert.job.yml"}}
+  {{skip "{{.domain_name}}/src/*/freshness"}}
+  {{skip "{{.domain_name}}/tests/test_freshness.py"}}
+{{end}}

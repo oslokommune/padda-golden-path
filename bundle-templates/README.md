@@ -25,22 +25,27 @@ This template solves common pain points in Databricks project setup:
 
     | Parameter | Description | Example | Condition |
     | --------- | ----------- | ------- | --------- |
+    | `catalog_name` | Target Unity Catalog name for this domain | `main` | |
+    | `stage_workspace_host` | Stage Databricks workspace host URL | `https://adb-1234567890123456.cloud.databricks.com` | |
+    | `prod_workspace_host` | Prod Databricks workspace host URL | `https://adb-1234567890123456.cloud.databricks.com` | |
     | `domain_name` | Name of the domain | `padda-test-domain` | |
     | `domain_description` | Brief description of the domain | `This domain is generated using our own Padda Asset Bundle Templates.` | |
-    | `setup_type` | Type of setup (`default`, `minimal` or `custom`) | `default` | |
-    | `include_example_jobs` | Whether to include example pipelines and jobs | `yes/no` | `setup_type` = `custom` |
-    | `include_dab_recipes` | Whether to include just recipes for Databricks Bundle commands | `yes/no` | `setup_type` = `custom` |
+    | `setup_type` | Type of setup (`default`, `minimal` or `tailored`) | `default` | |
+    | `include_example_jobs` | Whether to include example pipelines and jobs | `yes/no` | `setup_type` = `tailored` |
     | `include_ml_workflow` | Whether to include the MLflow example (PyTorch training job, Unity Catalog model registry, batch inference, optional serving endpoint) | `yes/no` | `setup_type` != `minimal` |
+    | `include_freshness_alert` | Whether to include a scheduled job that fails, and notifies Slack, when watched tables have not received new data within their max age | `yes/no` | `setup_type` != `minimal` |
+    | `empower_vscode` | Whether to include VS Code settings and extension recommendations | `yes/no` | `setup_type` = `tailored` |
 
     > Previously, specifying a `package_name` was required. The `package_name` is now automatically generated from the `domain_name` by replacing dashes (`-`) with underscores (`_`) following Python package naming conventions.
 
-    This table contains the values passed for setup types `default` and `minimal`. When `setup_type` is `custom`, the values are determined by the user's choices.
+    This table contains the values passed for setup types `default` and `minimal`. When `setup_type` is `tailored`, the values are determined by the user's choices.
 
     | Parameter | Default | Minimal |
     | --------- | ------- | ------- |
     | `include_example_jobs` | `yes` | `no` |
-    | `include_dab_recipes` | `yes` | `no` |
     | `include_ml_workflow` | `no` | `no` |
+    | `include_freshness_alert` | `no` | `no` |
+    | `empower_vscode` | `yes` | `no` |
 
 
 ## Developing the Template

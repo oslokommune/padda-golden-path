@@ -1,0 +1,199 @@
+"""Tests for the freshness alert (pure Python, no Spark)."""
+
+from __future__ import annotations
+
+from datetime import UTC, datetime, timedelta
+
+import pytest
+
+from {{template `package_name` .}}.freshness.alert import (
+    Observation,
+    WatchedTable,
+    build_report,
+    describe,
+    parse_args,
+    parse_max_age,
+)
+
+NOW = datetime(2026, 10, 21, 7, 0, tzinfo=UTC)
+TAXI = WatchedTable("dev_catalog.default.bronze_nyctaxi", "load_date", timedelta(hours=26))
+
+
+class TestParseMaxAge:
+    """``parse_max_age`` reads ``<n>m``, ``<n>h`` and ``<n>d``."""
+
+    @pytest.mark.parametrize(
+        ("text", "expected"),
+        [
+            ("30m", timedelta(minutes=30)),
+            ("26h", timedelta(hours=26)),
+            ("8d", timedelta(days=8)),
+        ],
+    )
+    def test_valid_units(self, text: str, expected: timedelta) -> None:
+        """Minutes, hours and days are supported."""
+        assert parse_max_age(text) == expected
+
+    @pytest.mark.parametrize("text", ["0h", "26", "26s", "1.5h", "-1d", "h", ""])
+    def test_rejects_invalid(self, text: str) -> None:
+        """Zero, missing or unknown units and non-integers are rejected."""
+        with pytest.raises(ValueError, match="max age"):
+            parse_max_age(text)
+
+
+class TestParseArgs:
+    """``parse_args`` reads one ``<table> <column> <max_age>`` entry per watched table."""
+
+    def test_one_entry_per_table(self) -> None:
+        """Each entry becomes one watched table, in order."""
+        argv = ["c.s.a load_date 26h", "c.s.b loaded_at 30m"]
+        assert parse_args(argv) == [
+            WatchedTable("c.s.a", "load_date", timedelta(hours=26)),
+            WatchedTable("c.s.b", "loaded_at", timedelta(minutes=30)),
+        ]
+
+    def test_any_run_of_whitespace_separates_values(self) -> None:
+        """Values can be aligned with several spaces or tabs."""
+        assert parse_args(["  c.s.a    load_date\t26h "]) == [
+            WatchedTable("c.s.a", "load_date", timedelta(hours=26)),
+        ]
+
+    @pytest.mark.parametrize("entry", ["c.s.b load_date", "c.s.b load_date 26h extra"])
+    def test_rejects_wrong_number_of_values(
+        self, entry: str, capsys: pytest.CaptureFixture[str]
+    ) -> None:
+        """Every entry needs exactly three values; the error quotes the entry."""
+        with pytest.raises(SystemExit):
+            parse_args(["c.s.a load_date 26h", entry])
+        assert repr(entry) in capsys.readouterr().err
+
+    def test_rejects_no_entries(self) -> None:
+        """At least one watched table is required."""
+        with pytest.raises(SystemExit):
+            parse_args([])
+
+    def test_invalid_max_age_is_a_usage_error(self, capsys: pytest.CaptureFixture[str]) -> None:
+        """An invalid max age fails argument parsing and quotes the entry."""
+        with pytest.raises(SystemExit):
+            parse_args(["c.s.a load_date 26"])
+        assert "'c.s.a load_date 26'" in capsys.readouterr().err
+
+
+class TestDescribeMaxAge:
+    """Max ages are shown in the unit they are usually written in."""
+
+    @pytest.mark.parametrize(
+        ("max_age", "expected"),
+        [
+            (timedelta(minutes=30), "30m"),
+            (timedelta(minutes=90), "90m"),
+            (timedelta(hours=26), "26h"),
+            (timedelta(days=8), "8d"),
+        ],
+    )
+    def test_max_age_unit(self, max_age: timedelta, expected: str) -> None:
+        """Days if whole days, else hours if whole hours, else minutes."""
+        table = WatchedTable("c.s.t", "load_date", max_age)
+        assert describe(Observation(table, latest=None), NOW).endswith(f"max age {expected}")
+
+
+class TestDescribe:
+    """``describe`` gives the log line for one watched table."""
+
+    def test_checked_table(self) -> None:
+        """Name, latest load timestamp, age and max age."""
+        observation = Observation(TAXI, latest=datetime(2026, 10, 21, 4, 45, tzinfo=UTC))
+        assert describe(observation, NOW) == (
+            "dev_catalog.default.bronze_nyctaxi: latest load timestamp 2026-10-21 04:45 UTC,"
+            " age 2h 15m, max age 26h"
+        )
+
+    def test_empty_table(self) -> None:
+        """An empty table has no latest load timestamp or age."""
+        observation = Observation(TAXI, latest=None)
+        assert describe(observation, NOW) == (
+            "dev_catalog.default.bronze_nyctaxi: no rows, max age 26h"
+        )
+
+    def test_could_not_check(self) -> None:
+        """An uncheckable table shows the reason."""
+        observation = Observation(TAXI, latest=None, error="table not found")
+        assert describe(observation, NOW) == (
+            "dev_catalog.default.bronze_nyctaxi: could not check: table not found"
+        )
+
+
+class TestBuildReport:
+    """``build_report`` lists every problem, or returns ``None`` when all is fresh."""
+
+    def test_fresh_table_has_no_report(self) -> None:
+        """A table loaded within its max age is fresh."""
+        observation = Observation(TAXI, latest=datetime(2026, 10, 21, 5, 0, tzinfo=UTC))
+        assert build_report([observation], NOW) is None
+
+    def test_exactly_at_max_age_is_fresh(self) -> None:
+        """An age equal to the max age is still fresh."""
+        observation = Observation(TAXI, latest=NOW - timedelta(hours=26))
+        assert build_report([observation], NOW) is None
+
+    def test_stale_table_is_reported(self) -> None:
+        """The report names the table, latest load timestamp, age and max age."""
+        observation = Observation(TAXI, latest=datetime(2026, 10, 19, 5, 0, tzinfo=UTC))
+        report = build_report([observation], NOW)
+        assert report is not None
+        assert (
+            "dev_catalog.default.bronze_nyctaxi: latest load timestamp "
+            "2026-10-19 05:00 UTC, age 2d 2h, max age 26h"
+        ) in report
+
+    def test_just_over_max_age_is_stale(self) -> None:
+        """One minute over the max age is stale."""
+        observation = Observation(TAXI, latest=NOW - timedelta(hours=26, minutes=1))
+        assert build_report([observation], NOW) is not None
+
+    def test_empty_table_is_stale(self) -> None:
+        """A table without rows is reported as stale with "no rows"."""
+        report = build_report([Observation(TAXI, latest=None)], NOW)
+        assert report is not None
+        assert "dev_catalog.default.bronze_nyctaxi: no rows, max age 26h" in report
+
+    def test_could_not_check_is_reported_with_reason(self) -> None:
+        """A table that could not be checked is reported with the reason."""
+        observation = Observation(TAXI, latest=None, error="table not found")
+        report = build_report([observation], NOW)
+        assert report is not None
+        assert "Could not check" in report
+        assert "dev_catalog.default.bronze_nyctaxi: table not found" in report
+        assert "no rows" not in report
+
+    def test_all_problems_in_one_report(self) -> None:
+        """Stale and uncheckable tables are listed separately; fresh ones are left out."""
+        fresh = WatchedTable("c.s.fresh", "load_date", timedelta(hours=1))
+        empty = WatchedTable("c.s.empty", "load_date", timedelta(minutes=30))
+        missing = WatchedTable("c.s.missing", "load_date", timedelta(days=1))
+        report = build_report(
+            [
+                Observation(fresh, latest=NOW - timedelta(minutes=5)),
+                Observation(TAXI, latest=datetime(2026, 10, 19, 5, 0, tzinfo=UTC)),
+                Observation(empty, latest=None),
+                Observation(missing, latest=None, error="table not found"),
+            ],
+            NOW,
+        )
+        assert report is not None
+        assert report.splitlines() == [
+            "Freshness alert: 3 of 4 watched tables are stale or could not be checked.",
+            "",
+            "Stale (no new data within the max age):",
+            (
+                "- dev_catalog.default.bronze_nyctaxi: latest load timestamp"
+                " 2026-10-19 05:00 UTC, age 2d 2h, max age 26h"
+            ),
+            "- c.s.empty: no rows, max age 30m",
+            "",
+            (
+                "Could not check (wrong table or column name, column not TIMESTAMP,"
+                " or missing SELECT permission):"
+            ),
+            "- c.s.missing: table not found",
+        ]

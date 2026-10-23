@@ -183,7 +183,7 @@ jobs](https://docs.databricks.com/aws/en/jobs/tasks/alert).
 ## Ferskhetsvarsel
 
 Ferskhetsvarselet er en jobb fra bundle-malen som feiler når en overvåket tabell ikke har
-fått nye data innenfor ferskhetsgrensen sin. Feilen varsles som for andre jobber, med
+fått nye data innenfor maksalderen sin. Feilen varsles som for andre jobber, med
 `webhook_notifications`. Oppsettet står i [Sette opp
 ferskhetsvarsel](../guider/overvaake-og-drifte/ferskhetsvarsel.md).
 
@@ -226,7 +226,7 @@ varsel per dag til problemet er løst.
 Hver overvåket tabell er én parameter på tasken, med tre verdier skilt av mellomrom:
 
 ```text
-<fullt tabellnavn> <kolonne med innlastingstidspunkt> <ferskhetsgrense>
+<fullt tabellnavn> <kolonne med innlastingstidspunkt> <maksalder>
 ```
 
 ```yaml
@@ -240,10 +240,10 @@ parameters:
   stage og prod på hver sin katalog.
 - Kolonnen med innlastingstidspunkt må ha typen `TIMESTAMP`. En kolonne av typen `DATE`
   eller `TIMESTAMP_NTZ` kan ikke sjekkes.
-- Ferskhetsgrensen er et positivt heltall fulgt av `m` (minutter), `h` (timer) eller `d`
+- Maksalderen er et positivt heltall fulgt av `m` (minutter), `h` (timer) eller `d`
   (døgn), for eksempel `30m`, `25h` eller `8d`.
 
-En parameter som ikke har nøyaktig tre verdier, eller som har en ugyldig ferskhetsgrense,
+En parameter som ikke har nøyaktig tre verdier, eller som har en ugyldig maksalder,
 feiler jobben før noen tabell er sjekket. Feilmeldingen siterer parameteren.
 
 ### Måling og utfall
@@ -253,13 +253,13 @@ Dataferskheten er tiden fra det nyeste innlastingstidspunktet i tabellen,
 
 | Situasjon                                                                              | Utfall                                                |
 |----------------------------------------------------------------------------------------|-------------------------------------------------------|
-| Dataferskheten er innenfor ferskhetsgrensen                                            | OK                                                    |
-| Dataferskheten er større enn ferskhetsgrensen                                          | For gamle data, under `Stale` i feilmeldingen         |
+| Dataferskheten er innenfor maksalderen                                                 | OK                                                    |
+| Dataferskheten er større enn maksalderen                                               | For gamle data, under `Stale` i feilmeldingen         |
 | Tabellen er tom (`max()` er NULL)                                                      | For gamle data, rapportert som `no rows`              |
 | Tabellen eller kolonnen finnes ikke, kolonnen har feil type, eller lesetilgang mangler | Kan ikke sjekkes, under `Could not check` med årsaken |
 
 Jobben sjekker alle tabellene før den rapporterer. For hver tabell logger den én
-INFO-linje med navn, nyeste innlastingstidspunkt, alder og ferskhetsgrense, også når alle
+INFO-linje med navn, nyeste innlastingstidspunkt, alder og maksalder, også når alle
 er OK. Har minst én tabell et problem, feiler jobben med én feilmelding som lister alle
 problemene, én linje per tabell. Tabeller med for gamle data og tabeller som ikke kan
 sjekkes, står i hver sin liste.
@@ -272,7 +272,7 @@ står i kjøreresultatet (*run output*) til kjøringen.
 
 - **Full refresh.** En full refresh skriver innlastingstidspunktet på nytt for alle rader,
   også når kilden ikke har nye data. Tabellen ser da fersk ut, og varselet går ikke før
-  ferskhetsgrensen er passert på nytt.
+  maksalderen er passert på nytt.
 - **Bare tabeller med kolonne med innlastingstidspunkt.** En tabell uten en slik kolonne
   kan ikke overvåkes. Se [Sette opp
   ferskhetsvarsel](../guider/overvaake-og-drifte/ferskhetsvarsel.md#legge-til-en-kolonne-med-innlastingstidspunkt).

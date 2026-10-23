@@ -1,6 +1,6 @@
 ---
 title: Sette opp ferskhetsvarsel
-description: Ta i bruk ferskhetsvarselet fra bundle-malen, slik at teamet får beskjed i Slack når en tabell ikke har fått nye data innenfor ferskhetsgrensen.
+description: Ta i bruk ferskhetsvarselet fra bundle-malen, slik at teamet får beskjed i Slack når en tabell ikke har fått nye data innenfor maksalderen.
 diataxis: how-to
 ---
 
@@ -8,7 +8,7 @@ diataxis: how-to
 
 Denne guiden viser hvordan du tar i bruk ferskhetsvarselet i en bundle som er generert med
 `include_freshness_alert: yes`. Ferskhetsvarselet er en jobb som feiler når en overvåket
-tabell ikke har fått nye data innenfor ferskhetsgrensen sin, og feilen sendes til Slack.
+tabell ikke har fått nye data innenfor maksalderen sin, og feilen sendes til Slack.
 Når du er ferdig og har skrudd på tidsplanen, kjører jobben av seg selv og sier fra om
 tabeller med for gamle data.
 
@@ -60,7 +60,7 @@ Slack-varsler](slack-varsler.md#trinn-3-pek-jobben-pa-destinasjonen-i-bundlen).
 ## Trinn 2: List tabellene som skal overvåkes
 
 Åpne `resources/freshness_alert.job.yml`. Hver overvåket tabell er én linje under
-`parameters`, med fullt tabellnavn, kolonne med innlastingstidspunkt og ferskhetsgrense,
+`parameters`, med fullt tabellnavn, kolonne med innlastingstidspunkt og maksalder,
 skilt av mellomrom:
 
 ```yaml
@@ -71,8 +71,8 @@ skilt av mellomrom:
 Bytt ut eksempeltabellen, eller `TODO_table` hvis bundlen ble generert uten
 eksempeljobbene, med tabellene dine. Legg til én linje per tabell.
 
-Sett ferskhetsgrensen til hvor ofte tabellen skal få nye data, pluss en margin. En tabell
-som lastes inn én gang i døgnet, kan for eksempel ha `25h`. Grensen skrives som et
+Sett maksalderen til hvor ofte tabellen skal få nye data, pluss en margin. En tabell
+som lastes inn én gang i døgnet, kan for eksempel ha `25h`. Maksalderen skrives som et
 positivt heltall fulgt av `m`, `h` eller `d`. Formatet er beskrevet i [Varsling og
 alarmer](../../referanse/varsling-og-alarmer.md#overvakede-tabeller).
 
@@ -144,7 +144,7 @@ service principalen i `run_as`.
   overvåket tabell, for eksempel:
 
     ```text
-    INFO:<pakke>.freshness.tasks:fresh: <katalog>.default.bronze_nyctaxi: latest load timestamp 2026-10-21 13:02 UTC, age 7m, threshold 25h
+    INFO:<pakke>.freshness.tasks:fresh: <katalog>.default.bronze_nyctaxi: latest load timestamp 2026-10-21 13:02 UTC, age 7m, max age 25h
     ```
 
 - I prod-workspacet ligger jobben `freshness_alert` under **Jobs & Pipelines** med en

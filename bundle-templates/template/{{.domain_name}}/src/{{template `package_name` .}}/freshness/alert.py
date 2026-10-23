@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-_THRESHOLD_UNITS = {"m": "minutes", "h": "hours", "d": "days"}
+_MAX_AGE_UNITS = {"m": "minutes", "h": "hours", "d": "days"}
 _UNCHECKED_HEADING = (
     "Could not check (wrong table or column name, column not TIMESTAMP,"
     " or missing SELECT permission):"
@@ -20,11 +20,11 @@ _UNCHECKED_HEADING = (
 
 @dataclass(frozen=True)
 class WatchedTable:
-    """Full table name, load timestamp column and freshness threshold."""
+    """Full table name, load timestamp column and max age."""
 
     name: str
     column: str
-    threshold: timedelta
+    max_age: timedelta
 
 
 @dataclass(frozen=True)
@@ -36,27 +36,27 @@ class Observation:
     error: str | None = None
 
 
-def parse_threshold(text: str) -> timedelta:
-    """Parse a freshness threshold such as ``30m``, ``25h`` or ``8d``."""
+def parse_max_age(text: str) -> timedelta:
+    """Parse a max age such as ``30m``, ``25h`` or ``8d``."""
     match = re.fullmatch(r"([0-9]+)([mhd])", text)
     if match is None or int(match[1]) == 0:
         msg = (
-            f"invalid freshness threshold {text!r}: expected a positive whole number "
+            f"invalid max age {text!r}: expected a positive whole number "
             "followed by m, h or d, e.g. 30m, 25h or 8d"
         )
         raise ValueError(msg)
-    return timedelta(**{_THRESHOLD_UNITS[match[2]]: int(match[1])})
+    return timedelta(**{_MAX_AGE_UNITS[match[2]]: int(match[1])})
 
 
 def parse_args(argv: Sequence[str] | None = None) -> list[WatchedTable]:
-    """Return one watched table per ``<table> <column> <threshold>`` entry."""
+    """Return one watched table per ``<table> <column> <max_age>`` entry."""
     parser = argparse.ArgumentParser(description="Fail when watched tables are stale.")
     parser.add_argument(
         "entries",
         nargs="+",
         metavar="ENTRY",
         help=(
-            "full table name, load timestamp column and freshness threshold (e.g. 25h),"
+            "full table name, load timestamp column and max age (e.g. 25h),"
             " separated by whitespace"
         ),
     )
@@ -66,12 +66,11 @@ def parse_args(argv: Sequence[str] | None = None) -> list[WatchedTable]:
         values = entry.split()
         if len(values) != 3:
             parser.error(
-                f"{entry!r}: expected"
-                " <table> <load timestamp column> <freshness threshold>"
+                f"{entry!r}: expected <table> <load timestamp column> <max age>"
             )
-        name, column, threshold = values
+        name, column, max_age = values
         try:
-            tables.append(WatchedTable(name, column, parse_threshold(threshold)))
+            tables.append(WatchedTable(name, column, parse_max_age(max_age)))
         except ValueError as exc:
             parser.error(f"{entry!r}: {exc}")
     return tables
@@ -89,8 +88,8 @@ def _format_duration(duration: timedelta) -> str:
     return " ".join(parts) or "0m"
 
 
-def _format_threshold(threshold: timedelta) -> str:
-    minutes = int(threshold.total_seconds()) // 60
+def _format_max_age(max_age: timedelta) -> str:
+    minutes = int(max_age.total_seconds()) // 60
     for unit, size in (("d", 24 * 60), ("h", 60)):
         if minutes % size == 0:
             return f"{minutes // size}{unit}"
@@ -98,22 +97,22 @@ def _format_threshold(threshold: timedelta) -> str:
 
 
 def is_stale(observation: Observation, now: datetime) -> bool:
-    """Return True if a checked table has no rows or is older than its threshold."""
+    """Return True if a checked table has no rows or is older than its max age."""
     latest = observation.latest
-    return latest is None or now - latest > observation.table.threshold
+    return latest is None or now - latest > observation.table.max_age
 
 
 def describe(observation: Observation, now: datetime) -> str:
-    """Return one line with name, latest load timestamp, age and threshold."""
+    """Return one line with name, latest load timestamp, age and max age."""
     table = observation.table
     if observation.error is not None:
         return f"{table.name}: could not check: {observation.error}"
-    threshold = _format_threshold(table.threshold)
+    max_age = _format_max_age(table.max_age)
     if observation.latest is None:
-        return f"{table.name}: no rows, threshold {threshold}"
+        return f"{table.name}: no rows, max age {max_age}"
     return (
         f"{table.name}: latest load timestamp {observation.latest:%Y-%m-%d %H:%M} UTC, "
-        f"age {_format_duration(now - observation.latest)}, threshold {threshold}"
+        f"age {_format_duration(now - observation.latest)}, max age {max_age}"
     )
 
 
@@ -133,7 +132,7 @@ def build_report(observations: Sequence[Observation], now: datetime) -> str | No
     )
     lines = [header]
     if stale:
-        lines += ["", "Stale (no new data within the freshness threshold):", *stale]
+        lines += ["", "Stale (no new data within the max age):", *stale]
     if unchecked:
         lines += ["", _UNCHECKED_HEADING, *unchecked]
     return "\n".join(lines)

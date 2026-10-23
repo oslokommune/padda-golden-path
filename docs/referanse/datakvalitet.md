@@ -73,7 +73,7 @@ DQX er et Python-rammeverk for datakvalitet med et sett av ferdiglagde sjekkfunk
 - `is_data_fresh` — validerer at data ikke er eldre enn en gitt tidsgrense. Uten DQX
   dekker [ferskhetsvarselet](varsling-og-alarmer.md#ferskhetsvarsel) fra bundle-malen det
   samme behovet, som en egen jobb som feiler når en tabell ikke har fått nye data
-  innenfor ferskhetsgrensen
+  innenfor maksalderen
 
 ### Regler
 

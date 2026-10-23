@@ -1,5 +1,5 @@
 # Fails, and notifies Slack, when a watched table has not received new data
-# within its freshness threshold. Manual runs only: the daily schedule is paused.
+# within its max age. Manual runs only: the daily schedule is paused.
 # Set pause_status to UNPAUSED to run it on the schedule in both stage and prod.
 resources:
   jobs:
@@ -23,9 +23,9 @@ resources:
           python_wheel_task:
             package_name: {{template `package_name` .}}
             entry_point: freshness_alert
-            # One '<table> <TIMESTAMP load timestamp column> <threshold>' item
+            # One '<table> <TIMESTAMP load timestamp column> <max_age>' item
             # per watched table, with the values separated by whitespace.
-            # Threshold: <n>m, <n>h or <n>d, i.e. the expected update interval
+            # Max age: <n>m, <n>h or <n>d, i.e. the expected update interval
             # plus a margin.
             parameters:
 {{- if eq .include_example_jobs "yes"}}

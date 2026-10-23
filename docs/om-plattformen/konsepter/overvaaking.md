@@ -80,7 +80,7 @@ aldri. Stopper tidsplanen, eller kjører pipelinen grønt uten at det kommer nye
 kilden, er det ingen kjøring som kan feile, og ingen får beskjed. Derfor måler
 [ferskhetsvarselet](../../referanse/varsling-og-alarmer.md#ferskhetsvarsel) tabellen, ikke
 kjøringen: det ser på når tabellen sist fikk nye data, og varsler når dataferskheten
-passerer en ferskhetsgrense teamet har satt. Ferskhetsvarselet er en egen jobb i bundlen,
+passerer en maksalder teamet har satt. Ferskhetsvarselet er en egen jobb i bundlen,
 ikke en SQL-alarm. Dermed går det gjennom den samme varslingskjeden til Slack som de andre
 jobbene, og det trenger ikke et SQL Warehouse. Bundle-malen kan generere jobben, se
 [Sette opp ferskhetsvarsel](../../guider/overvaake-og-drifte/ferskhetsvarsel.md).

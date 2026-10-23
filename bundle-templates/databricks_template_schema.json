@@ -86,7 +86,7 @@
       "type": "string",
       "default": "no",
       "enum": ["no", "yes"],
-      "description": "Include a freshness alert job that fails when watched tables have not received new data within a set threshold?",
+      "description": "Include a freshness alert job that fails when watched tables have not received new data within a set max age?",
       "order": 22,
       "skip_prompt_if": {
         "properties": {

@@ -50,8 +50,9 @@ Watched tables are listed as job parameters in the same file; replace the
 generated entry with your own tables. Code lives in
 `src/{{template `package_name` .}}/freshness/`, tests in `tests/test_freshness.py`.
 
-Set `slack_destination_id` for each target in `databricks.yml` before the first
-`databricks bundle deploy`; deploy fails while it is `REPLACE_WITH_DESTINATION_ID`.
+Set the name of the Slack notification destination under `slack_destination_id`
+for each target in `databricks.yml` before the first `databricks bundle deploy`;
+validate and deploy fail while it is `REPLACE_WITH_DESTINATION_NAME`.
 See the platform guide
 "[Sette opp ferskhetsvarsel](https://padda.data.oslo.systems/guider/overvaake-og-drifte/ferskhetsvarsel/)".
 

@@ -22,14 +22,14 @@ Sørg for at du har:
 - En bundle generert med `include_freshness_alert: yes`. Se [Ta i bruk
   bundles](../utvikle-og-deploye/ta-i-bruk-bundles.md).
 - En notification destination av typen **Slack** i både stage- og prod-workspacet, og
-  ID-ene til dem. Se trinn 1 og 2 i [Sette opp Slack-varsler](slack-varsler.md).
+  navnene på dem. Se trinn 1 og 2 i [Sette opp Slack-varsler](slack-varsler.md).
 - Tabeller å overvåke, med en kolonne med innlastingstidspunkt av typen `TIMESTAMP`.
   Mangler tabellen en slik kolonne, se [Legge til en kolonne med
   innlastingstidspunkt](#legge-til-en-kolonne-med-innlastingstidspunkt).
 
-## Trinn 1: Sett ID-en til Slack-destinasjonen
+## Trinn 1: Sett navnet på Slack-destinasjonen
 
-Åpne `databricks.yml` og bytt ut `REPLACE_WITH_DESTINATION_ID` med ID-en til
+Åpne `databricks.yml` og bytt ut `REPLACE_WITH_DESTINATION_NAME` med navnet på
 destinasjonen i hvert target:
 
 ```yaml
@@ -38,14 +38,21 @@ targets:
     # ...
     variables:
       # ...
-      slack_destination_id: <ID fra stage-workspacet>
+      slack_destination_id:
+        lookup:
+          notification_destination: <navn i stage-workspacet>
 
   prod:
     # ...
     variables:
       # ...
-      slack_destination_id: <ID fra prod-workspacet>
+      slack_destination_id:
+        lookup:
+          notification_destination: <navn i prod-workspacet>
 ```
+
+`lookup` slår opp ID-en til destinasjonen ved `databricks bundle validate` og `deploy`.
+Finnes ingen destinasjon med navnet, feiler kommandoen før noe blir deployet.
 
 Andre jobber i bundlen kan bruke den samme variabelen, se trinn 3 i [Sette opp
 Slack-varsler](slack-varsler.md#trinn-3-pek-jobben-pa-destinasjonen-i-bundlen).
@@ -146,12 +153,11 @@ service principalen i `run_as`.
 
 ## Feilsøking
 
-??? failure "Feilmelding ved deploy: `Invalid webhook id 'REPLACE_WITH_DESTINATION_ID'`"
+??? failure "Feilmelding: `failed to resolve notification-destination`"
 
-    `slack_destination_id` har fortsatt plassholderen i targeten du deployer til. Sett
-    ID-en som i trinn 1, og deploy på nytt. Andre ressurser i bundlen kan være deployet
-    før feilen. Hele feilmeldingen, og hvorfor `databricks bundle validate` ikke fanger
-    den, står i [feilsøkingen i Sette opp Slack-varsler](slack-varsler.md#feilsking).
+    `slack_destination_id` har fortsatt plassholderen i targeten. Sett navnet som i
+    trinn 1, og prøv på nytt. Se også [feilsøkingen i Sette opp
+    Slack-varsler](slack-varsler.md#feilsking).
 
 ??? failure "Tabellen står under `Could not check`"
 
@@ -167,7 +173,7 @@ service principalen i `run_as`.
 ??? failure "Ingen melding i Slack når jobben feiler"
 
     Følg [feilsøkingen i Sette opp Slack-varsler](slack-varsler.md#feilsking). Den
-    dekker feil type destinasjon, ID fra feil workspace og andre grunner til at varselet
+    dekker feil type destinasjon, navn fra feil workspace og andre grunner til at varselet
     uteblir. Ferskhetsvarselet bruker samme mekanisme som jobbvarslene der.
 
 ??? failure "Ikke noe varsel, selv om kilden ikke har levert nye data"

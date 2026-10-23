@@ -41,6 +41,8 @@ variables:
     default: "1"
 {{- end}}
 {{- if eq .include_freshness_alert "yes"}}
+  # Each target looks up the destination by its display name in that workspace,
+  # so validate and deploy fail if no destination has that name.
   slack_destination_id:
     description: ID of the Slack notification destination for job failure alerts.
 {{- end}}
@@ -63,7 +65,9 @@ targets:
       catalog: dev_catalog
       schema: default
 {{- if eq .include_freshness_alert "yes"}}
-      slack_destination_id: REPLACE_WITH_DESTINATION_ID
+      slack_destination_id:
+        lookup:
+          notification_destination: REPLACE_WITH_DESTINATION_NAME
 {{- end}}
 
   # The 'prod' target, used for production deployment.
@@ -85,5 +89,7 @@ targets:
       catalog: prod_catalog
       schema: production
 {{- if eq .include_freshness_alert "yes"}}
-      slack_destination_id: REPLACE_WITH_DESTINATION_ID
+      slack_destination_id:
+        lookup:
+          notification_destination: REPLACE_WITH_DESTINATION_NAME
 {{- end}}

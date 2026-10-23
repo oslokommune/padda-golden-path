@@ -22,7 +22,8 @@ Notification destinations opprettes og endres av en
 [workspace-admin](roller-og-rettigheter.md#workspace-admin), det vil si teamets egen
 admingruppe. Når destinasjonen finnes, kan alle i workspacet bruke den. Konfigurasjonen
 lagres kryptert i workspacet. Jobber, pipelines og alarmer peker på destinasjonen med
-ID-en dens, som du finner med `databricks notification-destinations list`. Se
+ID-en dens, som du finner med `databricks notification-destinations list`. I en bundle kan
+en variabel slå opp ID-en fra navnet med `lookup: notification_destination`. Se
 [Sette opp Slack-varsler](../guider/overvaake-og-drifte/slack-varsler.md) for oppsettet.
 
 ## Varsler på jobber
@@ -194,7 +195,9 @@ ferskhetsvarsel](../guider/overvaake-og-drifte/ferskhetsvarsel.md).
 | Spørres når | `setup_type` er `default` eller `tailored`; aldri for `minimal` |
 | Legger til  | Jobben `freshness_alert` i `resources/freshness_alert.job.yml`, pakken `src/<pakke>/freshness/`, testene `tests/test_freshness.py`, entry point `freshness_alert`, og variabelen `slack_destination_id` i `databricks.yml` |
 
-`slack_destination_id` får verdien `REPLACE_WITH_DESTINATION_ID` i både `stage` og `prod`.
+`slack_destination_id` slår opp destinasjonen med navnet `REPLACE_WITH_DESTINATION_NAME` i
+både `stage` og `prod`, så `databricks bundle validate` og `deploy` feiler til navnet er
+byttet ut.
 Med eksempeljobbene overvåker den genererte jobben tabellen `bronze_nyctaxi` fra
 eksempelpipelinen. Uten eksempeljobbene (`include_example_jobs: no`) overvåker den en
 plassholder, `TODO_table`, som ikke kan sjekkes før den er byttet ut.

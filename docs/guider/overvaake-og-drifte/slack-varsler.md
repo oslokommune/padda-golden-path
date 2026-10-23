@@ -52,21 +52,22 @@ enn prod, legger du til en egen webhook for stage i samme app.
 Databricks lagrer URL-en kryptert. Alle i workspacet kan bruke destinasjonen når den er
 opprettet.
 
-Du trenger ID-en til destinasjonen i trinn 3. Finn den ved å liste destinasjonene i
-workspacet:
+Du trenger navnet på destinasjonen i trinn 3. Du ser det i lista under **Notifications**,
+eller ved å liste destinasjonene i workspacet:
 
 ```bash
 databricks notification-destinations list -p MY_TEAM_STAGE
 ```
 
-Gjenta trinnet for prod-workspacet. ID-en er forskjellig i hvert workspace.
+Gjenta trinnet for prod-workspacet. ID-en er forskjellig i hvert workspace, så bundlen slår
+den opp fra navnet.
 
 ## Trinn 3: Pek jobben på destinasjonen i bundlen
 
-Legg til en variabel i `databricks.yml`, og sett ID-en for hvert target. Er bundlen
-generert med [ferskhetsvarselet](ferskhetsvarsel.md), finnes variabelen allerede med
-plassholderen `REPLACE_WITH_DESTINATION_ID`. Da bytter du bare ut verdiene, og de andre
-jobbene bruker den samme variabelen.
+Legg til en variabel i `databricks.yml`, og slå opp destinasjonen på navn for hvert
+target. Er bundlen generert med [ferskhetsvarselet](ferskhetsvarsel.md), finnes variabelen
+allerede med plassholderen `REPLACE_WITH_DESTINATION_NAME`. Da bytter du bare ut verdiene,
+og de andre jobbene bruker den samme variabelen.
 
 ```yaml
 variables:
@@ -77,13 +78,20 @@ targets:
   stage:
     # ...
     variables:
-      slack_destination_id: <ID fra stage-workspacet>
+      slack_destination_id:
+        lookup:
+          notification_destination: <navn i stage-workspacet>
 
   prod:
     # ...
     variables:
-      slack_destination_id: <ID fra prod-workspacet>
+      slack_destination_id:
+        lookup:
+          notification_destination: <navn i prod-workspacet>
 ```
+
+`lookup` gjør om navnet til ID-en ved `databricks bundle validate` og `deploy`. Et navn som
+ikke finnes i workspacet, stopper kommandoen før noe blir deployet.
 
 Legg så til `webhook_notifications` på jobben i `resources/*.job.yml`:
 
@@ -133,7 +141,8 @@ destinasjonen stå oppført for **Failure**.
 
 ??? failure "Ingen melding i Slack når jobben feiler"
 
-    - Sjekk at ID-en i targeten hører til samme workspace som jobben kjører i.
+    - Sjekk at navnet i targeten hører til en destinasjon i samme workspace som jobben
+      kjører i.
     - Sjekk at destinasjonen er av typen Slack. `databricks notification-destinations
       list` viser typen i `destination_type`, som skal være `SLACK`. En destinasjon av
       typen Webhook poster et format Slack ikke viser som melding.
@@ -152,17 +161,17 @@ destinasjonen stå oppført for **Failure**.
     transformasjoner](../bearbeide-data/skrive-transformasjoner.md#trinn-4-legg-transformasjonen-inn-i-innlastingsjobben).
     Da feiler jobben når pipelinen feiler, og jobbvarselet sendes.
 
-??? failure "Feilmelding ved deploy: `Invalid webhook id`"
+??? failure "Feilmelding ved validate eller deploy: `failed to resolve notification-destination`"
 
-    Verdien av `slack_destination_id` er ikke en gyldig ID, for eksempel fordi
+    Workspacet har ingen destinasjon med navnet i targeten, for eksempel fordi
     plassholderen fra bundle-malen står igjen:
 
     ```text
-    Error: cannot create resources.jobs.freshness_alert: Invalid webhook id 'REPLACE_WITH_DESTINATION_ID' in on_failure. Webhook IDs must be valid UUIDs. (400 INVALID_PARAMETER_VALUE)
+    Error: failed to resolve notification-destination: REPLACE_WITH_DESTINATION_NAME, err: notification destination named "REPLACE_WITH_DESTINATION_NAME" does not exist
     ```
 
-    `databricks bundle validate` godtar verdien, så feilen kommer først ved deploy. Sett
-    ID-en fra trinn 2 i targeten, og deploy på nytt.
+    Navnet må være helt likt navnet i workspacet, med store og små bokstaver og mellomrom.
+    Sett navnet fra trinn 2 i targeten, og prøv på nytt.
 
 ??? failure "Finner ikke fanen Notifications under Settings"
 

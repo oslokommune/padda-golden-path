@@ -15,8 +15,17 @@ them, and the few things the pages do not say.
 
 1. **Identify the phase** of the request in the page map below. A request may span
    several phases; take each one it touches.
-2. **Fetch the pages**: every required page of each phase, every conditional page whose
-   condition matches the request, and nothing else. Read each page with its own call:
+2. **Fetch the `nav`, then the pages.** The `nav` in `zensical.toml` lists every page the
+   docs have today; the map below is a reading order and may lag behind it:
+
+   ```bash
+   curl -sL https://raw.githubusercontent.com/oslokommune/padda-golden-path/main/zensical.toml
+   ```
+
+   Fetch every required page of each phase, every conditional page whose condition
+   matches the request, and every page the `nav` lists in the phase's section or under
+   `Referanse` whose title matches the request but the map does not name; nothing else.
+   Read each page with its own call:
 
    ```bash
    curl -sL https://raw.githubusercontent.com/oslokommune/padda-golden-path/main/docs/<path>.md
@@ -34,7 +43,9 @@ them, and the few things the pages do not say.
 
 ## Page map
 
-Paths are under `docs/`, without `.md`.
+Paths are under `docs/`, without `.md`. Phases follow the `Guider` sections of the `nav`:
+Utvikle og deploye (scaffold, deploy), Hente inn data (bronze), Bearbeide data (silver),
+Dele og hente ut data (gold), Overvåke og drifte (monitor).
 
 | Phase | Required | Conditional |
 |---|---|---|
@@ -48,12 +59,10 @@ Paths are under `docs/`, without `.md`.
 | Any new job or pipeline | | `guider/overvaake-og-drifte/kostnadstagging` |
 | Concept questions | | the `om-plattformen/konsepter/` page the `nav` names for the topic |
 
-For anything outside this map, or a page that returns `404: Not Found`, read the `nav` in
-`zensical.toml`, which lists every page:
-
-```bash
-curl -sL https://raw.githubusercontent.com/oslokommune/padda-golden-path/main/zensical.toml
-```
+A `nav` section with no phase here, or a page the map does not name, is newer than this
+skill: read it when its title matches the request, and say in the reply that the skill
+needs an update. A page that returns `404: Not Found` has moved: take its current path
+from the `nav`.
 
 A fetch that returns nothing at all is a page you have not read: say so and ask before
 continuing, since the conventions exist only in the docs.

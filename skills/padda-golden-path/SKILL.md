@@ -1,8 +1,8 @@
 ---
 name: padda-golden-path
-description: Padda golden-path assistant for Databricks data engineering in Oslo kommune. Use whenever the user wants to create a new Databricks Asset Bundle, data pipeline, ingestion job, or data product on the Padda platform, or asks how to structure bronze/silver/gold tables, Auto Loader ingestion, data quality checks (expectations/DQX), bundle naming, deploy targets, cost tags, or dataproduct.yaml metadata — even if they never mention "golden path" or this skill by name. Scaffolds new bundles from the official golden-path template and applies platform conventions when reviewing or writing pipeline code.
-allowed-tools:
-  - Bash(curl -sL https://raw.githubusercontent.com/oslokommune/padda-golden-path/*)
+description: Padda golden-path assistant for Databricks data engineering in Oslo kommune. Use whenever the user wants to create a Databricks Asset Bundle, pipeline, job, ingestion (Auto Loader, landing zone, API source) or data product on the Padda platform, or asks how to structure bronze/silver/gold tables, data quality checks (expectations/DQX), naming, cost tags, secrets, deploy targets, GitHub Actions deploys, Slack or freshness alerts, or dataproduct.yaml metadata — even if they never mention "golden path" or this skill by name. Scaffolds new bundles from the official template and applies platform conventions when reviewing or writing pipeline code.
+compatibility: Requires curl and network access to raw.githubusercontent.com; scaffolding also needs the Databricks CLI.
+allowed-tools: Bash(curl -sL https://raw.githubusercontent.com/oslokommune/padda-golden-path/*)
 ---
 
 # Padda golden path
@@ -16,16 +16,19 @@ them, and the few things the pages do not say.
 1. **Identify the phase** of the request in the page map below. A request may span
    several phases; take each one it touches.
 2. **Fetch the pages**: every required page of each phase, every conditional page whose
-   condition matches the request, and nothing else. Read each page with
+   condition matches the request, and nothing else. Read each page with its own call:
 
    ```bash
    curl -sL https://raw.githubusercontent.com/oslokommune/padda-golden-path/main/docs/<path>.md
    ```
 
-   Never use WebFetch for the docs: it returns a summary and drops the code blocks. This
-   step is done when every one of those pages is fetched, before you write code or
+   Read the docs with `curl`, not a web-fetch or browse tool: those often return a summary
+   and drop the code blocks. One page per call keeps each page within the tool's output
+   limit; if the tool saved an output to a file instead of showing it, read that file.
+   This step is done when every one of those pages is fetched, before you write code or
    answer.
-3. **Apply what the pages say.** Where the pages are silent, see "Precedence".
+3. **Apply what the pages say**: done when every rule the fetched pages state for the
+   request is reflected in your output. Where the pages are silent, see "Precedence".
 4. **End the reply with one line of sources**: the pages you relied on, as
    `https://padda.data.oslo.systems/<path>/` links.
 
@@ -37,20 +40,23 @@ Paths are under `docs/`, without `.md`.
 |---|---|---|
 | Every phase | `referanse/navnekonvensjoner` | |
 | Scaffold a bundle | `guider/utvikle-og-deploye/ta-i-bruk-bundles`, plus the template schema (see "Scaffolding") | |
-| Land and ingest to bronze | `guider/hente-inn-data/auto-loader` | `guider/hente-inn-data/laste-opp-til-landing-zone` (files), `guider/hente-inn-data/hente-data-via-api` (API source), `referanse/landing-zone` |
-| Silver | `guider/bearbeide-data/skrive-transformasjoner` | `guider/bearbeide-data/deduplisere-data` (dedup), `guider/bearbeide-data/haandtere-ugyldige-rader` (a cast can fail) |
+| Land and ingest to bronze | `guider/hente-inn-data/auto-loader` | `guider/hente-inn-data/laste-opp-til-landing-zone` (files), `guider/hente-inn-data/hente-data-via-api` and `referanse/sam-deploy` (API source), `referanse/landing-zone` |
+| Silver | `guider/bearbeide-data/skrive-transformasjoner` | `guider/bearbeide-data/deduplisere-data` (dedup), `guider/bearbeide-data/haandtere-ugyldige-rader` (a cast can fail), `referanse/datakvalitet` (expectations or constraints) |
 | Gold and data product | `guider/dele-og-hente-ut/dokumentere-dataprodukt` | `referanse/dataprodukt` |
 | Deploy | `guider/utvikle-og-deploye/deploye-til-produksjon` | `guider/utvikle-og-deploye/haandtere-secrets` (secrets), `referanse/databricks-bundles` |
 | Monitor | | `guider/overvaake-og-drifte/slack-varsler`, `guider/overvaake-og-drifte/ferskhetsvarsel`, `guider/overvaake-og-drifte/bruke-dqx` (each when asked), `referanse/varsling-og-alarmer` |
 | Any new job or pipeline | | `guider/overvaake-og-drifte/kostnadstagging` |
 | Concept questions | | the `om-plattformen/konsepter/` page the `nav` names for the topic |
 
-For anything outside this map, or a page that returns 404, read the `nav` in
+For anything outside this map, or a page that returns `404: Not Found`, read the `nav` in
 `zensical.toml`, which lists every page:
 
 ```bash
 curl -sL https://raw.githubusercontent.com/oslokommune/padda-golden-path/main/zensical.toml
 ```
+
+A fetch that returns nothing at all is a page you have not read: say so and ask before
+continuing, since the conventions exist only in the docs.
 
 ## Scaffolding
 
@@ -59,6 +65,11 @@ Create a new bundle from the golden-path template on GitHub:
 ```bash
 databricks bundle init https://github.com/oslokommune/padda-golden-path --template-dir bundle-templates
 ```
+
+This replaces the local-path command and the cloned-repo prerequisite on the
+`ta-i-bruk-bundles` page: developers have no checkout of `padda-golden-path`. The CLI may
+suggest `databricks aitools install`; that is Databricks' own skill set, separate from
+scaffolding, and the docs remain the source of conventions.
 
 A non-interactive shell never prompts, so every answer goes in a JSON file passed with
 `--config-file <file>`. The prompt names and allowed values are in the template schema:
@@ -71,6 +82,6 @@ Read the template from GitHub only for scaffolding; for everything else, read th
 
 ## Precedence
 
-The docs win. Where they are silent, follow the patterns in the bundle's own generated
-files (`tests/`, `pyproject.toml`, existing jobs and pipelines), then Databricks'
-documentation. Say which of these you used.
+The docs win, except where "Scaffolding" says otherwise. Where the docs are silent, follow
+the patterns in the bundle's own generated files (`tests/`, `pyproject.toml`, existing jobs
+and pipelines), then Databricks' documentation. Say which of these you used.

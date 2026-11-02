@@ -22,51 +22,16 @@ Official documentation: https://padda.data.oslo.systems/
 
 ## Agent skill
 
-`skills/padda-golden-path/` is an [Agent Skills](https://agentskills.io/) skill that helps a
-coding agent build on Padda the golden-path way. It caches no conventions: it tells the agent
-which documentation pages to read for a request and fetches them live, so it stays current
-with the docs. The agent uses it automatically when a request is about bundles, ingestion,
-transformations, data products, deploys or monitoring on Padda.
-
-It works with any agent that supports Agent Skills. Most of them (Codex, Cursor, GitHub
-Copilot, Gemini CLI, OpenCode and others) read skills from `.agents/skills/`; Claude Code
-reads `.claude/skills/`.
-
-Install it in your bundle repo and commit it, so the whole team shares one version.
-
-### With the `skills` CLI
-
-Requires Node.js 22.20 or later. From the root of your bundle repo:
+`skills/padda-golden-path/` is an [Agent Skills](https://agentskills.io/) skill for building
+on Padda the golden-path way; it reads the docs live rather than caching them. Install it in
+your bundle repo with the `skills` CLI (Node.js 22.20+):
 
 ```bash
 npx skills add oslokommune/padda-golden-path --skill padda-golden-path -a universal claude-code
-git add .agents/skills/padda-golden-path .claude/skills/padda-golden-path skills-lock.json
 ```
 
-This writes the skill to `.agents/skills/padda-golden-path/` and links it into
-`.claude/skills/` for Claude Code. If you don't use Claude Code, drop `claude-code`. To
-update later, run `npx skills update` and commit the diff.
-
-### Manually
-
-The skill is a single file. From the root of your bundle repo:
-
-```bash
-mkdir -p .agents/skills/padda-golden-path
-curl -sL https://raw.githubusercontent.com/oslokommune/padda-golden-path/main/skills/padda-golden-path/SKILL.md \
-  -o .agents/skills/padda-golden-path/SKILL.md
-git add .agents/skills/padda-golden-path
-```
-
-For Claude Code, also link it into `.claude/skills/`:
-
-```bash
-mkdir -p .claude/skills
-ln -s ../../.agents/skills/padda-golden-path .claude/skills/padda-golden-path
-git add .claude/skills/padda-golden-path
-```
-
-To update later, run the `curl` command again and commit the diff.
+or copy [`SKILL.md`](skills/padda-golden-path/SKILL.md) into `.agents/skills/padda-golden-path/`
+(`.claude/skills/` for Claude Code).
 
 ## Getting started
 

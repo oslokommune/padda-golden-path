@@ -16,8 +16,44 @@ Golden paths for **Padda** — the data platform for data engineers at Oslo komm
 
 - Zensical documentation (`docs/`) published to GitHub Pages
 - Padda Asset Bundle Templates (`bundle-templates/`)
+- A Claude Code skill for the golden path (`skills/padda-golden-path/`)
 
 Official documentation: https://padda.data.oslo.systems/
+
+## Claude Code skill
+
+`skills/padda-golden-path/` is a Claude Code skill that helps an agent build on Padda the
+golden-path way. It caches no conventions: it tells the agent which documentation pages to
+read for a request and fetches them live, so it stays current with the docs. Claude uses it
+automatically when a request is about bundles, ingestion, transformations, data products,
+deploys or monitoring on Padda.
+
+Install it in your bundle repo and commit it, so the whole team shares one version.
+
+### With the `skills` CLI
+
+Requires Node.js 22.20 or later. From the root of your bundle repo:
+
+```bash
+npx skills add oslokommune/padda-golden-path --skill padda-golden-path -a claude-code --copy
+git add .claude/skills/padda-golden-path skills-lock.json
+```
+
+To update later, run `npx skills update` and commit the diff.
+
+### Manually
+
+The skill is a single file. From the root of your bundle repo:
+
+```bash
+mkdir -p .claude/skills/padda-golden-path
+curl -sL https://raw.githubusercontent.com/oslokommune/padda-golden-path/main/skills/padda-golden-path/SKILL.md \
+  -o .claude/skills/padda-golden-path/SKILL.md
+git add .claude/skills/padda-golden-path
+```
+
+To update later, run the `curl` command again and commit the diff. To use the skill in every
+project instead, put it in `~/.claude/skills/padda-golden-path/SKILL.md`.
 
 ## Getting started
 

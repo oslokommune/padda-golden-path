@@ -11,3 +11,4 @@ Refer to [README.md](README.md) for project overview, architecture, commands, an
 - **When working with Zensical, always check the actual documentation first.** Do NOT assume Zensical works like Material for MkDocs or any other MkDocs theme. Never fabricate configuration options.
 - **Never replace Punkt components with custom implementations.** When using Punkt design system components, follow the project's component usage rules strictly.
 - **Describe UI/styling changes before implementing.** For visual changes (colors, layouts, animations), prefer small incremental changes over large rewrites. Get approval before proceeding.
+- **Keep the agent skill in step with the docs.** When adding a docs page or a `nav` section, update the page map in `skills/padda-golden-path/SKILL.md` (a required or conditional page of its phase, or a new phase, which also needs a trigger in the skill's `description`), or state in the PR why the page stays out of the map.

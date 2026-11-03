@@ -16,8 +16,22 @@ Golden paths for **Padda** — the data platform for data engineers at Oslo komm
 
 - Zensical documentation (`docs/`) published to GitHub Pages
 - Padda Asset Bundle Templates (`bundle-templates/`)
+- An agent skill for the golden path (`skills/padda-golden-path/`)
 
 Official documentation: https://padda.data.oslo.systems/
+
+## Agent skill
+
+`skills/padda-golden-path/` is an [Agent Skills](https://agentskills.io/) skill for building
+on Padda the golden-path way; it reads the docs live rather than caching them. Install it in
+your bundle repo with the `skills` CLI (Node.js 22.20+):
+
+```bash
+npx skills add oslokommune/padda-golden-path --skill padda-golden-path -a universal claude-code
+```
+
+or copy [`SKILL.md`](skills/padda-golden-path/SKILL.md) into `.agents/skills/padda-golden-path/`
+(`.claude/skills/` for Claude Code).
 
 ## Getting started
 

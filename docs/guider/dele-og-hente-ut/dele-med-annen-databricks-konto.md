@@ -150,6 +150,13 @@ siden andre team kan dele med samme konto.
     Be en metastore- eller kontoadmin hos mottakeren gi `CREATE CATALOG` og
     `USE PROVIDER`, se [Hos mottakeren](#hos-mottakeren).
 
+??? failure "Mottakeren ser ikke tabellene i sharen"
+
+    Nye shares og endringer i dem, også tabeller som legges til, mellomlagres i ett minutt
+    hos mottakeren før de blir synlige. Viser `SHOW ALL IN SHARE` tabellene hos deg, er det
+    bare å vente litt og laste siden på nytt. At katalogen hos mottakeren viser
+    `information_schema` i mellomtiden, er normalt, det skjemaet finnes i alle kataloger.
+
 ??? failure "Tabellen kan ikke legges til i sharen"
 
     Tabeller med radfiltre eller kolonnemasker kan ikke deles. Lag et view med bare de

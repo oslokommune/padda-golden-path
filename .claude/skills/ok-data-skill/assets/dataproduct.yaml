@@ -1,0 +1,30 @@
+# Data product metadata (see docs/referanse/dataprodukt.md — RFC, subject to change)
+apiVersion: dig.oslo/v1alpha1
+kind: DataProduct
+metadata:
+  id: TODO-stable-id            # stable identity; never reuse
+  name: TODO-product-name
+  title: TODO Human-readable title
+  description: >
+    TODO: what this data product contains.
+  purpose: >
+    TODO: why it exists / what decisions it supports.
+  domain: TODO-domain
+  owner: TODO                   # dataprodukteier (accountable person)
+  dataSteward: TODO             # dataforvalter (quality, documentation)
+  technicalOwner: TODO          # teknisk eier (pipelines, incidents)
+  lifecycleStatus: draft        # draft | development | published | deprecated | retired
+  classification: yellow        # green | yellow | red
+  version: 0.1.0
+spec:
+  assets:
+    - type: table
+      reference: TODO_catalog.gold_default.TODO_table
+  outputPorts:
+    - name: TODO-port-name
+      type: unity-catalog-table
+      reference: TODO_catalog.gold_default.TODO_table
+  accessPolicy: >
+    TODO: how access is requested and granted.
+  usageRights: >
+    TODO: what consumers may do with the data after access is granted.

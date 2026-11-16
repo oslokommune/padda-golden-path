@@ -1,5 +1,5 @@
-# Weekly Platform Report — Monday morning summary of merged PRs across the
-# three platform repos (padda-golden-path, padda-iac, padda-databrikker).
+# Weekly Platform Report — Monday morning summary of merged PRs across this
+# repo and every oslokommune/padda-* repo the GitHub App is installed on.
 # Posts a single Slack message to the PR-bot channel.
 
 name: Weekly Platform Report
@@ -43,8 +43,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # App token is only needed for cross-repo reads (padda-iac,
-      # padda-databrikker).
+      # App token is only needed for cross-repo reads. No `repositories`
+      # input: the token covers every repo the App is installed on, and
+      # build-weekly-report.py picks the padda-* ones. The App needs
+      # "Pull requests: Read" and must be installed on each repo to include.
       - name: Generate GitHub App token for cross-repo reads
         id: app-token
         uses: actions/create-github-app-token@v2
@@ -52,7 +54,6 @@ jobs:
           app-id: ${{ secrets.DATABRICKS_FEED_APP_ID }}
           private-key: ${{ secrets.DATABRICKS_FEED_APP_PRIVATE_KEY }}
           owner: oslokommune
-          repositories: padda-iac,padda-databrikker
 
       - name: Build weekly report
         env:
